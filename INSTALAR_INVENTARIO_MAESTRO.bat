@@ -146,7 +146,7 @@ finally:
         conn.close() 
 PY
 pause
-goto FIN
+goto SUBMENU_DB
 
 :IMPORTAR
 echo.

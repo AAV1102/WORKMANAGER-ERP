@@ -70,6 +70,15 @@ HEADER_SYNONYMS = {
         "cantidad ram", "ram", "memoria ram",
         "capacidad ram", "tamano ram"
     ],
+    "so": [
+        "so", "sistema operativo", "os", "windows", "linux"
+    ],
+    "fecha": [
+        "fecha", "fecha asignacion", "fecha de asignacion"
+    ],
+    "fecha_llegada": [
+        "fecha llegada", "fecha de llegada", "fecha recepcion"
+    ],
     "tipo_disco": ["tipo disco", "tipo de disco"],
     "espacio_disco": [
         "espacio disco", "tamano disco", "capacidad disco",
@@ -81,7 +90,7 @@ HEADER_SYNONYMS = {
     "observaciones": ["observaciones", "comentarios", "nota", "novedad"],
     "asignado_nuevo": [
         "asignado", "asignado a", "usuario asignado",
-        "usuario", "nombre usuario"
+        "usuario", "nombre usuario", "asignado nuevo"
     ],
     "ciudad": ["ciudad", "sede ciudad", "ubicacion"],
     "ip": ["ip", "direccion ip", "ip equipo"],
@@ -92,6 +101,12 @@ HEADER_SYNONYMS = {
     "modelo_monitor": ["modelo monitor", "modelo pantalla"],
     "serial_monitor": ["serial monitor", "serie monitor"],
     "placa_monitor": ["placa monitor", "activo monitor"],
+    "proveedor": [
+        "proveedor", "fabricante", "distribuidor"
+    ],
+    "oc": [
+        "oc", "orden de compra", "orden compra"
+    ],
     "mouse": ["mouse", "raton"],
     "teclado": ["teclado", "keyboard"],
     "marca_modelo_telemedicina": ["marca telemedicina", "modelo telemedicina"],
@@ -118,6 +133,12 @@ HEADER_SYNONYMS = {
     "marca_modelo_cctv": ["marca cctv", "modelo cctv"],
     "serial_cctv": ["serial cctv", "serie cctv"],
     "mueble_asignado": ["mueble asignado", "ubicacion mueble", "puesto asignado"],
+    "creador_registro": [
+        "creador registro", "creado por", "registrado por"
+    ],
+    "disponible": [
+        "disponible", "disponibilidad"
+    ],
 
     # AGRUPADO
     "codigo_unificado": [
