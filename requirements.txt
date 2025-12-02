@@ -9,3 +9,4 @@ Pillow
 python-barcode
 Flask-Babel
 gunicorn
+requests

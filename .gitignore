@@ -28,6 +28,7 @@ logs/
 # Carpetas de subidas y copias de seguridad
 uploads/
 tmp_imports/
+INVENTARIOS/
 backups/
 
 # Archivos generados por el sistema operativo
