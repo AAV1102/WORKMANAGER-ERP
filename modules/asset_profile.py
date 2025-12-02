@@ -60,7 +60,10 @@ def edit_individual(item_id):
                 titulo=f"Editando Activo (ID: {item_id})",
             )
 
-        updated_fields = {key: request.form.get(key) for key in equipo.keys()}
+        # Obtenemos los campos del formulario, asegurando que 'origen_dato' no se sobrescriba si no viene del form
+        updated_fields = {key: request.form.get(key, equipo[key]) for key in equipo.keys()}
+        # Si el origen es manual, lo dejamos como manual. Si no, lo dejamos como estaba (ej: 'importacion_masiva')
+        updated_fields['origen_dato'] = equipo['origen_dato'] if equipo['origen_dato'] != 'manual' else 'edicion_manual'
 
         # Construir la consulta de actualización dinámicamente
         set_clause = ", ".join([f"{key} = ?" for key in updated_fields.keys() if key != 'id'])

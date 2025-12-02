@@ -22,7 +22,7 @@
                                        id="{{ key }}"
                                        name="{{ key }}"
                                        value="{{ value or '' }}"
-                                       {% if key == 'id' %}readonly{% endif %}
+                                       {% if key in ['id', 'origen_dato'] %}readonly{% endif %}
                                        {% if key in ['serial', 'marca'] %}required{% endif %}
                                        >
                             </div>
