@@ -1,15 +1,37 @@
-# Entorno virtual de Python
+# Entornos virtuales de Python
 .venv/
 venv/
+ENV/
+env/
 
-# Bases de datos
+# Archivos de base de datos
 *.db
 *.sqlite3
 
-# Carpetas generadas por el script
-logs/
-uploads/
-
-# Archivos de Python compilados y cachés
+# Archivos temporales de Python
 __pycache__/
 *.pyc
+*.pyo
+*.pyd
+
+# Carpeta de instancia de Flask
+instance/
+
+# Archivos de registro
+*.log
+logs/
+
+# Archivos de configuración local que no deben ser compartidos
+.env
+
+# Carpetas de subidas y copias de seguridad
+uploads/
+backups/
+
+# Archivos generados por el sistema operativo
+.DS_Store
+Thumbs.db
+
+# Carpetas de configuración de IDEs
+.idea/
+.vscode/
