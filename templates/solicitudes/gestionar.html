@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+
+{% block title %}{{ _('Gestionar Solicitud') }}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-9">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h4 class="mb-0">{{ _('Detalle de la Solicitud') }} #{{ solicitud.id }}</h4>
+                <span class="badge fs-6 bg-{% if solicitud.estado == 'aprobada' %}success{% elif solicitud.estado == 'rechazada' %}danger{% else %}warning{% endif %}">
+                    {{ solicitud.estado|title }}
+                </span>
+            </div>
+            <div class="card-body">
+                <h5>{{ _('Información del Empleado') }}</h5>
+                <p><strong>{{ _('Nombre') }}:</strong> {{ solicitud.nombre }} {{ solicitud.apellido }}</p>
+                <p><strong>{{ _('Cargo') }}:</strong> {{ solicitud.cargo }}</p>
+                <p><strong>{{ _('Departamento') }}:</strong> {{ solicitud.departamento }}</p>
+                
+                <hr>
+
+                <h5>{{ _('Detalles de la Solicitud') }}</h5>
+                <p><strong>{{ _('Tipo') }}:</strong> {{ solicitud.tipo_solicitud.replace('_', ' ')|title }}</p>
+                <p><strong>{{ _('Fecha de Creación') }}:</strong> {{ solicitud.fecha_creacion[:16] }}</p>
+                {% if solicitud.fecha_inicio %}
+                <p><strong>{{ _('Periodo Solicitado') }}:</strong> {{ solicitud.fecha_inicio }} al {{ solicitud.fecha_fin }}</p>
+                {% endif %}
+                <p><strong>{{ _('Descripción') }}:</strong></p>
+                <p class="ms-3"><em>{{ solicitud.descripcion }}</em></p>
+
+                {% if solicitud.respuesta_admin %}
+                <hr>
+                <h5>{{ _('Respuesta del Administrador') }}</h5>
+                <p class="ms-3"><em>{{ solicitud.respuesta_admin }}</em></p>
+                {% endif %}
+            </div>
+
+            {% if solicitud.estado == 'pendiente' %}
+            <div class="card-footer">
+                <h5>{{ _('Gestionar Solicitud') }}</h5>
+                <form method="POST" action="{{ url_for('solicitudes.gestionar_solicitud', solicitud_id=solicitud.id) }}">
+                    <div class="mb-3">
+                        <label for="respuesta_admin" class="form-label">{{ _('Añadir una nota o respuesta (opcional)') }}</label>
+                        <textarea class="form-control" id="respuesta_admin" name="respuesta_admin" rows="3"></textarea>
+                    </div>
+                    <div class="d-flex justify-content-end gap-2">
+                        <button type="submit" name="estado" value="rechazada" class="btn btn-danger">
+                            <i class="fas fa-times"></i> {{ _('Rechazar') }}
+                        </button>
+                        <button type="submit" name="estado" value="aprobada" class="btn btn-success">
+                            <i class="fas fa-check"></i> {{ _('Aprobar') }}
+                        </button>
+                    </div>
+                </form>
+            </div>
+            {% endif %}
+        </div>
+        <div class="text-center mt-3">
+            <a href="{{ url_for('solicitudes.list_solicitudes') }}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> {{ _('Volver al listado') }}
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

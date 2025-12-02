@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+
+{% block title %}{{ _('Configuracion del Sistema') }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <h2 class="mb-4"><i class="fas fa-cogs"></i> {{ _('Configuracion del Sistema') }}</h2>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-user-shield"></i> {{ _('Gestion de Roles y Permisos') }}</h5>
+                </div>
+                <div class="card-body">
+                    <!-- Contenido de gestion de roles -->
+                </div>
+            </div>
+
+            <div class="card shadow-sm mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-database"></i> {{ _('Respaldos y Restauracion') }}</h5>
+                </div>
+                <div class="card-body">
+                    <p>{{ _('Crea una copia de seguridad de la base de datos actual.') }}</p>
+                    <a href="{{ url_for('configuracion.create_backup') }}" class="btn btn-info"><i class="fas fa-download"></i> {{ _('Crear Respaldo Ahora') }}</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card shadow-sm border-danger mb-4">
+                <div class="card-header bg-danger text-white">
+                    <h5 class="mb-0"><i class="fas fa-exclamation-triangle"></i> {{ _('Zona de Peligro') }}</h5>
+                </div>
+                <div class="card-body">
+                    <p>{{ _('Las acciones en esta seccion son irreversibles y pueden causar perdida de datos.') }}</p>
+                    <form id="truncateForm">
+                        <div class="mb-3">
+                            <label class="form-label">{{ _('Limpiar todos los datos de una tabla') }}</label>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="tbl_ind" name="tables" value="equipos_individuales" checked>
+                                <label class="form-check-label" for="tbl_ind">{{ _('Inventario Individual') }}</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="tbl_emp" name="tables" value="empleados">
+                                <label class="form-check-label" for="tbl_emp">{{ _('Empleados') }}</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="tbl_lic" name="tables" value="licencias_office365">
+                                <label class="form-check-label" for="tbl_lic">{{ _('Licencias') }}</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="tbl_bajas" name="tables" value="inventario_bajas">
+                                <label class="form-check-label" for="tbl_bajas">{{ _('Historial de Bajas') }}</label>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-danger w-100">{{ _('Limpiar seleccionados') }}</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+document.getElementById('truncateForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const selected = Array.from(document.querySelectorAll('input[name="tables"]:checked')).map(i => i.value);
+    if (!selected.length) {
+        alert('Selecciona al menos una tabla.');
+        return;
+    }
+    if (!confirm(`¿ESTAS SEGURO?\n\nSe eliminaran TODOS los registros de: ${selected.join(', ')}. Esta accion no se puede deshacer.`)) {
+        return;
+    }
+    const response = await fetch('/configuracion/truncate_table', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ tables: selected })
+    });
+    const result = await response.json();
+    alert(result.message || result.error);
+});
+</script>
+{% endblock %}

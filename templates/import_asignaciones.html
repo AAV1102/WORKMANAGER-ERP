@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h3><i class="fas fa-file-import"></i> Importar Equipos Entregados</h3>
+<p class="text-muted">
+    Carga aquí el archivo <strong>Equipos Entregados.csv</strong>. El sistema buscará
+    cada equipo por <strong>PLACA</strong> y/o <strong>SERIAL</strong>, actualizará su estado
+    a <strong>asignado</strong> y registrará el historial.
+</p>
+
+<div class="card fade-in">
+    <div class="card-body">
+        <form method="POST"
+              action="{{ url_for('asignaciones_import.procesar_import_asignaciones') }}"
+              enctype="multipart/form-data">
+
+            <div class="mb-3">
+                <label class="form-label">Archivo CSV de equipos entregados</label>
+                <input type="file" name="file" class="form-control" required>
+                <div class="form-text">
+                    Encabezados actuales:
+                    <code>NOMBRE;CIUDAD;PLACA;SERIAL;PESTAÑA;FECHA DE ENVIO;GUIA</code>
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-custom">
+                <i class="fas fa-upload"></i> Importar
+            </button>
+            <a href="{{ url_for('asignaciones.lista_asignaciones') }}" class="btn btn-secondary">
+                Ver asignaciones
+            </a>
+        </form>
+    </div>
+</div>
+{% endblock %}

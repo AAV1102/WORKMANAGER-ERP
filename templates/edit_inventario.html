@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8">
+        <h2>Editar Equipo</h2>
+        <form action="{{ url_for('inventarios.edit_inventario', tipo='individual', inventario_id=inventario[0]) }}" method="post">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="name" class="form-label">Nombre del Equipo</label>
+                        <input type="text" class="form-control" id="name" name="name" value="{{ inventario[5] }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="model" class="form-label">Marca</label>
+                        <input type="text" class="form-control" id="model" name="model" value="{{ inventario[4] }}">
+                    </div>
+                    <div class="mb-3">
+                        <label for="serial" class="form-label">Serial</label>
+                        <input type="text" class="form-control" id="serial" name="serial" value="{{ inventario[2] }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="tipo_equipo" class="form-label">Tipo de Equipo</label>
+                        <select class="form-control" id="tipo_equipo" name="tipo_equipo" required>
+                            <option value="Computador" {% if inventario[3] == 'Computador' %}selected{% endif %}>Computador</option>
+                            <option value="Laptop" {% if inventario[3] == 'Laptop' %}selected{% endif %}>Laptop</option>
+                            <option value="Impresora" {% if inventario[3] == 'Impresora' %}selected{% endif %}>Impresora</option>
+                            <option value="Monitor" {% if inventario[3] == 'Monitor' %}selected{% endif %}>Monitor</option>
+                            <option value="Teclado" {% if inventario[3] == 'Teclado' %}selected{% endif %}>Teclado</option>
+                            <option value="Mouse" {% if inventario[3] == 'Mouse' %}selected{% endif %}>Mouse</option>
+                            <option value="Servidor" {% if inventario[3] == 'Servidor' %}selected{% endif %}>Servidor</option>
+                            <option value="Switch" {% if inventario[3] == 'Switch' %}selected{% endif %}>Switch</option>
+                            <option value="Router" {% if inventario[3] == 'Router' %}selected{% endif %}>Router</option>
+                            <option value="Otro" {% if inventario[3] == 'Otro' %}selected{% endif %}>Otro</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="sede_id" class="form-label">Sede</label>
+                        <select class="form-control" id="sede_id" name="sede_id" required>
+                            <option value="">Seleccione una sede...</option>
+                            <option value="1" {% if inventario[12] == 1 %}selected{% endif %}>Sede Principal Bogotá</option>
+                            <option value="2" {% if inventario[12] == 2 %}selected{% endif %}>Sede Norte Bogotá</option>
+                            <option value="3" {% if inventario[12] == 3 %}selected{% endif %}>Sede Sur Bogotá</option>
+                            <option value="4" {% if inventario[12] == 4 %}selected{% endif %}>Sede Medellín</option>
+                            <option value="5" {% if inventario[12] == 5 %}selected{% endif %}>Sede Cali</option>
+                            <option value="6" {% if inventario[12] == 6 %}selected{% endif %}>Sede Barranquilla</option>
+                            <option value="7" {% if inventario[12] == 7 %}selected{% endif %}>Sede Cartagena</option>
+                            <option value="8" {% if inventario[12] == 8 %}selected{% endif %}>Sede Bucaramanga</option>
+                            <option value="9" {% if inventario[12] == 9 %}selected{% endif %}>Sede Pereira</option>
+                            <option value="10" {% if inventario[12] == 10 %}selected{% endif %}>Sede Manizales</option>
+                            <option value="11" {% if inventario[12] == 11 %}selected{% endif %}>Sede Ibagué</option>
+                            <option value="12" {% if inventario[12] == 12 %}selected{% endif %}>Sede Villavicencio</option>
+                            <option value="13" {% if inventario[12] == 13 %}selected{% endif %}>Sede Neiva</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="procesador" class="form-label">Procesador</label>
+                        <input type="text" class="form-control" id="procesador" name="procesador" value="{{ inventario[6] }}">
+                    </div>
+                    <div class="mb-3">
+                        <label for="ram" class="form-label">RAM</label>
+                        <input type="text" class="form-control" id="ram" name="ram" value="{{ inventario[7] }}">
+                    </div>
+                    <div class="mb-3">
+                        <label for="disco_duro" class="form-label">Disco Duro</label>
+                        <input type="text" class="form-control" id="disco_duro" name="disco_duro" value="{{ inventario[8] }}">
+                    </div>
+                    <div class="mb-3">
+                        <label for="sistema_operativo" class="form-label">Sistema Operativo</label>
+                        <input type="text" class="form-control" id="sistema_operativo" name="sistema_operativo" value="{{ inventario[9] }}">
+                    </div>
+                    <div class="mb-3">
+                        <label for="estado" class="form-label">Estado</label>
+                        <select class="form-control" id="estado" name="estado" required>
+                            <option value="disponible" {% if inventario[10] == 'disponible' %}selected{% endif %}>Disponible</option>
+                            <option value="asignado" {% if inventario[10] == 'asignado' %}selected{% endif %}>Asignado</option>
+                            <option value="en reparacion" {% if inventario[10] == 'en reparacion' %}selected{% endif %}>En Reparación</option>
+                            <option value="dado de baja" {% if inventario[10] == 'dado de baja' %}selected{% endif %}>Dado de Baja</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="fecha_compra" class="form-label">Fecha de Compra</label>
+                        <input type="date" class="form-control" id="fecha_compra" name="fecha_compra" value="{{ inventario[14] }}">
+                    </div>
+                    <div class="mb-3">
+                        <label for="valor_compra" class="form-label">Valor de Compra</label>
+                        <input type="number" class="form-control" id="valor_compra" name="valor_compra" value="{{ inventario[15] }}" step="0.01">
+                    </div>
+                </div>
+            </div>
+            <div class="mb-3">
+                <label for="description" class="form-label">Observaciones</label>
+                <textarea class="form-control" id="description" name="description" rows="3">{{ inventario[16] }}</textarea>
+            </div>
+            <button type="submit" class="btn btn-primary btn-custom"><i class="fas fa-save"></i> Actualizar Equipo</button>
+            <a href="{{ url_for('inventarios.inventarios') }}" class="btn btn-secondary"><i class="fas fa-arrow-left"></i> Cancelar</a>
+        </form>
+    </div>
+</div>
+{% endblock %}

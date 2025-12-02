@@ -1,0 +1,104 @@
+<script>
+    // Global variables declared at the top
+    let individualesData = [];
+    let asignadosData = [];
+
+    const individualColumns = [
+        { key: 'id', label: 'ID' },
+        { key: 'codigo_individual', label: 'Código Individual' },
+        { key: 'codigo_unificado', label: 'Código Unificado' },
+        { key: 'serial', label: 'Serial' },
+        { key: 'placa', label: 'Placa' },
+        { key: 'anterior_placa', label: 'Anterior Placa' },
+        { key: 'sede', label: 'Sede' },
+        { key: 'ip_sede', label: 'IP Sede' },
+        { key: 'tecnologia', label: 'Tecnología' },
+        { key: 'marca', label: 'Marca' },
+        { key: 'modelo', label: 'Modelo' },
+        { key: 'mac', label: 'MAC' },
+        { key: 'so', label: 'SO' },
+        { key: 'hostname', label: 'Hostname' },
+        { key: 'ip', label: 'IP' },
+        { key: 'marca_modelo_telemedicina', label: 'Marca/Modelo Telemedicina' },
+        { key: 'serial_telemedicina', label: 'Serial Telemedicina' },
+        { key: 'mouse', label: 'Mouse' },
+        { key: 'teclado', label: 'Teclado' },
+        { key: 'anterior_asignado', label: 'Anterior Asignado' },
+        { key: 'asignado_a', label: 'Asignado A' },
+        { key: 'cargo', label: 'Cargo' },
+        { key: 'area', label: 'Área' },
+        { key: 'contacto', label: 'Contacto' },
+        { key: 'fecha_asignacion', label: 'Fecha Asignación' },
+        { key: 'cargado_nit', label: 'Cargado NIT' },
+        { key: 'enviado_nit', label: 'Enviado NIT' },
+        { key: 'fecha_enviado', label: 'Fecha Enviado' },
+        { key: 'guia', label: 'Guía' },
+        { key: 'procesador', label: 'Procesador' },
+        { key: 'arquitectura_ram', label: 'Arquitectura RAM' },
+        { key: 'cantidad_ram', label: 'Cantidad RAM' },
+        { key: 'tipo_disco', label: 'Tipo de Disco' },
+        { key: 'almacenamiento', label: 'Almacenamiento' },
+        { key: 'placa_monitor', label: 'Placa Monitor' },
+        { key: 'serial_monitor', label: 'Serial Monitor' },
+        { key: 'marca_monitor', label: 'Marca Monitor' },
+        { key: 'modelo_monitor', label: 'Modelo Monitor' },
+        { key: 'estado', label: 'Estado' },
+        { key: 'disponible', label: 'Disponible' },
+        { key: 'observaciones', label: 'Observaciones' },
+        { key: 'tipo_componente_adicional', label: 'Tipo Componente Adicional' },
+        { key: 'marca_modelo_componente_adicional', label: 'Marca/Modelo Componente' },
+        { key: 'serial_componente_adicional', label: 'Serial Componente' },
+        { key: 'marca_modelo_telefono', label: 'Marca/Modelo Teléfono' },
+        { key: 'serial_telefono', label: 'Serial Teléfono' },
+        { key: 'imei_telefono', label: 'IMEI Teléfono' },
+        { key: 'marca_modelo_impresora', label: 'Marca/Modelo Impresora' },
+        { key: 'ip_impresora', label: 'IP Impresora' },
+        { key: 'serial_impresora', label: 'Serial Impresora' },
+        { key: 'pin_impresora', label: 'PIN Impresora' },
+        { key: 'marca_modelo_cctv', label: 'Marca/Modelo CCTV' },
+        { key: 'serial_cctv', label: 'Serial CCTV' },
+        { key: 'entrada_oc_compra', label: 'Entrada OC Compra' },
+        { key: 'fecha_llegada', label: 'Fecha de Llegada' },
+        { key: 'oc', label: 'OC' },
+        { key: 'proveedor', label: 'Proveedor' },
+        { key: 'mueble_asignado', label: 'Mueble Asignado' }
+    ];
+
+    function filterTable() {
+        const input = document.getElementById('search');
+        const filter = input.value.toUpperCase();
+        const table = document.getElementById('inventoryTable');
+        const tr = table.getElementsByTagName('tr');
+        for (let i = 1; i < tr.length; i++) {
+            const td = tr[i].getElementsByTagName('td');
+            let found = false;
+            for (let j = 0; j < td.length - 1; j++) {
+                if (td[j].innerHTML.toUpperCase().indexOf(filter) > -1) {
+                    found = true;
+                    break;
+                }
+            }
+            tr[i].style.display = found ? '' : 'none';
+        }
+    }
+
+    function filterByStatus() {
+        const status = document.getElementById('filterStatus').value;
+        const table = document.getElementById('inventoryTable');
+        const tr = table.getElementsByTagName('tr');
+        for (let i = 1; i < tr.length; i++) {
+            const td = tr[i].getElementsByTagName('td')[5]; // Estado column
+            if (td) {
+                const textValue = td.textContent || td.innerText;
+                tr[i].style.display = status === '' || textValue === status ? '' : 'none';
+            }
+        }
+    }
+
+    const EXPORT_TABLES = {
+        agrupados: 'equipos_agrupados',
+        individuales: 'equipos_individuales',
+        asignados: 'equipos_individuales',
+        bajas: 'inventario_bajas',
+        general: 'equipos_individuales'
+    };

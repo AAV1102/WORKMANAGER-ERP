@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+
+{% block title %}{{ _('Mis Solicitudes') }}{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="fas fa-clipboard-list"></i> {{ _('Gestión de Solicitudes') }}</h2>
+    <a href="{{ url_for('solicitudes.nueva_solicitud') }}" class="btn btn-primary btn-custom">
+        <i class="fas fa-plus"></i> {{ _('Crear Nueva Solicitud') }}
+    </a>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        {% if is_admin %}
+                        <th>{{ _('Empleado') }}</th>
+                        {% endif %}
+                        <th>{{ _('Tipo de Solicitud') }}</th>
+                        <th>{{ _('Fecha de Creación') }}</th>
+                        <th>{{ _('Estado') }}</th>
+                        <th>{{ _('Acciones') }}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for s in solicitudes %}
+                    <tr>
+                        {% if is_admin %}
+                        <td>{{ s.nombre }} {{ s.apellido }}</td>
+                        {% endif %}
+                        <td>{{ s.tipo_solicitud.replace('_', ' ')|title }}</td>
+                        <td>{{ s.fecha_creacion[:10] }}</td>
+                        <td>
+                            <span class="badge bg-{% if s.estado == 'aprobada' %}success{% elif s.estado == 'rechazada' %}danger{% else %}warning{% endif %}">
+                                {{ s.estado|title }}
+                            </span>
+                        </td>
+                        <td>
+                            <a href="{{ url_for('solicitudes.gestionar_solicitud', solicitud_id=s.id) }}" class="btn btn-sm btn-outline-primary">{{ _('Ver / Gestionar') }}</a>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="5" class="text-center text-muted">{{ _('No tienes solicitudes creadas todavía.') }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+{% block main %}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+        <h3>
+            <i class="fas fa-layer-group text-primary"></i>
+            {{ paquete.codigo_barras_unificado }}
+        </h3>
+        <p class="text-muted mb-0">
+            {{ paquete.descripcion_general or 'Paquete agrupado' }}
+        </p>
+    </div>
+    <div>
+        <a href="{{ url_for('inventario_agrupado.dashboard') }}" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left"></i> Volver
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-5">
+        <div class="card mb-3">
+            <div class="card-header fw-bold">Datos generales</div>
+            <div class="card-body">
+                <p><strong>Código unificado:</strong> {{ paquete.codigo_barras_unificado }}</p>
+                <p><strong>Sede:</strong> {{ paquete.sede_nombre or '-' }} ({{ paquete.sede_ciudad or '-' }})</p>
+                <p><strong>Asignado a:</strong> {{ paquete.asignado_actual or '-' }}</p>
+                <p><strong>Estado:</strong>
+                    {% if paquete.estado_general == 'disponible' %}
+                        <span class="badge bg-success">Disponible</span>
+                    {% elif paquete.estado_general == 'asignado' %}
+                        <span class="badge bg-primary">Asignado</span>
+                    {% elif paquete.estado_general == 'pendiente recogida' %}
+                        <span class="badge bg-warning text-dark">Pendiente recogida</span>
+                    {% elif paquete.estado_general == 'pendiente aprobación' %}
+                        <span class="badge bg-info text-dark">Pendiente aprobación</span>
+                    {% elif paquete.estado_general == 'baja' %}
+                        <span class="badge bg-danger">Baja</span>
+                    {% else %}
+                        <span class="badge bg-light text-dark">{{ paquete.estado_general }}</span>
+                    {% endif %}
+                </p>
+                <p><strong>Creador registro:</strong> {{ paquete.creador_registro or '-' }}</p>
+                <p><strong>Fecha creación:</strong> {{ paquete.fecha_creacion or paquete.created_at }}</p>
+            </div>
+        </div>
+
+        <div class="card mb-3">
+            <div class="card-header fw-bold">Observaciones</div>
+            <div class="card-body">
+                <p>{{ paquete.observaciones or 'Sin observaciones.' }}</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-7">
+        <div class="card fade-in">
+            <div class="card-header fw-bold">Componentes asociados</div>
+            <div class="card-body table-responsive">
+                {% if componentes|length == 0 %}
+                    <p class="text-muted mb-0">No hay componentes asociados a este paquete.</p>
+                {% else %}
+                <table class="table table-sm table-hover align-middle">
+                    <thead>
+                    <tr>
+                        <th>Código Individual</th>
+                        <th>Tipo</th>
+                        <th>Marca / Modelo</th>
+                        <th>Serial</th>
+                        <th>Estado individual</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for c in componentes %}
+                        <tr>
+                            <td>{{ c.codigo_barras_individual }}</td>
+                            <td>{{ c.tipo_componente or c.tecnologia or '-' }}</td>
+                            <td>{{ c.marca or '-' }} / {{ c.modelo or '-' }}</td>
+                            <td>{{ c.serial or '-' }}</td>
+                            <td>{{ c.estado_individual or c.estado or '-' }}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-6">
+        <h2>Nuevo Paciente</h2>
+        <form action="{{ url_for('medico.new_paciente') }}" method="post">
+            <div class="mb-3">
+                <label for="name" class="form-label">Nombre</label>
+                <input type="text" class="form-control" id="name" name="name" required>
+            </div>
+            <div class="mb-3">
+                <label for="age" class="form-label">Edad</label>
+                <input type="number" class="form-control" id="age" name="age" required>
+            </div>
+            <div class="mb-3">
+                <label for="diagnosis" class="form-label">Diagnóstico</label>
+                <textarea class="form-control" id="diagnosis" name="diagnosis"></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary btn-custom"><i class="fas fa-save"></i> Guardar</button>
+            <a href="{{ url_for('medico.medico') }}" class="btn btn-secondary"><i class="fas fa-arrow-left"></i> Cancelar</a>
+        </form>
+    </div>
+</div>
+{% endblock %}

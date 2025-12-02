@@ -1,0 +1,216 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <h2 class="mb-4">
+                <i class="fas fa-eye text-primary"></i> Monitoreo de Sistemas
+            </h2>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-12">
+            <ul class="nav nav-tabs" id="monitoreoTabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="dashboard-tab" data-bs-toggle="tab" data-bs-target="#dashboard" type="button" role="tab">
+                        <i class="fas fa-tachometer-alt"></i> Dashboard
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="sistema-tab" data-bs-toggle="tab" data-bs-target="#sistema" type="button" role="tab">
+                        <i class="fas fa-server"></i> Sistema
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="red-tab" data-bs-toggle="tab" data-bs-target="#red" type="button" role="tab">
+                        <i class="fas fa-network-wired"></i> Red
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="aplicaciones-tab" data-bs-toggle="tab" data-bs-target="#aplicaciones" type="button" role="tab">
+                        <i class="fas fa-cogs"></i> Aplicaciones
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="seguridad-tab" data-bs-toggle="tab" data-bs-target="#seguridad" type="button" role="tab">
+                        <i class="fas fa-shield-alt"></i> Seguridad
+                    </button>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="tab-content" id="monitoreoTabContent">
+        <div class="tab-pane fade show active" id="dashboard" role="tabpanel">
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="card stats-card">
+                        <div class="card-body text-center">
+                            <h3 class="text-white">{{ stats.uptime }}%</h3>
+                            <p class="card-title">Uptime Sistema</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card stats-card">
+                        <div class="card-body text-center">
+                            <h3 class="text-white">{{ stats.activos }}</h3>
+                            <p class="card-title">Equipos Activos</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card stats-card">
+                        <div class="card-body text-center">
+                            <h3 class="text-white">{{ stats.disponibles }}</h3>
+                            <p class="card-title">Disponibles</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card stats-card">
+                        <div class="card-body text-center">
+                            <h3 class="text-white">{{ stats.bajas }}</h3>
+                            <p class="card-title">Bajas</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="tab-pane fade" id="sistema" role="tabpanel">
+            <div class="card">
+                <div class="card-header"><h5><i class="fas fa-server"></i> Estado de Servidores/Equipos</h5></div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead><tr><th>ID</th><th>C?digo</th><th>Marca</th><th>Modelo</th><th>SO</th><th>Estado</th><th>Acciones</th></tr></thead>
+                            <tbody>
+                                {% for d in data %}
+                                <tr>
+                                    <td>{{ d.id }}</td>
+                                    <td>{{ d.codigo_barras_individual }}</td>
+                                    <td>{{ d.marca }}</td>
+                                    <td>{{ d.modelo }}</td>
+                                    <td>{{ d.so }}</td>
+                                    <td>{{ d.estado }}</td>
+                                    <td>
+                                        <button type="button"
+                                                class="btn btn-sm btn-outline-primary modal-trigger"
+                                                data-modal-api="{{ url_for('realtime.detail', module='inventario_individual', item_id=d.id) }}"
+                                                data-modal-renderer="inventario_individual"
+                                                data-modal-title="Equipo {{ d.id }}">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="tab-pane fade" id="red" role="tabpanel">
+            <div class="card">
+                <div class="card-header"><h5><i class="fas fa-network-wired"></i> Dispositivos de Red</h5></div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead><tr><th>ID</th><th>Equipo</th><th>Marca</th><th>Modelo</th><th>Tecnolog?a</th><th>Estado</th><th>Acciones</th></tr></thead>
+                            <tbody>
+                                {% for d in data %}
+                                <tr>
+                                    <td>{{ d.id }}</td>
+                                    <td>{{ d.codigo_barras_individual }}</td>
+                                    <td>{{ d.marca }}</td>
+                                    <td>{{ d.modelo }}</td>
+                                    <td>{{ d.tecnologia }}</td>
+                                    <td>{{ d.estado }}</td>
+                                    <td>
+                                        <button type="button"
+                                                class="btn btn-sm btn-outline-primary modal-trigger"
+                                                data-modal-api="{{ url_for('realtime.detail', module='inventario_individual', item_id=d.id) }}"
+                                                data-modal-renderer="inventario_individual"
+                                                data-modal-title="Red {{ d.id }}">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="tab-pane fade" id="aplicaciones" role="tabpanel">
+            <div class="card">
+                <div class="card-header"><h5><i class="fas fa-cogs"></i> Licencias / Aplicaciones</h5></div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead><tr><th>Email</th><th>Licencia</th><th>Estado</th><th>Actualizado</th><th>Acciones</th></tr></thead>
+                            <tbody>
+                                {% for d in data %}
+                                <tr>
+                                    <td>{{ d['email'] }}</td>
+                                    <td>{{ d['tipo_licencia'] }}</td>
+                                    <td>{{ d['estado'] }}</td>
+                                    <td>{{ d['updated_at'] }}</td>
+                                    <td>
+                                        <button type="button"
+                                                class="btn btn-sm btn-outline-primary modal-trigger"
+                                                data-modal-api="{{ url_for('realtime.detail', module='licencia', item_id=d['id']) }}"
+                                                data-modal-renderer="licencia"
+                                                data-modal-title="Licencia {{ d['email'] }}">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="tab-pane fade" id="seguridad" role="tabpanel">
+            <div class="card">
+                <div class="card-header"><h5><i class="fas fa-shield-alt"></i> Alertas de Seguridad</h5></div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead><tr><th>ID</th><th>Evento</th><th>Detalle</th><th>Fecha</th><th>Acciones</th></tr></thead>
+                            <tbody>
+                                {% for a in data %}
+                                <tr>
+                                    <td>{{ a['id'] }}</td>
+                                    <td>{{ a['category'] or 'evento' }}</td>
+                                    <td>{{ a['query'] }}</td>
+                                    <td>{{ a['created_at'] }}</td>
+                                    <td>
+                                        <button type="button"
+                                                class="btn btn-sm btn-outline-primary modal-trigger"
+                                                data-modal-api="{{ url_for('realtime.detail', module='alerta', item_id=a['id']) }}"
+                                                data-modal-renderer="alerta"
+                                                data-modal-title="Alerta {{ a['id'] }}">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

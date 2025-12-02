@@ -1,0 +1,178 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <h2>Nuevo Empleado</h2>
+        <div class="mb-3">
+            <label class="form-label">Tipo de Usuario:</label>
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="user_role" id="hr_role" value="hr" checked>
+                <label class="form-check-label" for="hr_role">
+                    Recursos Humanos (Informacion basica)
+                </label>
+            </div>
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="user_role" id="tech_role" value="tech">
+                <label class="form-check-label" for="tech_role">
+                    Tecnico (Informacion de sistemas)
+                </label>
+            </div>
+        </div>
+        <form action="{{ url_for('gestion_humana.new_empleado') }}" method="post" id="empleadoForm">
+            <div class="row">
+                <div class="col-md-6 hr-fields">
+                    <h5>Informacion Basica (Recursos Humanos)</h5>
+                    <div class="mb-3">
+                        <label for="cedula" class="form-label">N CEDULA</label>
+                        <input type="text" class="form-control" id="cedula" name="cedula" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="nombre" class="form-label">NOMBRES</label>
+                        <input type="text" class="form-control" id="nombre" name="nombre" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="apellido" class="form-label">APELLIDOS</label>
+                        <input type="text" class="form-control" id="apellido" name="apellido" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="cargo" class="form-label">CARGO</label>
+                        <input type="text" class="form-control" id="cargo" name="cargo" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="departamento" class="form-label">DEPARTAMENTO</label>
+                        <select class="form-control" id="departamento" name="departamento" required>
+                            <option value="">Seleccione departamento</option>
+                            <option value="Comercial">Comercial</option>
+                            <option value="Contabilidad">Contabilidad</option>
+                            <option value="Financiero">Financiero</option>
+                            <option value="Logistica">Logistica</option>
+                            <option value="Recursos Humanos">Recursos Humanos</option>
+                            <option value="Sistemas">Sistemas</option>
+                            <option value="Operaciones">Operaciones</option>
+                            <option value="Administrativo">Administrativo</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="fecha_ingreso" class="form-label">FECHA DE INGRESO</label>
+                        <input type="date" class="form-control" id="fecha_ingreso" name="fecha_ingreso" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="razon_social" class="form-label">RAZON SOCIAL</label>
+                        <input type="text" class="form-control" id="razon_social" name="razon_social" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="ciudad" class="form-label">CIUDAD</label>
+                        <input type="text" class="form-control" id="ciudad" name="ciudad" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="telefono" class="form-label">TELEFONO</label>
+                        <input type="tel" class="form-control" id="telefono" name="telefono" placeholder="+1 234 567 8900">
+                    </div>
+                    <div class="mb-3">
+                        <label for="email" class="form-label">EMAIL</label>
+                        <input type="email" class="form-control" id="email" name="email" placeholder="usuario@company.com">
+                    </div>
+                    <div class="mb-3">
+                        <label for="salario" class="form-label">SALARIO</label>
+                        <input type="number" class="form-control" id="salario" name="salario" placeholder="75000">
+                    </div>
+                    <div class="mb-3">
+                        <label for="performance" class="form-label">PERFORMANCE (%)</label>
+                        <input type="number" class="form-control" id="performance" name="performance" min="0" max="100" placeholder="85">
+                    </div>
+                </div>
+                <div class="col-md-6 tech-fields" style="display: none;">
+                    <h5>Informacion Tecnica (Usuario Tecnico)</h5>
+                    <div class="mb-3">
+                        <label for="codigo_unico_hv_equipo" class="form-label">CODIGO UNICO HV EQUIPO</label>
+                        <input type="text" class="form-control" id="codigo_unico_hv_equipo" name="codigo_unico_hv_equipo">
+                    </div>
+                    <div class="mb-3">
+                        <label for="usuario_windows" class="form-label">USUARIO DE WINDOWS</label>
+                        <input type="text" class="form-control" id="usuario_windows" name="usuario_windows">
+                    </div>
+                    <div class="mb-3">
+                        <label for="contrasena_windows" class="form-label">CONTRASENA DE WINDOWS</label>
+                        <input type="password" class="form-control" id="contrasena_windows" name="contrasena_windows">
+                    </div>
+                    <div class="mb-3">
+                        <label for="correo_office" class="form-label">CORREO OFFICE</label>
+                        <input type="email" class="form-control" id="correo_office" name="correo_office">
+                    </div>
+                    <div class="mb-3">
+                        <label for="usuario_quiron" class="form-label">USUARIO DE QUIRON</label>
+                        <input type="text" class="form-control" id="usuario_quiron" name="usuario_quiron">
+                    </div>
+                    <div class="mb-3">
+                        <label for="contrasena_quiron" class="form-label">CONTRASENA DE QUIRON</label>
+                        <input type="password" class="form-control" id="contrasena_quiron" name="contrasena_quiron">
+                    </div>
+                    <div class="mb-3">
+                        <label for="observaciones" class="form-label">OBSERVACIONES</label>
+                        <textarea class="form-control" id="observaciones" name="observaciones" rows="2"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="codigo_biometrico" class="form-label">CODIGO BIOMETRICO</label>
+                        <input type="text" class="form-control" id="codigo_biometrico" name="codigo_biometrico">
+                    </div>
+                    <div class="mb-3">
+                        <label for="estado" class="form-label">ESTADO</label>
+                        <select class="form-control" id="estado" name="estado">
+                            <option value="activo">Activo</option>
+                            <option value="inactivo">Inactivo</option>
+                            <option value="suspendido">Suspendido</option>
+                            <option value="liquidado">Liquidado</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="fecha_retiro" class="form-label">FECHA DE RETIRO</label>
+                        <input type="date" class="form-control" id="fecha_retiro" name="fecha_retiro">
+                        <small class="form-text text-muted">Solo si el empleado ya no esta activo</small>
+                    </div>
+                    <div class="mb-3">
+                        <label for="pendiente" class="form-label">PENDIENTE</label>
+                        <select class="form-control" id="pendiente" name="pendiente">
+                            <option value="">Ninguno</option>
+                            <option value="liquidar">Por liquidar</option>
+                            <option value="pagar_nomina">Pagar nomina</option>
+                            <option value="vacaciones">Vacaciones pendientes</option>
+                            <option value="certificados">Certificados laborales</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <button type="submit" class="btn btn-primary btn-custom"><i class="fas fa-save"></i> Guardar Empleado</button>
+            <a href="{{ url_for('gestion_humana.gestion_humana') }}" class="btn btn-secondary"><i class="fas fa-arrow-left"></i> Cancelar</a>
+        </form>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const hrRole = document.getElementById('hr_role');
+    const techRole = document.getElementById('tech_role');
+    const hrFields = document.querySelector('.hr-fields');
+    const techFields = document.querySelector('.tech-fields');
+
+    function toggleFields() {
+        if (hrRole.checked) {
+            hrFields.style.display = 'block';
+            techFields.style.display = 'none';
+            // Make HR fields required
+            document.querySelectorAll('.hr-fields input[required]').forEach(input => input.required = true);
+            document.querySelectorAll('.tech-fields input[required]').forEach(input => input.required = false);
+        } else if (techRole.checked) {
+            hrFields.style.display = 'none';
+            techFields.style.display = 'block';
+            // Make tech fields required
+            document.querySelectorAll('.hr-fields input[required]').forEach(input => input.required = false);
+            document.querySelectorAll('.tech-fields input[required]').forEach(input => input.required = true);
+        }
+    }
+
+    hrRole.addEventListener('change', toggleFields);
+    techRole.addEventListener('change', toggleFields);
+});
+</script>
+{% endblock %}

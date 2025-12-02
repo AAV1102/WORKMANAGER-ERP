@@ -1,0 +1,140 @@
+{% extends "base.html" %}
+{% block content %}
+<h3><i class="fas fa-file-alt"></i> Hoja de Vida del Equipo</h3>
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="card mb-3">
+            <div class="card-body">
+                <h5>{{ equipo.marca }} {{ equipo.modelo }}</h5>
+                <p class="text-muted mb-2">{{ equipo.tecnologia }}</p>
+                <p class="mb-1"><strong>Codigo:</strong> {{ equipo.codigo_barras_individual }}</p>
+                <p class="mb-1"><strong>Serial:</strong> {{ equipo.serial }}</p>
+                <p class="mb-1"><strong>Placa:</strong> {{ equipo.placa }}</p>
+                <p class="mb-1"><strong>Estado:</strong> {{ equipo.estado }}</p>
+                <p class="mb-0"><strong>Disponible:</strong> {{ equipo.disponible }}</p>
+            </div>
+        </div>
+
+        <div class="card mb-3">
+            <div class="card-body">
+                <h6>Asignacion y ubicacion</h6>
+                <p class="mb-1"><strong>Asignado a:</strong> {{ equipo.asignado_nuevo or 'SIN ASIGNAR' }}</p>
+                <p class="mb-1"><strong>Area:</strong> {{ equipo.area or '-' }}</p>
+                <p class="mb-1"><strong>Sede:</strong> {{ equipo.sede_ciudad or '' }} - {{ equipo.sede_nombre or '' }}</p>
+                <p class="mb-1"><strong>Fecha asignacion:</strong> {{ equipo.fecha or '-' }}</p>
+                <p class="mb-0"><strong>Fecha llegada:</strong> {{ equipo.fecha_llegada or '-' }}</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card mb-3">
+            <div class="card-body">
+                <h6>Especificaciones</h6>
+                <p class="mb-1"><strong>Procesador:</strong> {{ equipo.procesador or '-' }}</p>
+                <p class="mb-1"><strong>RAM:</strong> {{ equipo.cantidad_ram or '-' }} ({{ equipo.arch_ram or '' }})</p>
+                <p class="mb-1"><strong>Disco:</strong> {{ equipo.espacio_disco or '-' }} ({{ equipo.tipo_disco or '' }})</p>
+                <p class="mb-1"><strong>Sistema Operativo:</strong> {{ equipo.so or '-' }}</p>
+                <p class="mb-1"><strong>Monitor asociado:</strong> {{ equipo.marca_monitor or '' }} {{ equipo.modelo_monitor or '' }}</p>
+                <p class="mb-0"><strong>Serial monitor:</strong> {{ equipo.serial_monitor or '-' }} / Placa: {{ equipo.placa_monitor or '-' }}</p>
+            </div>
+        </div>
+
+        <div class="card mb-3">
+            <div class="card-body">
+                <h6>Trazabilidad de soporte</h6>
+                <p class="mb-0">{{ equipo.trazabilidad_soporte or 'Sin registros de soporte' }}</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Historial simple -->
+<div class="row mt-3">
+    <div class="col-md-6">
+        <div class="card fade-in">
+            <div class="card-header">Historial de Asignaciones</div>
+            <div class="card-body">
+                {% if asignaciones|length == 0 %}
+                    <p class="text-muted mb-0">Sin asignaciones registradas.</p>
+                {% else %}
+                    <ul class="list-group list-group-flush">
+                        {% for a in asignaciones %}
+                        <li class="list-group-item">
+                            <strong>{{ a.nombre_destino }}</strong>  {{ a.ciudad_destino }}<br>
+                            <small class="text-muted">
+                                Fecha envio: {{ a.fecha_envio }} | Guia: {{ a.guia or '-' }}<br>
+                                Pestana origen: {{ a.pestana_origen or a.pestana_origen or '-' }}
+                            </small>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card mb-3">
+            <div class="card-header">Devoluciones</div>
+            <div class="card-body">
+                {% if devoluciones|length == 0 %}
+                    <p class="text-muted mb-0">Sin devoluciones registradas.</p>
+                {% else %}
+                    <ul class="list-group list-group-flush">
+                        {% for d in devoluciones %}
+                        <li class="list-group-item">
+                            <strong>{{ d.responsable or '-' }}</strong>  {{ d.motivo or 'Devolucion' }}<br>
+                            <small class="text-muted">
+                                Fecha: {{ d.fecha_devolucion }}<br>
+                                Observaciones: {{ d.observaciones or '-' }}
+                            </small>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">Faltantes / Bajas</div>
+            <div class="card-body">
+                {% if faltantes|length == 0 and bajas|length == 0 %}
+                    <p class="text-muted mb-0">Sin faltantes ni bajas registradas.</p>
+                {% else %}
+                    {% if faltantes|length %}
+                        <p><strong>Faltantes:</strong></p>
+                        <ul class="list-group list-group-flush mb-2">
+                            {% for f in faltantes %}
+                            <li class="list-group-item">
+                                {{ f.motivo }}  {{ f.fecha_registro }}
+                            </li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                    {% if bajas|length %}
+                        <p><strong>Bajas:</strong></p>
+                        <ul class="list-group list-group-flush">
+                            {% for b in bajas %}
+                            <li class="list-group-item">
+                                {{ b.motivo_baja }}  {{ b.fecha_baja }}
+                            </li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="mt-3 text-end">
+    <a href="{{ url_for('inventarios.edit_inventario', tipo='individual', inventario_id=equipo.id) }}" class="btn btn-primary btn-custom">
+        <i class="fas fa-edit"></i> Editar
+    </a>
+    <a href="{{ url_for('inventarios.inventarios') }}" class="btn btn-secondary">
+        Volver al inventario
+    </a>
+</div>
+{% endblock %}

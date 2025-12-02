@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+
+{% block content %}
+<form method="POST" action="{{ url_for('inventario_general.nuevo_agrupado') }}" id="formNuevoAgrupado">
+    <div class="row g-3">
+        <div class="col-md-4">
+            <label class="form-label">Sede</label>
+            <select name="sede_id" class="form-select" required>
+                <option value="">Seleccione una sede...</option>
+                {% for s in sedes %}
+                    <option value="{{ s.id }}">{{ s.nombre }} ({{ s.ciudad }})</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="col-md-4">
+            <label class="form-label">Código Unificado</label>
+            <input type="text" name="codigo_barras_unificado" class="form-control"
+                   placeholder="MED-AGRU-001 (opcional, se genera solo)">
+        </div>
+
+        <div class="col-md-4">
+            <label class="form-label">Asignado Actual (usuario / área)</label>
+            <input type="text" name="asignado_actual" class="form-control">
+        </div>
+
+        <div class="col-md-12">
+            <label class="form-label">Descripción General del Paquete</label>
+            <textarea name="descripcion_general" class="form-control" rows="2"
+                      placeholder="Ej: Estación completa escritorio Medellín: CPU + Monitor + Teclado + Mouse"></textarea>
+        </div>
+
+        <div class="col-md-4">
+            <label class="form-label">Creador del Registro</label>
+            <input type="text" name="creador_registro" class="form-control"
+                   placeholder="Ej: Anderson Ayala">
+        </div>
+
+        <div class="col-md-4">
+            <label class="form-label">Documentos de Entrega</label>
+            <input type="text" name="documentos_entrega" class="form-control"
+                   placeholder="Acta #, Carpeta, SharePoint, etc.">
+        </div>
+
+        <div class="col-md-4">
+            <label class="form-label">Observaciones</label>
+            <input type="text" name="observaciones" class="form-control">
+        </div>
+    </div>
+
+    <div class="mt-4">
+        <h5>Componentes del Paquete</h5>
+        <p class="text-muted">
+            Agrega aquí los códigos individuales que formarán parte del paquete agrupado.<br>
+            El sistema traerá la marca, modelo, serial y tecnología desde el inventario individual.
+        </p>
+        <div id="listaComponentes"></div>
+
+        <div class="row g-2 mt-2">
+            <div class="col-md-6">
+                <input type="text" id="nuevoComponenteCodigo" class="form-control"
+                       placeholder="Ingrese código individual (MED-CPU-001, MED-MON-005, etc.)">
+            </div>
+            <div class="col-md-3">
+                <button type="button" class="btn btn-outline-primary w-100"
+                        onclick="agregarComponenteAgrupado()">
+                    <i class="fas fa-plus"></i> Agregar componente
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="mt-4 text-end">
+        <button type="submit" class="btn btn-primary btn-custom">
+            <i class="fas fa-save"></i> Crear Paquete Agrupado
+        </button>
+    </div>
+</form>
+
+<script>
+function agregarComponenteAgrupado() {
+    const input = document.getElementById("nuevoComponenteCodigo");
+    const cod = (input.value || "").trim();
+    if (!cod) return;
+    const cont = document.getElementById("listaComponentes");
+    const idx = document.querySelectorAll("#listaComponentes .chip-componente").length + 1;
+
+    const div = document.createElement("div");
+    div.className = "chip-componente badge bg-light text-dark me-2 mb-2";
+    div.innerHTML = `
+        <input type="hidden" name="componentes_codigos[]" value="${cod}">
+        <span>#${idx} - ${cod}</span>
+        <button type="button" class="btn btn-sm btn-link text-danger"
+                onclick="this.parentElement.remove()">
+            <i class="fas fa-times"></i>
+        </button>
+    `;
+    cont.appendChild(div);
+    input.value = "";
+}
+</script>
+{% endblock %}

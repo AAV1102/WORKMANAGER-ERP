@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-6">
+        <h2>Nuevo Equipo</h2>
+        <form action="{{ url_for('biomedica.new_equipo') }}" method="post">
+            <div class="mb-3">
+                <label for="name" class="form-label">Nombre</label>
+                <input type="text" class="form-control" id="name" name="name" required>
+            </div>
+            <div class="mb-3">
+                <label for="model" class="form-label">Modelo</label>
+                <input type="text" class="form-control" id="model" name="model" required>
+            </div>
+            <div class="mb-3">
+                <label for="serial" class="form-label">Serial</label>
+                <input type="text" class="form-control" id="serial" name="serial" required>
+            </div>
+            <button type="submit" class="btn btn-primary btn-custom"><i class="fas fa-save"></i> Guardar</button>
+            <a href="{{ url_for('biomedica.biomedica') }}" class="btn btn-secondary"><i class="fas fa-arrow-left"></i> Cancelar</a>
+        </form>
+    </div>
+</div>
+{% endblock %}

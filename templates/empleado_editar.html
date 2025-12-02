@@ -1,0 +1,166 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <h2>{% if empleado %}Editar{% else %}Crear{% endif %} Empleado</h2>
+        <form method="post">
+            <div class="row">
+                <!-- Gestion Humana -->
+                <div class="col-md-6">
+                    <h4>Informacion de Gestion Humana</h4>
+                    <div class="mb-3">
+                        <label for="cedula" class="form-label">No. Cedula</label>
+                        <input type="text" class="form-control" id="cedula" name="cedula" value="{{ empleado.cedula if empleado else '' }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="nombre" class="form-label">Nombres</label>
+                        <input type="text" class="form-control" id="nombre" name="nombre" value="{{ empleado.nombre if empleado else '' }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="apellido" class="form-label">Apellidos</label>
+                        <input type="text" class="form-control" id="apellido" name="apellido" value="{{ empleado.apellido if empleado else '' }}">
+                    </div>
+                    <div class="mb-3">
+                        <label for="cargo" class="form-label">Cargo</label>
+                        <input type="text" class="form-control" id="cargo" name="cargo" value="{{ empleado.cargo if empleado else '' }}">
+                    </div>
+                    <div class="mb-3">
+                        <label for="departamento" class="form-label">Departamento / Area</label>
+                        <input type="text" class="form-control" id="departamento" name="departamento" value="{{ empleado.departamento if empleado else '' }}">
+                    </div>
+                    <div class="mb-3">
+                        <label for="fecha_ingreso" class="form-label">Fecha de Ingreso</label>
+                        <input type="date" class="form-control" id="fecha_ingreso" name="fecha_ingreso" value="{{ empleado.fecha_ingreso if empleado else '' }}">
+                    </div>
+                    <div class="mb-3">
+                        <label for="razon_social" class="form-label">Razon Social / Empresa</label>
+                        <input type="text" class="form-control" id="razon_social" name="razon_social" value="{{ empleado.razon_social if empleado else '' }}">
+                    </div>
+                    <div class="mb-3">
+                        <label for="ciudad" class="form-label">Ciudad</label>
+                        <input type="text" class="form-control" id="ciudad" name="ciudad" value="{{ empleado.ciudad if empleado else '' }}">
+                    </div>
+                    <div class="mb-3">
+                        <label for="sede_id" class="form-label">Sede</label>
+                        <select class="form-control" id="sede_id" name="sede_id">
+                            <option value="">Seleccione sede</option>
+                            {% for sede in sedes %}
+                            <option value="{{ sede.id }}" {% if empleado and empleado.sede_id == sede.id %}selected{% endif %}>{{ sede.nombre }} - {{ sede.ciudad }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="telefono" class="form-label">Telefono</label>
+                        <input type="text" class="form-control" id="telefono" name="telefono" value="{{ empleado.telefono if empleado else '' }}">
+                    </div>
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Correo Electronico</label>
+                        <input type="email" class="form-control" id="email" name="email" value="{{ empleado.email if empleado else '' }}">
+                    </div>
+                    <div class="mb-3">
+                        <label for="estado" class="form-label">Estado</label>
+                        <select class="form-control" id="estado" name="estado">
+                            <option value="activo" {% if empleado and empleado.estado == 'activo' %}selected{% endif %}>Activo</option>
+                            <option value="temporal" {% if empleado and empleado.estado == 'temporal' %}selected{% endif %}>Temporal</option>
+                            <option value="retirado" {% if empleado and empleado.estado == 'retirado' %}selected{% endif %}>Retirado</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="fecha_retiro" class="form-label">Fecha de Retiro</label>
+                        <input type="date" class="form-control" id="fecha_retiro" name="fecha_retiro" value="{{ empleado.fecha_retiro if empleado else '' }}">
+                    </div>
+                </div>
+
+                <!-- Credenciales y sistemas -->
+                <div class="col-md-6">
+                    <h4>Informacion de Sistemas</h4>
+                    <div class="mb-3">
+                        <label for="codigo_unico_hv_equipo" class="form-label">Codigo Unico HV Equipo</label>
+                        <input type="text" class="form-control" id="codigo_unico_hv_equipo" name="codigo_unico_hv_equipo" value="{{ empleado.codigo_unico_hv_equipo if empleado else '' }}">
+                    </div>
+                    <div class="mb-3">
+                        <label for="usuario_windows" class="form-label">Usuario de Windows</label>
+                        <input type="text" class="form-control" id="usuario_windows" name="usuario_windows" value="{{ empleado.usuario_windows if empleado else '' }}">
+                    </div>
+                    <div class="mb-3">
+                        <label for="contrasena_windows" class="form-label">Contrasena de Windows</label>
+                        <input type="password" class="form-control" id="contrasena_windows" name="contrasena_windows" value="{{ empleado.contrasena_windows if empleado else '' }}">
+                    </div>
+                    <div class="mb-3">
+                        <label for="correo_office" class="form-label">Correo Office</label>
+                        <input type="email" class="form-control" id="correo_office" name="correo_office" value="{{ empleado.correo_office if empleado else '' }}">
+                    </div>
+                    <div class="mb-3">
+                        <label for="usuario_quiron" class="form-label">Usuario de Quiron</label>
+                        <input type="text" class="form-control" id="usuario_quiron" name="usuario_quiron" value="{{ empleado.usuario_quiron if empleado else '' }}">
+                    </div>
+                    <div class="mb-3">
+                        <label for="contrasena_quiron" class="form-label">Contrasena de Quiron</label>
+                        <input type="password" class="form-control" id="contrasena_quiron" name="contrasena_quiron" value="{{ empleado.contrasena_quiron if empleado else '' }}">
+                    </div>
+                    <div class="mb-3">
+                        <label for="codigo_biometrico" class="form-label">Codigo Biometrico</label>
+                        <input type="text" class="form-control" id="codigo_biometrico" name="codigo_biometrico" value="{{ empleado.codigo_biometrico if empleado else '' }}">
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="salario" class="form-label">Salario</label>
+                            <input type="number" class="form-control" id="salario" name="salario" step="0.01" value="{{ empleado.salario if empleado else '' }}">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="performance" class="form-label">Performance (%)</label>
+                            <input type="number" class="form-control" id="performance" name="performance" min="0" max="100" value="{{ empleado.performance if empleado else '' }}">
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="observaciones" class="form-label">Observaciones</label>
+                        <textarea class="form-control" id="observaciones" name="observaciones" rows="3">{{ empleado.observaciones if empleado else '' }}</textarea>
+                    </div>
+                </div>
+            </div>
+
+            <hr class="my-4">
+            <h4>Datos personales y contractuales extendidos</h4>
+            <p class="text-muted small">Se almacenan junto con las observaciones para trazabilidad completa.</p>
+            <div class="row">
+                <div class="col-md-4 mb-3"><label for="fecha_nacimiento" class="form-label">Fecha de nacimiento</label><input type="date" class="form-control" id="fecha_nacimiento" name="fecha_nacimiento" value="{{ empleado.fecha_nacimiento if empleado else '' }}"></div>
+                <div class="col-md-4 mb-3"><label for="fecha_expedicion" class="form-label">Fecha de expedicion</label><input type="date" class="form-control" id="fecha_expedicion" name="fecha_expedicion" value="{{ empleado.fecha_expedicion if empleado else '' }}"></div>
+                <div class="col-md-4 mb-3"><label for="lugar_expedicion" class="form-label">Lugar de expedicion</label><input type="text" class="form-control" id="lugar_expedicion" name="lugar_expedicion" value="{{ empleado.lugar_expedicion if empleado else '' }}"></div>
+                <div class="col-md-4 mb-3"><label for="lugar_nacimiento" class="form-label">Lugar de nacimiento</label><input type="text" class="form-control" id="lugar_nacimiento" name="lugar_nacimiento" value="{{ empleado.lugar_nacimiento if empleado else '' }}"></div>
+                <div class="col-md-4 mb-3"><label for="mes_cumpleanos" class="form-label">Mes cumpleanos</label><input type="text" class="form-control" id="mes_cumpleanos" name="mes_cumpleanos" value="{{ empleado.mes_cumpleanos if empleado else '' }}"></div>
+                <div class="col-md-4 mb-3"><label for="tipo_sangre" class="form-label">Tipo de sangre</label><input type="text" class="form-control" id="tipo_sangre" name="tipo_sangre" value="{{ empleado.tipo_sangre if empleado else '' }}"></div>
+                <div class="col-md-4 mb-3"><label for="estado_civil" class="form-label">Estado civil</label><input type="text" class="form-control" id="estado_civil" name="estado_civil" value="{{ empleado.estado_civil if empleado else '' }}"></div>
+                <div class="col-md-4 mb-3"><label for="numero_hijos" class="form-label">Numero de hijos</label><input type="number" class="form-control" id="numero_hijos" name="numero_hijos" min="0" value="{{ empleado.numero_hijos if empleado else '' }}"></div>
+                <div class="col-md-4 mb-3"><label for="genero" class="form-label">Genero</label><input type="text" class="form-control" id="genero" name="genero" value="{{ empleado.genero if empleado else '' }}"></div>
+                <div class="col-md-4 mb-3"><label for="empresa" class="form-label">Empresa</label><input type="text" class="form-control" id="empresa" name="empresa" value="{{ empleado.empresa if empleado else '' }}"></div>
+                <div class="col-md-4 mb-3"><label for="dependencia" class="form-label">Dependencia</label><input type="text" class="form-control" id="dependencia" name="dependencia" value="{{ empleado.dependencia if empleado else '' }}"></div>
+                <div class="col-md-4 mb-3"><label for="nivel_educativo" class="form-label">Nivel educativo</label><input type="text" class="form-control" id="nivel_educativo" name="nivel_educativo" value="{{ empleado.nivel_educativo if empleado else '' }}"></div>
+                <div class="col-md-4 mb-3"><label for="tarifa" class="form-label">Tarifa</label><input type="text" class="form-control" id="tarifa" name="tarifa" value="{{ empleado.tarifa if empleado else '' }}"></div>
+                <div class="col-md-4 mb-3"><label for="tipo_contrato" class="form-label">Tipo de contrato</label><input type="text" class="form-control" id="tipo_contrato" name="tipo_contrato" value="{{ empleado.tipo_contrato if empleado else '' }}"></div>
+                <div class="col-md-4 mb-3"><label for="tiempo" class="form-label">Tiempo</label><input type="text" class="form-control" id="tiempo" name="tiempo" value="{{ empleado.tiempo if empleado else '' }}"></div>
+                <div class="col-md-4 mb-3"><label for="afp" class="form-label">AFP</label><input type="text" class="form-control" id="afp" name="afp" value="{{ empleado.afp if empleado else '' }}"></div>
+                <div class="col-md-4 mb-3"><label for="eps" class="form-label">EPS</label><input type="text" class="form-control" id="eps" name="eps" value="{{ empleado.eps if empleado else '' }}"></div>
+                <div class="col-md-4 mb-3"><label for="cesantias" class="form-label">Cesantias</label><input type="text" class="form-control" id="cesantias" name="cesantias" value="{{ empleado.cesantias if empleado else '' }}"></div>
+                <div class="col-md-4 mb-3"><label for="contrataciones_anteriores" class="form-label">Contrataciones anteriores</label><input type="text" class="form-control" id="contrataciones_anteriores" name="contrataciones_anteriores" value="{{ empleado.contrataciones_anteriores if empleado else '' }}"></div>
+                <div class="col-md-4 mb-3"><label for="fecha_ultimo_contrato" class="form-label">Fecha ultimo contrato</label><input type="date" class="form-control" id="fecha_ultimo_contrato" name="fecha_ultimo_contrato" value="{{ empleado.fecha_ultimo_contrato if empleado else '' }}"></div>
+                <div class="col-md-4 mb-3"><label for="fecha_proximo_vencimiento" class="form-label">Fecha proximo vencimiento</label><input type="date" class="form-control" id="fecha_proximo_vencimiento" name="fecha_proximo_vencimiento" value="{{ empleado.fecha_proximo_vencimiento if empleado else '' }}"></div>
+                <div class="col-md-4 mb-3"><label for="plazo" class="form-label">Plazo</label><input type="text" class="form-control" id="plazo" name="plazo" value="{{ empleado.plazo if empleado else '' }}"></div>
+                <div class="col-md-4 mb-3"><label for="dias_vencimiento" class="form-label">Dias de vencimiento</label><input type="number" class="form-control" id="dias_vencimiento" name="dias_vencimiento" min="0" value="{{ empleado.dias_vencimiento if empleado else '' }}"></div>
+                <div class="col-md-4 mb-3"><label for="camisa" class="form-label">Camisa</label><input type="text" class="form-control" id="camisa" name="camisa" value="{{ empleado.camisa if empleado else '' }}"></div>
+                <div class="col-md-4 mb-3"><label for="pantalon" class="form-label">Pantalon</label><input type="text" class="form-control" id="pantalon" name="pantalon" value="{{ empleado.pantalon if empleado else '' }}"></div>
+                <div class="col-md-4 mb-3"><label for="zapatos" class="form-label">Zapatos</label><input type="text" class="form-control" id="zapatos" name="zapatos" value="{{ empleado.zapatos if empleado else '' }}"></div>
+                <div class="col-md-4 mb-3"><label for="bata" class="form-label">Bata</label><input type="text" class="form-control" id="bata" name="bata" value="{{ empleado.bata if empleado else '' }}"></div>
+                <div class="col-md-4 mb-3"><label for="ccf" class="form-label">CCF</label><input type="text" class="form-control" id="ccf" name="ccf" value="{{ empleado.ccf if empleado else '' }}"></div>
+                <div class="col-md-4 mb-3"><label for="riesgo" class="form-label">Riesgo</label><input type="text" class="form-control" id="riesgo" name="riesgo" value="{{ empleado.riesgo if empleado else '' }}"></div>
+                <div class="col-md-4 mb-3"><label for="numeral_otro_si" class="form-label">Numeral Otro Si</label><input type="text" class="form-control" id="numeral_otro_si" name="numeral_otro_si" value="{{ empleado.numeral_otro_si if empleado else '' }}"></div>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-custom">
+                {% if empleado %}Actualizar{% else %}Crear{% endif %} Empleado
+            </button>
+            <a href="{{ url_for('gestion_humana.dashboard_gestion_humana') }}" class="btn btn-secondary">Cancelar</a>
+        </form>
+    </div>
+</div>
+{% endblock %}

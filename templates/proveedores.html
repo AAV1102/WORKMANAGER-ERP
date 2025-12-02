@@ -1,0 +1,294 @@
+{% extends "base.html" %}
+
+{% block title %}Proveedores - WorkManager ERP{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card fade-in">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <i class="fas fa-truck mr-2"></i>Gestión de Proveedores
+                    </h3>
+                    <div class="card-tools">
+                        <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#newProveedorModal">
+                            <i class="fas fa-plus"></i> Nuevo Proveedor
+                        </button>
+                        <button class="btn btn-success btn-sm" onclick="exportToExcel()">
+                            <i class="fas fa-file-excel"></i> Exportar Excel
+                        </button>
+                        <button class="btn btn-info btn-sm" onclick="importData()">
+                            <i class="fas fa-upload"></i> Importar
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <!-- Search and Filter -->
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <input type="text" id="searchInput" class="form-control" placeholder="Buscar por nombre, NIT, email...">
+                        </div>
+                        <div class="col-md-2">
+                            <select id="tipoFilter" class="form-control">
+                                <option value="">Todos los tipos</option>
+                                <option value="juridica">Jurídica</option>
+                                <option value="natural">Natural</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <select id="estadoFilter" class="form-control">
+                                <option value="">Todos los estados</option>
+                                <option value="activo">Activo</option>
+                                <option value="inactivo">Inactivo</option>
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-striped" id="proveedoresTable">
+                            <thead>
+                                <tr>
+                                    <th>NIT</th>
+                                    <th>Nombre</th>
+                                    <th>Contacto</th>
+                                    <th>Email</th>
+                                    <th>Teléfono</th>
+                                    <th>Ciudad</th>
+                                    <th>Estado</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for proveedor in proveedores %}
+                                <tr>
+                                    <td>{{ proveedor.nit }}</td>
+                                    <td>{{ proveedor.nombre }}</td>
+                                    <td>{{ proveedor.contacto_principal or '-' }}</td>
+                                    <td>{{ proveedor.email or '-' }}</td>
+                                    <td>{{ proveedor.telefono or '-' }}</td>
+                                    <td>{{ proveedor.ciudad or '-' }}</td>
+                                    <td>
+                                        <span class="badge badge-{{ 'success' if proveedor.estado == 'activo' else 'danger' }}">
+                                            {{ proveedor.estado.title() }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <button class="btn btn-sm btn-info" onclick="verProveedor({{ proveedor.id }})">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-warning" onclick="editarProveedor({{ proveedor.id }})">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-danger" onclick="eliminarProveedor({{ proveedor.id }})">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Nuevo Proveedor -->
+<div class="modal fade" id="modalNuevoProveedor" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Nuevo Proveedor</h4>
+                <button type="button" class="close" data-dismiss="modal">
+                    <span>&times;</span>
+                </button>
+            </div>
+            <form id="formNuevoProveedor">
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="nit">NIT *</label>
+                                <input type="text" class="form-control" id="nit" name="nit" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="tipo_persona">Tipo de Persona</label>
+                                <select class="form-control" id="tipo_persona" name="tipo_persona">
+                                    <option value="juridica">Jurídica</option>
+                                    <option value="natural">Natural</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="nombre">Nombre *</label>
+                        <input type="text" class="form-control" id="nombre" name="nombre" required>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="email">Email</label>
+                                <input type="email" class="form-control" id="email" name="email">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="telefono">Teléfono</label>
+                                <input type="tel" class="form-control" id="telefono" name="telefono">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="celular">Celular</label>
+                                <input type="tel" class="form-control" id="celular" name="celular">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="contacto_principal">Contacto Principal</label>
+                                <input type="text" class="form-control" id="contacto_principal" name="contacto_principal">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label for="direccion">Dirección</label>
+                                <input type="text" class="form-control" id="direccion" name="direccion">
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label for="ciudad">Ciudad</label>
+                                <input type="text" class="form-control" id="ciudad" name="ciudad">
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label for="departamento">Departamento</label>
+                                <input type="text" class="form-control" id="departamento" name="departamento">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary btn-custom">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+function filtrarProveedores() {
+    const nombre = document.getElementById('searchNombre').value.toLowerCase();
+    const nit = document.getElementById('searchNIT').value.toLowerCase();
+    const estado = document.getElementById('filterEstado').value;
+
+    const rows = document.querySelectorAll('#proveedoresTable tbody tr');
+
+    rows.forEach(row => {
+        const nombreCell = row.cells[1].textContent.toLowerCase();
+        const nitCell = row.cells[0].textContent.toLowerCase();
+        const estadoCell = row.cells[6].textContent.toLowerCase();
+
+        const matchesNombre = nombreCell.includes(nombre);
+        const matchesNIT = nitCell.includes(nit);
+        const matchesEstado = !estado || estadoCell.includes(estado);
+
+        if (matchesNombre && matchesNIT && matchesEstado) {
+            row.style.display = '';
+        } else {
+            row.style.display = 'none';
+        }
+    });
+}
+
+document.getElementById('formNuevoProveedor').addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    const formData = new FormData(this);
+
+    fetch('/admin/proveedores/new', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            location.reload();
+        } else {
+            alert('Error: ' + data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error al guardar el proveedor');
+    });
+});
+
+function verProveedor(id) {
+    // Implementar vista detallada
+    window.location.href = `/admin/proveedores/${id}`;
+}
+
+function editarProveedor(id) {
+    // Implementar edición
+    window.location.href = `/admin/proveedores/${id}/edit`;
+}
+
+function eliminarProveedor(id) {
+    if (confirm('¿Está seguro de eliminar este proveedor?')) {
+        fetch(`/admin/proveedores/${id}/delete`, {
+            method: 'POST'
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                alert('Error: ' + data.message);
+            }
+        });
+    }
+}
+</script>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+function exportToExcel() {
+    window.location.href = '/export_import/export/excel/proveedores';
+}
+
+function importData() {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.xlsx,.xls,.csv';
+    input.onchange = function(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+        const formData = new FormData();
+        formData.append('file', file);
+        fetch('/export_import/import/excel/proveedores', {
+            method: 'POST',
+            body: formData
+        })
+        .then(r => r.json())
+        .then(data => {
+            if (data.error) {
+                alert('Error: ' + data.error);
+            } else {
+                alert(data.message || 'Importacion completada');
+                location.reload();
+            }
+        })
+        .catch(err => alert('Error al importar: ' + err.message));
+    };
+    input.click();
+}
+</script>
+{% endblock %}

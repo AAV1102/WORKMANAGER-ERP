@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+
+{% block title %}Crear Nuevo Empleado - WORKMANAGER ERP{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-lg border-0 rounded-lg mt-5">
+                <div class="card-header">
+                    <h3 class="text-center font-weight-light my-4"><i class="fas fa-user-plus"></i> {{ _('Crear Nuevo Empleado') }}</h3>
+                </div>
+                <div class="card-body">
+                    <!-- Asumimos que la ruta para guardar es 'user.create_user' -->
+                    <form method="POST" action="{{ url_for('user.new_user') }}" novalidate>
+                        {{ form.hidden_tag() }} {# Renderiza el token CSRF y otros campos ocultos #}
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                {{ form.nombre.label(class="form-label") }}
+                                {{ form.nombre(class="form-control" + (" is-invalid" if form.nombre.errors else ""), placeholder="Ingrese el nombre") }}
+                                {% for error in form.nombre.errors %}
+                                    <div class="invalid-feedback">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                            <div class="col-md-6">
+                                {{ form.apellido.label(class="form-label") }}
+                                {{ form.apellido(class="form-control" + (" is-invalid" if form.apellido.errors else ""), placeholder="Ingrese el apellido") }}
+                                {% for error in form.apellido.errors %}
+                                    <div class="invalid-feedback">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            {{ form.cedula.label(class="form-label") }}
+                            {{ form.cedula(class="form-control" + (" is-invalid" if form.cedula.errors else ""), placeholder="Documento de identidad") }}
+                            {% for error in form.cedula.errors %}
+                                <div class="invalid-feedback">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+
+                        <div class="mb-3">
+                            {{ form.email.label(class="form-label") }}
+                            {{ form.email(class="form-control" + (" is-invalid" if form.email.errors else ""), placeholder="correo@ejemplo.com") }}
+                            {% for error in form.email.errors %}
+                                <div class="invalid-feedback">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+
+                        <div class="mb-3">
+                            {{ form.cargo.label(class="form-label") }}
+                            {{ form.cargo(class="form-control" + (" is-invalid" if form.cargo.errors else ""), placeholder="Ej: Analista de Sistemas") }}
+                            {% for error in form.cargo.errors %}
+                                <div class="invalid-feedback">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+
+                        <!-- AQUÍ USAMOS LA VARIABLE GLOBAL 'sedes' -->
+                        <div class="mb-3">
+                            {{ form.sede_id.label(class="form-label") }}
+                            {{ form.sede_id(class="form-select" + (" is-invalid" if form.sede_id.errors else "")) }}
+                            {% for error in form.sede_id.errors %}
+                                <div class="invalid-feedback">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+
+                        <div class="mt-4 mb-0">
+                            <div class="d-grid">
+                                {{ form.submit(class="btn btn-primary btn-block") }}
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

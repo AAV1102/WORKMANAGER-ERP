@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block content %}
+<h3>{{ tipo }} - Licencias</h3>
+
+<table class="table table-hover">
+<thead>
+<tr><th>Email</th><th>Asignado a</th><th>Sede</th><th>Acción</th></tr>
+</thead>
+<tbody>
+{% for l in licencias %}
+<tr>
+<td>{{l.email}}</td>
+<td>{{l.empleado or 'No asignado'}}</td>
+<td>{{l.sede or 'Sin asignar'}}</td>
+<td>
+<form action="/licencias/asignar" method="POST" class="d-flex gap-2">
+<input type="hidden" name="email" value="{{l.email}}">
+<input class="form-control" name="cedula" placeholder="Cedula" required>
+<select name="sede_id" class="form-select" required>
+{% for s in sedes %}
+<option value="{{s.id}}">{{s.nombre}}</option>
+{% endfor %}
+</select>
+<button class="btn btn-primary btn-sm">Asignar</button>
+</form>
+</td>
+</tr>
+{% endfor %}
+</tbody>
+</table>
+
+<a class="btn btn-secondary mt-3" href="/licencias/">← Volver</a>
+{% endblock %}

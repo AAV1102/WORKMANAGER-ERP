@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+
+{% block title %}{{ _('Centro de Códigos de Barras') }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2><i class="fas fa-barcode"></i> {{ _('Centro de Códigos de Barras') }}</h2>
+    </div>
+
+    <!-- PASO 1: SELECCIONAR TIPO DE ACTIVO -->
+    <div class="card mb-4">
+        <div class="card-header">{{ _('Paso 1: Seleccionar Tipo de Activo') }}</div>
+        <div class="card-body">
+            <p class="text-muted">{{ _('Elige qué tipo de activo deseas buscar y etiquetar.') }}</p>
+            <div class="d-flex flex-wrap gap-2">
+                {% for type, config in asset_configs.items() %}
+                    <a href="{{ url_for('barcodes.barcode_center', type=type) }}" 
+                       class="btn {% if current_asset_type == type %}btn-primary{% else %}btn-outline-primary{% endif %}">
+                        {{ _(config.display_name) }}
+                    </a>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    {% if current_asset_type %}
+    <!-- PASO 2: BUSCAR ACTIVOS -->
+    <div class="card mb-4">
+        <div class="card-header">{{ _('Paso 2: Buscar en') }} {{ current_config.display_name }}</div>
+        <div class="card-body">
+            <form method="GET" action="{{ url_for('barcodes.barcode_center') }}">
+                <input type="hidden" name="type" value="{{ current_asset_type }}">
+                <div class="input-group">
+                    <input type="text" class="form-control" name="q" value="{{ search_query or '' }}" placeholder="{{ _('Escribe para buscar...') }}" autofocus>
+                    <button class="btn btn-primary" type="submit"><i class="fas fa-search"></i> {{ _('Buscar') }}</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    {% endif %}
+
+    {% if search_query and current_asset_type %}
+    <!-- PASO 3: SELECCIONAR Y GENERAR -->
+    <div class="card">
+        <div class="card-header">{{ _('Paso 3: Seleccionar y Generar PDF') }}</div>
+        <div class="card-body">
+            {% if items %}
+            <form method="POST" action="{{ url_for('barcodes.generate_pdf') }}" target="_blank">
+                <input type="hidden" name="asset_type" value="{{ current_asset_type }}">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <p>{{ _('Se encontraron') }} <strong>{{ items|length }}</strong> {{ _('resultados. Selecciona los que necesites.') }}</p>
+                    <button type="submit" class="btn btn-success"><i class="fas fa-file-pdf"></i> {{ _('Generar PDF con Seleccionados') }}</button>
+                </div>
+                
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th style="width: 5%;"><input type="checkbox" id="selectAll"></th>
+                                <th>{{ _('Código de Barras') }}</th>
+                                <th>{{ _('Descripción Principal') }}</th>
+                                <th>{{ _('Detalles Adicionales') }}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in items %}
+                            <tr>
+                                <td><input type="checkbox" name="item_ids" value="{{ item[current_config.id_col] }}"></td>
+                                <td><strong>{{ item[current_config.barcode_field] }}</strong></td>
+                                <td>{{ item[current_config.display_fields[0]] }}</td>
+                                <td>{{ item[current_config.display_fields[1:]] | join(' / ') }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </form>
+            {% else %}
+            <p class="text-center text-muted">{{ _('No se encontraron ítems que coincidan con tu búsqueda.') }}</p>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const selectAll = document.getElementById('selectAll');
+    if (selectAll) {
+        selectAll.addEventListener('change', function() {
+            document.querySelectorAll('input[name="item_ids"]').forEach(checkbox => {
+                checkbox.checked = this.checked;
+            });
+        });
+    }
+});
+</script>
+{% endblock %}

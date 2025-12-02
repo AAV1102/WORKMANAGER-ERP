@@ -1,0 +1,37 @@
+<div class="modal-header">
+  <h5 class="modal-title">Detalle de Licencia: {{ producto }}</h5>
+  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+</div>
+<div class="modal-body">
+  <p>A continuación se listan los usuarios que tienen asignada una licencia relacionada con <strong>{{ producto }}</strong>.</p>
+
+  {% if usuarios %}
+    <table class="table table-sm table-hover">
+      <thead>
+        <tr>
+          <th>Usuario Asignado</th>
+          <th>Correo (UPN)</th>
+          <th>Cargo</th>
+          <th>Departamento</th>
+          <th>Estado</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for usuario in usuarios %}
+          <tr>
+            <td>{{ usuario.usuario_asignado or 'N/A' }}</td>
+            <td>{{ usuario.email }}</td>
+            <td>{{ usuario.cargo or 'N/A' }}</td>
+            <td>{{ usuario.departamento or 'N/A' }}</td>
+            <td><span class="badge bg-{{ 'success' if usuario.estado == 'activa' else 'secondary' }}">{{ usuario.estado }}</span></td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <div class="alert alert-info">No se encontraron usuarios con esta licencia asignada.</div>
+  {% endif %}
+</div>
+<div class="modal-footer">
+  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+</div>

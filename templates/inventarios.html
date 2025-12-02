@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+
+{% block title %}{{ _('Dashboard de Inventario') }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2><i class="fas fa-boxes"></i> {{ _('Dashboard de Inventario') }}</h2>
+        <div>
+            <a href="{{ url_for('inventarios.new_inventario_individual') }}" class="btn btn-primary"><i class="fas fa-plus"></i> {{ _('Nuevo Equipo') }}</a>
+            <button class="btn btn-outline-secondary" onclick="reloadDashboardData()"><i class="fas fa-sync"></i> {{ _('Recargar Datos') }}</button>
+        </div>
+    </div>
+
+    <!-- Resumen rápido -->
+    <div class="row mb-4" id="inventory-summary-cards">
+        <!-- Las tarjetas de resumen (KPIs) se cargarán aquí dinámicamente -->
+    </div>
+
+    <!-- Pestañas de Navegación -->
+    <ul class="nav nav-tabs mb-3" id="inventoryTabs" role="tablist">
+        <li class="nav-item" role="presentation"><button class="nav-link active" id="general-tab" data-bs-toggle="tab" data-bs-target="#general" type="button" role="tab">{{ _('Inventario General') }}</button></li>
+        <li class="nav-item" role="presentation"><button class="nav-link" id="asignados-tab" data-bs-toggle="tab" data-bs-target="#asignados" type="button" role="tab">{{ _('Equipos Asignados') }}</button></li>
+        <li class="nav-item" role="presentation"><button class="nav-link" id="bajas-tab" data-bs-toggle="tab" data-bs-target="#bajas" type="button" role="tab">{{ _('Equipos Dados de Baja') }}</button></li>
+        <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-expanded="false">{{ _('Vistas por Categoría') }}</a>
+            <ul class="dropdown-menu">
+                <li><button class="dropdown-item" id="por-sede-tab" data-bs-toggle="tab" data-bs-target="#por-sede" type="button">{{ _('Por Sede') }}</button></li>
+                <li><button class="dropdown-item" id="por-usuario-tab" data-bs-toggle="tab" data-bs-target="#por-usuario" type="button">{{ _('Por Usuario') }}</button></li>
+                <li><button class="dropdown-item" id="por-area-tab" data-bs-toggle="tab" data-bs-target="#por-area" type="button">{{ _('Por Área') }}</button></li>
+            </ul>
+        </li>
+        <!-- Agrega aquí más pestañas si es necesario -->
+    </ul>
+
+    <!-- Contenido de las Pestañas -->
+    <div class="tab-content" id="inventoryTabsContent">
+        <!-- Inventario General -->
+        <div class="tab-pane fade show active" id="general" role="tabpanel">
+            <div class="card"><div class="card-body"><div class="table-responsive"><table class="table table-striped table-hover" id="generalTable"></table></div></div></div>
+        </div>
+        <!-- Equipos Asignados -->
+        <div class="tab-pane fade" id="asignados" role="tabpanel">
+            <div class="card"><div class="card-body"><div class="table-responsive"><table class="table table-striped table-hover" id="asignadosTable"></table></div></div></div>
+        </div>
+        <!-- Equipos Dados de Baja -->
+        <div class="tab-pane fade" id="bajas" role="tabpanel">
+            <div class="card"><div class="card-body"><div class="table-responsive"><table class="table table-striped table-hover" id="bajasTable"></table></div></div></div>
+        </div>
+        <!-- Por Sede -->
+        <div class="tab-pane fade" id="por-sede" role="tabpanel">
+            <div class="card"><div class="card-body"><div class="table-responsive"><table class="table table-striped" id="sedeTable"></table></div></div></div>
+        </div>
+        <!-- Por Usuario -->
+        <div class="tab-pane fade" id="por-usuario" role="tabpanel">
+            <div class="card"><div class="card-body"><div class="table-responsive"><table class="table table-striped" id="usuarioTable"></table></div></div></div>
+        </div>
+        <!-- Por Área -->
+        <div class="tab-pane fade" id="por-area" role="tabpanel">
+            <div class="card"><div class="card-body"><div class="table-responsive"><table class="table table-striped" id="areaTable"></table></div></div></div>
+        </div>
+    </div>
+</div>
+
+<!-- Modals (Asegúrate de que estos archivos existan en templates/modals/) -->
+{% include 'modals/asignar_equipo.html' ignore missing %}
+{% include 'modals/hoja_vida.html' ignore missing %}
+
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="{{ url_for('static', filename='js/inventarios_dashboard.js') }}"></script>
+{% endblock %}

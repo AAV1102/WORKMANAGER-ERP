@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12 d-flex justify-content-between align-items-center">
+        <div>
+            <h2><i class="fas fa-desktop text-primary"></i> Dashboard Sistemas</h2>
+            <p class="text-muted mb-0">Accesos directos a inventarios, licencias, RRHH, soporte y herramientas de import/export.</p>
+        </div>
+        <div class="d-flex gap-2">
+            <a href="{{ url_for('inventario_maestro.inventario_maestro_home') }}" class="btn btn-outline-primary">
+                <i class="fas fa-database"></i> Inventario Maestro
+            </a>
+            <a href="{{ url_for('export_import_v2.importar_form') }}" class="btn btn-outline-secondary">
+                <i class="fas fa-file-import"></i> Importador
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Metrics -->
+<div class="row g-3 mb-4">
+    <div class="col-md-2">
+        <div class="card border-primary">
+            <div class="card-body">
+                <h6 class="text-muted">Equipos individuales</h6>
+                <h3 class="mb-0">{{ stats.equipos }}</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-2">
+        <div class="card border-success">
+            <div class="card-body">
+                <h6 class="text-muted">Agrupados</h6>
+                <h3 class="mb-0">{{ stats.agrupados }}</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-2">
+        <div class="card border-info">
+            <div class="card-body">
+                <h6 class="text-muted">Licencias O365</h6>
+                <h3 class="mb-0">{{ stats.licencias }}</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-2">
+        <div class="card border-warning">
+            <div class="card-body">
+                <h6 class="text-muted">Empleados</h6>
+                <h3 class="mb-0">{{ stats.empleados }}</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-2">
+        <div class="card border-danger">
+            <div class="card-body">
+                <h6 class="text-muted">Tickets</h6>
+                <h3 class="mb-0">{{ stats.tickets }}</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-2">
+        <div class="card border-secondary">
+            <div class="card-body">
+                <h6 class="text-muted">Proveedores</h6>
+                <h3 class="mb-0">{{ stats.proveedores }}</h3>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick links -->
+<div class="row g-3">
+    {% for link in quick_links %}
+    <div class="col-md-3">
+        <a href="{{ url_for(link.url) }}" class="card h-100 text-decoration-none">
+            <div class="card-body d-flex align-items-center">
+                <div class="me-3 text-primary"><i class="fas {{ link.icono }} fa-2x"></i></div>
+                <div>
+                    <h6 class="mb-0 text-dark">{{ link.nombre }}</h6>
+                    <small class="text-muted">Ir al módulo</small>
+                </div>
+            </div>
+        </a>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

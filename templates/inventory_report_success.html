@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container py-5 text-center">
+  <h3 class="text-success"><i class="fas fa-check-circle"></i> Reporte generado</h3>
+  <p class="text-muted">Tu archivo consolidado está listo para descargar.</p>
+  <a class="btn btn-success" href="{{ url_for('inventory_report.inventario_report_download', filename=filename) }}">
+    <i class="fas fa-download"></i> Descargar reporte
+  </a>
+  <a class="btn btn-link" href="{{ url_for('inventory_report.inventario_report_form') }}">Generar otro</a>
+</div>
+{% endblock %}

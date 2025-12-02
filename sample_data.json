@@ -1,0 +1,187 @@
+{
+  "equipos_agrupados": [
+    {
+      "codigo_barras_unificado": "AGR001",
+      "nit": "901.234.567-8",
+      "sede_id": 1,
+      "asignado_anterior": "Usuario Anterior",
+      "asignado_actual": "Juan Pérez",
+      "descripcion_general": "Estación de trabajo completa con monitor",
+      "estado_general": "disponible",
+      "creador_registro": "AUTO_IMPORT",
+      "trazabilidad_soporte": "Documentos de entrega y soporte técnico",
+      "documentos_entrega": "Factura #001, Guía de entrega",
+      "observaciones": "Equipo nuevo, requiere configuración inicial"
+    },
+    {
+      "codigo_barras_unificado": "AGR002",
+      "nit": "901.234.567-8",
+      "sede_id": 2,
+      "asignado_anterior": null,
+      "asignado_actual": "María González",
+      "descripcion_general": "Servidor de archivos con almacenamiento NAS",
+      "estado_general": "disponible",
+      "creador_registro": "AUTO_IMPORT",
+      "trazabilidad_soporte": "Manual técnico y certificados",
+      "documentos_entrega": "Factura #002",
+      "observaciones": "Servidor con 4TB de almacenamiento"
+    }
+  ],
+  "equipos_individuales": [
+    {
+      "codigo_barras_individual": "IND001",
+      "entrada_oc_compra": "OC001",
+      "cargado_nit": "Sí",
+      "ciudad": "Bogotá",
+      "tecnologia": "Laptop",
+      "serial": "SN123456789",
+      "modelo": "ThinkPad T14",
+      "anterior_asignado": null,
+      "placa": "ABC123",
+      "marca": "Lenovo",
+      "procesador": "Intel Core i7-1165G7",
+      "arch_ram": "16GB DDR4",
+      "cantidad_ram": "16",
+      "tipo_disco": "SSD",
+      "espacio_disco": "512GB",
+      "so": "Windows 11 Pro",
+      "estado": "disponible",
+      "asignado_nuevo": "Juan Pérez",
+      "fecha": "2024-01-15",
+      "fecha_llegada": "2024-01-20",
+      "area": "Desarrollo",
+      "marca_monitor": "Dell",
+      "modelo_monitor": "P2419H",
+      "serial_monitor": "MON123456",
+      "placa_monitor": "MON001",
+      "proveedor": "Tecnología XYZ",
+      "oc": "OC001",
+      "observaciones": "Laptop nueva para desarrollo",
+      "disponible": "Si",
+      "sede_id": 1,
+      "creador_registro": "AUTO_IMPORT"
+    },
+    {
+      "codigo_barras_individual": "IND002",
+      "entrada_oc_compra": "OC002",
+      "cargado_nit": "Sí",
+      "ciudad": "Bogotá",
+      "tecnologia": "Desktop",
+      "serial": "SN987654321",
+      "modelo": "OptiPlex 7090",
+      "anterior_asignado": null,
+      "placa": "XYZ789",
+      "marca": "Dell",
+      "procesador": "Intel Core i5-10400",
+      "arch_ram": "8GB DDR4",
+      "cantidad_ram": "8",
+      "tipo_disco": "SSD",
+      "espacio_disco": "256GB",
+      "so": "Windows 10 Pro",
+      "estado": "disponible",
+      "asignado_nuevo": "María González",
+      "fecha": "2024-01-10",
+      "fecha_llegada": "2024-01-18",
+      "area": "Administración",
+      "marca_monitor": "Dell",
+      "modelo_monitor": "P2219H",
+      "serial_monitor": "MON987654",
+      "placa_monitor": "MON002",
+      "proveedor": "Computadores ABC",
+      "oc": "OC002",
+      "observaciones": "Desktop para oficina administrativa",
+      "disponible": "Si",
+      "sede_id": 1,
+      "creador_registro": "AUTO_IMPORT"
+    }
+  ],
+  "inventario_general": {
+    "agrupados": [
+      {
+        "codigo_barras_unificado": "AGR003",
+        "nit": "901.234.567-8",
+        "sede_id": 3,
+        "asignado_anterior": null,
+        "asignado_actual": "Carlos Rodríguez",
+        "descripcion_general": "Sistema de videoconferencia completo",
+        "estado_general": "disponible",
+        "creador_registro": "AUTO_IMPORT",
+        "trazabilidad_soporte": "Manuales y garantías",
+        "documentos_entrega": "Factura #003",
+        "observaciones": "Sistema para sala de reuniones"
+      }
+    ],
+    "individuales": [
+      {
+        "codigo_barras_individual": "IND003",
+        "entrada_oc_compra": "OC003",
+        "cargado_nit": "Sí",
+        "ciudad": "Medellín",
+        "tecnologia": "Impresora",
+        "serial": "PRN456789123",
+        "modelo": "LaserJet Pro MFP M182nw",
+        "anterior_asignado": null,
+        "placa": "PRN001",
+        "marca": "HP",
+        "procesador": null,
+        "arch_ram": null,
+        "cantidad_ram": null,
+        "tipo_disco": null,
+        "espacio_disco": null,
+        "so": null,
+        "estado": "disponible",
+        "asignado_nuevo": "Ana López",
+        "fecha": "2024-01-12",
+        "fecha_llegada": "2024-01-22",
+        "area": "Administración",
+        "marca_monitor": null,
+        "modelo_monitor": null,
+        "serial_monitor": null,
+        "placa_monitor": null,
+        "proveedor": "Oficina Plus",
+        "oc": "OC003",
+        "observaciones": "Impresora multifunción color",
+        "disponible": "Si",
+        "sede_id": 4,
+        "creador_registro": "AUTO_IMPORT"
+      }
+    ]
+  },
+  "equipos_asignados": [
+    {
+      "codigo": "IND001",
+      "asignado_a": "Juan Pérez"
+    },
+    {
+      "codigo": "AGR002",
+      "asignado_a": "María González"
+    }
+  ],
+  "equipos_baja": [
+    {
+      "equipo_id": 1,
+      "tipo_inventario": "individual",
+      "motivo_baja": "Obsoleto - Fuera de garantía",
+      "responsable_baja": "Admin",
+      "observaciones": "Equipo reemplazado por modelo más nuevo"
+    }
+  ],
+  "tandas_nuevas": [
+    {
+      "numero_tanda": "TANDA001",
+      "descripcion": "Nueva tanda de laptops para desarrollo",
+      "cantidad_equipos": 10,
+      "proveedor": "Tecnología XYZ",
+      "valor_total": 25000.00,
+      "observaciones": "Laptops Lenovo ThinkPad T14 para equipo de desarrollo"
+    },
+    {
+      "numero_tanda": "TANDA002",
+      "descripcion": "Monitores Dell para estaciones de trabajo",
+      "cantidad_equipos": 15,
+      "proveedor": "Computadores ABC",
+      "valor_total": 7500.00,
+      "observaciones": "Monitores de 24 pulgadas para nuevas estaciones"
+    }
+  ]
+}

@@ -1,0 +1,251 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8 offset-md-2">
+        <h2>Asignar Equipo</h2>
+        <div class="card fade-in">
+            <div class="card-header">
+                {% set eq = equipo_agrupado or equipo_individual %}
+                <h5>Equipo: {{ (eq[1] if eq is not none and eq|length > 1 else 'No disponible') }}</h5>
+                {% if eq %}
+                    <small class="text-muted">
+                        ID: {{ eq[0] }}{% if eq|length > 5 %} | Marca/Modelo: {{ eq[10] if equipo_individual else eq[6] }}{% endif %}
+                    </small>
+                {% endif %}
+            </div>
+            <div class="card-body">
+                {% if componentes %}
+                <div class="mb-3">
+                    <h6><i class="fas fa-list"></i> Componentes del equipo agrupado</h6>
+                    <div class="table-responsive">
+                        <table class="table table-sm table-striped">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Codigo Individual</th>
+                                    <th>Tipo</th>
+                                    <th>Marca/Modelo</th>
+                                    <th>Serial</th>
+                                    <th>Estado</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for comp in componentes %}
+                                <tr>
+                                    <td>{{ comp[0] }}</td>
+                                    <td>{{ comp[2] }}</td>
+                                    <td>{{ comp[3] }}</td>
+                                    <td>{{ comp[4] }} {{ comp[5] }}</td>
+                                    <td>{{ comp[6] }}</td>
+                                    <td>{{ comp[8] }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- User Search Section -->
+                <div class="mb-4">
+                    <h6>Buscar Usuario</h6>
+                    <div class="row">
+                        <div class="col-md-3">
+                            <select class="form-select" id="search_type">
+                                <option value="all">Todos los campos</option>
+                                <option value="cedula">Cédula</option>
+                                <option value="windows_username">Usuario Windows</option>
+                                <option value="id">ID Empleado</option>
+                                <option value="name">Nombre completo</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <input type="text" class="form-control" id="user_search" placeholder="Buscar usuario...">
+                        </div>
+                        <div class="col-md-3">
+                            <button type="button" class="btn btn-outline-primary" id="search_btn">Buscar</button>
+                            <button type="button" class="btn btn-outline-success" id="create_temp_btn">Crear Temporal</button>
+                        </div>
+                    </div>
+                    <div id="search_results" class="mt-3" style="display: none;">
+                        <select class="form-select" id="user_select" size="5">
+                            <!-- Search results will be populated here -->
+                        </select>
+                    </div>
+                </div>
+
+                <form method="post" id="assignment_form">
+                    <div class="mb-3">
+                        <label for="user_id" class="form-label">Usuario Seleccionado</label>
+                        <input type="text" class="form-control" id="selected_user_display" readonly>
+                        <input type="hidden" id="user_id" name="user_id">
+                    </div>
+                    <div class="mb-3">
+                        <label for="assignment_date" class="form-label">Fecha de Asignación</label>
+                        <input type="date" class="form-control" id="assignment_date" name="assignment_date" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="notes" class="form-label">Notas</label>
+                        <textarea class="form-control" id="notes" name="notes" rows="3"></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-custom" id="assign_btn" disabled>Asignar Equipo</button>
+                    <a href="{{ url_for('inventarios.inventarios') }}" class="btn btn-secondary">Cancelar</a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Temporary User Creation Modal -->
+<div class="modal fade" id="tempUserModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Crear Usuario Temporal</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="temp_user_form">
+                    <div class="mb-3">
+                        <label for="temp_cedula" class="form-label">Cédula</label>
+                        <input type="text" class="form-control" id="temp_cedula" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="temp_nombre" class="form-label">Nombre</label>
+                        <input type="text" class="form-control" id="temp_nombre" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="temp_apellido" class="form-label">Apellido</label>
+                        <input type="text" class="form-control" id="temp_apellido" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="temp_cargo" class="form-label">Cargo</label>
+                        <input type="text" class="form-control" id="temp_cargo" required>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary btn-custom" id="save_temp_user">Crear Usuario Temporal</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('user_search');
+    const searchType = document.getElementById('search_type');
+    const searchBtn = document.getElementById('search_btn');
+    const createTempBtn = document.getElementById('create_temp_btn');
+    const userSelect = document.getElementById('user_select');
+    const selectedUserDisplay = document.getElementById('selected_user_display');
+    const userIdInput = document.getElementById('user_id');
+    const assignBtn = document.getElementById('assign_btn');
+    const searchResults = document.getElementById('search_results');
+
+    // Search users
+    function searchUsers() {
+        const query = searchInput.value.trim();
+        const type = searchType.value;
+
+        if (!query) return;
+
+        fetch(`/api/search_empleados?q=${encodeURIComponent(query)}&type=${type}`)
+            .then(response => response.json())
+            .then(data => {
+                userSelect.innerHTML = '';
+                if (data.length > 0) {
+                    data.forEach(user => {
+                        const option = document.createElement('option');
+                        option.value = user.id;
+                        option.textContent = `${user.nombre_completo} - ${user.cedula} - ${user.usuario_windows || 'Sin usuario'}`;
+                        option.dataset.user = JSON.stringify(user);
+                        userSelect.appendChild(option);
+                    });
+                    searchResults.style.display = 'block';
+                } else {
+                    const option = document.createElement('option');
+                    option.textContent = 'No se encontraron usuarios';
+                    option.disabled = true;
+                    userSelect.appendChild(option);
+                    searchResults.style.display = 'block';
+                }
+            })
+            .catch(error => console.error('Error searching users:', error));
+    }
+
+    // Handle user selection
+    userSelect.addEventListener('change', function() {
+        const selectedOption = userSelect.options[userSelect.selectedIndex];
+        if (selectedOption.value) {
+            const user = JSON.parse(selectedOption.dataset.user);
+            selectedUserDisplay.value = `${user.nombre_completo} (${user.cedula})`;
+            userIdInput.value = user.id;
+            assignBtn.disabled = false;
+        }
+    });
+
+    // Search button click
+    searchBtn.addEventListener('click', searchUsers);
+
+    // Enter key in search input
+    searchInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            searchUsers();
+        }
+    });
+
+    // Create temporary user
+    createTempBtn.addEventListener('click', function() {
+        const modal = new bootstrap.Modal(document.getElementById('tempUserModal'));
+        modal.show();
+    });
+
+    // Save temporary user
+    document.getElementById('save_temp_user').addEventListener('click', function() {
+        const cedula = document.getElementById('temp_cedula').value;
+        const nombre = document.getElementById('temp_nombre').value;
+        const apellido = document.getElementById('temp_apellido').value;
+        const cargo = document.getElementById('temp_cargo').value;
+
+        if (!cedula || !nombre || !apellido || !cargo) {
+            alert('Todos los campos son requeridos');
+            return;
+        }
+
+        // Create temporary user via API
+        fetch('/api/create_temp_user', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                cedula: cedula,
+                nombre: nombre,
+                apellido: apellido,
+                cargo: cargo
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                selectedUserDisplay.value = `${nombre} ${apellido} (${cedula}) - TEMPORAL`;
+                userIdInput.value = data.user_id;
+                assignBtn.disabled = false;
+                bootstrap.Modal.getInstance(document.getElementById('tempUserModal')).hide();
+                alert('Usuario temporal creado exitosamente. Complete la información en Gestión Humana.');
+            } else {
+                alert('Error creando usuario temporal: ' + data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error creando usuario temporal');
+        });
+    });
+});
+</script>
+{% endblock %}

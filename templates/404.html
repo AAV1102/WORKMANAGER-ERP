@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container py-5">
+  <div class="text-center">
+    <h1 class="display-4">404</h1>
+    <p class="lead">La URL solicitada no existe.</p>
+    <p>Usa el menú lateral para navegar o vuelve al inicio.</p>
+    <a href="{{ url_for('index') }}" class="btn btn-primary">Ir al Dashboard</a>
+    <a href="/routes" class="btn btn-outline-secondary">Ver rutas disponibles</a>
+  </div>
+</div>
+{% endblock %}

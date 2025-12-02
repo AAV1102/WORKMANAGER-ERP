@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+
+{% block title %}{{ _('Nuevo Activo Administrativo') }}{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-lg-9">
+            <div class="card shadow-lg border-0 rounded-lg mt-4">
+                <div class="card-header">
+                    <h3 class="text-center font-weight-light my-3"><i class="fas fa-couch"></i> {{ _('Registrar Nuevo Activo Administrativo') }}</h3>
+                </div>
+                <div class="card-body">
+                    <!-- La acción del formulario debe apuntar a la ruta que procesa los datos -->
+                    <form method="POST" action="{{ url_for('admin.new_inventario_administrativo') }}">
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-8">
+                                <label for="nombre_activo" class="form-label">{{ _('Nombre del Activo') }}</label>
+                                <input type="text" class="form-control" id="nombre_activo" name="nombre_activo" required placeholder="Ej: Silla Ergonómica, Escritorio en L">
+                            </div>
+                            <div class="col-md-4">
+                                <label for="categoria" class="form-label">{{ _('Categoría') }}</label>
+                                <select class="form-select" id="categoria" name="categoria">
+                                    <option value="Muebles y Enseres">{{ _('Muebles y Enseres') }}</option>
+                                    <option value="Papelería">{{ _('Papelería') }}</option>
+                                    <option value="Equipos de Oficina">{{ _('Equipos de Oficina') }}</option>
+                                    <option value="Decoración">{{ _('Decoración') }}</option>
+                                    <option value="Otro">{{ _('Otro') }}</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="descripcion" class="form-label">{{ _('Descripción') }}</label>
+                            <textarea class="form-control" id="descripcion" name="descripcion" rows="3" placeholder="{{ _('Detalles adicionales como color, material, etc.') }}"></textarea>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-4">
+                                <label for="cantidad" class="form-label">{{ _('Cantidad') }}</label>
+                                <input type="number" class="form-control" id="cantidad" name="cantidad" value="1" min="1">
+                            </div>
+                            <div class="col-md-4">
+                                <label for="valor_adquisicion" class="form-label">{{ _('Valor de Adquisición (COP)') }}</label>
+                                <input type="number" class="form-control" id="valor_adquisicion" name="valor_adquisicion" step="0.01" placeholder="150000">
+                            </div>
+                            <div class="col-md-4">
+                                <label for="fecha_adquisicion" class="form-label">{{ _('Fecha de Adquisición') }}</label>
+                                <input type="date" class="form-control" id="fecha_adquisicion" name="fecha_adquisicion">
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="ubicacion" class="form-label">{{ _('Ubicación') }}</label>
+                                <input type="text" class="form-control" id="ubicacion" name="ubicacion" placeholder="Ej: Oficina de Gerencia, Bodega Principal">
+                            </div>
+                             <div class="col-md-6">
+                                <label for="sede_id" class="form-label">{{ _('Sede') }}</label>
+                                <select class="form-select" id="sede_id" name="sede_id">
+                                    <option value="">-- {{ _('Seleccione una Sede') }} --</option>
+                                    {% for sede in sedes %}
+                                        <option value="{{ sede.id }}">{{ sede.nombre }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="mt-4 mb-0">
+                            <div class="d-grid"><button type="submit" class="btn btn-primary btn-block">{{ _('Guardar Activo') }}</button></div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,300 @@
+{% extends "base.html" %}
+
+{% block title %}Facturas - WorkManager ERP{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card fade-in">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <i class="fas fa-file-invoice-dollar mr-2"></i>Gestión de Facturas
+                    </h3>
+                    <div class="card-tools">
+                        <button type="button" class="btn btn-success btn-sm" data-toggle="modal" data-target="#modalNuevaFactura">
+                            <i class="fas fa-plus"></i> Nueva Factura
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <!-- Filtros -->
+                    <div class="row mb-3">
+                        <div class="col-md-3">
+                            <input type="text" id="searchNumero" class="form-control" placeholder="Buscar por número...">
+                        </div>
+                        <div class="col-md-3">
+                            <input type="text" id="searchProveedor" class="form-control" placeholder="Buscar por proveedor...">
+                        </div>
+                        <div class="col-md-3">
+                            <select id="filterEstado" class="form-control">
+                                <option value="">Todos los estados</option>
+                                <option value="pendiente">Pendiente</option>
+                                <option value="pagada">Pagada</option>
+                                <option value="vencida">Vencida</option>
+                                <option value="anulada">Anulada</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <button class="btn btn-secondary" onclick="filtrarFacturas()">
+                                <i class="fas fa-search"></i> Filtrar
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Tabla de Facturas -->
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-striped" id="facturasTable">
+                            <thead>
+                                <tr>
+                                    <th>Número</th>
+                                    <th>Proveedor</th>
+                                    <th>Fecha Emisión</th>
+                                    <th>Fecha Vencimiento</th>
+                                    <th>Total</th>
+                                    <th>Estado</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for factura in facturas %}
+                                <tr>
+                                    <td>{{ factura.numero_factura }}</td>
+                                    <td>{{ factura.nombre_proveedor }}</td>
+                                    <td>{{ factura.fecha_emision.strftime('%Y-%m-%d') if factura.fecha_emision else '-' }}</td>
+                                    <td>{{ factura.fecha_vencimiento.strftime('%Y-%m-%d') if factura.fecha_vencimiento else '-' }}</td>
+                                    <td>${{ "{:,.2f}".format(factura.total) }}</td>
+                                    <td>
+                                        <span class="badge badge-{{ 'warning' if factura.estado == 'pendiente' else 'success' if factura.estado == 'pagada' else 'danger' }}">
+                                            {{ factura.estado.title() }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <button type="button"
+                                                class="btn btn-sm btn-info modal-trigger"
+                                                data-modal-api="{{ url_for('realtime.detail', module='factura', item_id=factura.id) }}"
+                                                data-modal-renderer="factura"
+                                                data-modal-title="Factura {{ factura.numero_factura }}">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-warning" onclick="editarFactura({{ factura.id }})">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-danger" onclick="eliminarFactura({{ factura.id }})">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Nueva Factura -->
+<div class="modal fade" id="modalNuevaFactura" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-xl" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Nueva Factura</h4>
+                <button type="button" class="close" data-dismiss="modal">
+                    <span>&times;</span>
+                </button>
+            </div>
+            <form id="formNuevaFactura">
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="numero_factura">Número de Factura *</label>
+                                <input type="text" class="form-control" id="numero_factura" name="numero_factura" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="tipo_factura">Tipo de Factura</label>
+                                <select class="form-control" id="tipo_factura" name="tipo_factura">
+                                    <option value="compra">Compra</option>
+                                    <option value="servicio">Servicio</option>
+                                    <option value="gasto">Gasto</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="id_proveedor">Proveedor *</label>
+                        <select class="form-control" id="id_proveedor" name="id_proveedor" required>
+                            <option value="">Seleccionar proveedor...</option>
+                            <!-- Proveedores se cargarán dinámicamente -->
+                        </select>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label for="fecha_emision">Fecha de Emisión *</label>
+                                <input type="date" class="form-control" id="fecha_emision" name="fecha_emision" required>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label for="fecha_vencimiento">Fecha de Vencimiento</label>
+                                <input type="date" class="form-control" id="fecha_vencimiento" name="fecha_vencimiento">
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label for="fecha_recepcion">Fecha de Recepción</label>
+                                <input type="date" class="form-control" id="fecha_recepcion" name="fecha_recepcion">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label for="subtotal">Subtotal *</label>
+                                <input type="number" class="form-control" id="subtotal" name="subtotal" step="0.01" required>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label for="iva">IVA</label>
+                                <input type="number" class="form-control" id="iva" name="iva" step="0.01" value="0">
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label for="retefuente">ReteFuente</label>
+                                <input type="number" class="form-control" id="retefuente" name="retefuente" step="0.01" value="0">
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label for="total">Total *</label>
+                                <input type="number" class="form-control" id="total" name="total" step="0.01" required readonly>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="observaciones">Observaciones</label>
+                        <textarea class="form-control" id="observaciones" name="observaciones" rows="3"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary btn-custom">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+// Calcular total automáticamente
+document.getElementById('subtotal').addEventListener('input', calcularTotal);
+document.getElementById('iva').addEventListener('input', calcularTotal);
+document.getElementById('retefuente').addEventListener('input', calcularTotal);
+
+function calcularTotal() {
+    const subtotal = parseFloat(document.getElementById('subtotal').value) || 0;
+    const iva = parseFloat(document.getElementById('iva').value) || 0;
+    const retefuente = parseFloat(document.getElementById('retefuente').value) || 0;
+    const total = subtotal + iva - retefuente;
+    document.getElementById('total').value = total.toFixed(2);
+}
+
+function filtrarFacturas() {
+    const numero = document.getElementById('searchNumero').value.toLowerCase();
+    const proveedor = document.getElementById('searchProveedor').value.toLowerCase();
+    const estado = document.getElementById('filterEstado').value;
+
+    const rows = document.querySelectorAll('#facturasTable tbody tr');
+
+    rows.forEach(row => {
+        const numeroCell = row.cells[0].textContent.toLowerCase();
+        const proveedorCell = row.cells[1].textContent.toLowerCase();
+        const estadoCell = row.cells[5].textContent.toLowerCase();
+
+        const matchesNumero = numeroCell.includes(numero);
+        const matchesProveedor = proveedorCell.includes(proveedor);
+        const matchesEstado = !estado || estadoCell.includes(estado);
+
+        if (matchesNumero && matchesProveedor && matchesEstado) {
+            row.style.display = '';
+        } else {
+            row.style.display = 'none';
+        }
+    });
+}
+
+document.getElementById('formNuevaFactura').addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    const formData = new FormData(this);
+
+    fetch('/admin/facturas/new', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            location.reload();
+        } else {
+            alert('Error: ' + data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error al guardar la factura');
+    });
+});
+
+function verFactura(id) {
+    openApiModal(`/api/detail/factura/${id}`, `Factura ${id}`, 'factura');
+}
+
+function editarFactura(id) {
+    window.location.href = `/admin/facturas/${id}/edit`;
+}
+
+function eliminarFactura(id) {
+    if (confirm('¿Está seguro de eliminar esta factura?')) {
+        fetch(`/admin/facturas/${id}/delete`, {
+            method: 'POST'
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                alert('Error: ' + data.message);
+            }
+        });
+    }
+}
+
+// Cargar proveedores al abrir modal
+$('#modalNuevaFactura').on('show.bs.modal', function() {
+    fetch('/api/proveedores')
+    .then(response => response.json())
+    .then(data => {
+        const select = document.getElementById('id_proveedor');
+        select.innerHTML = '<option value="">Seleccionar proveedor...</option>';
+        data.forEach(proveedor => {
+            const option = document.createElement('option');
+            option.value = proveedor.id;
+            option.textContent = proveedor.nombre;
+            select.appendChild(option);
+        });
+    });
+});
+</script>
+{% endblock %}

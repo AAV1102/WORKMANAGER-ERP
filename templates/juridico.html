@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% block title %}Jurídico{% endblock %}
+{% block content %}
+<div class="container-fluid">
+  <div class="row g-3">
+    <div class="col-md-4">
+      <div class="card">
+        <div class="card-body">
+          <h5 class="card-title">Casos activos</h5>
+          <h2 class="mb-0">{{ casos }}</h2>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card">
+        <div class="card-body">
+          <h5 class="card-title">Contratos</h5>
+          <h2 class="mb-0">{{ contratos }}</h2>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card">
+        <div class="card-body">
+          <h5 class="card-title">Audiencias</h5>
+          <h2 class="mb-0">{{ audiencias }}</h2>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="row mt-4">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-header">Resumen</div>
+        <div class="card-body">
+          <div class="table-responsive">
+            <table class="table table-sm">
+              <thead>
+                <tr>
+                  <th>Elemento</th>
+                  <th>Cantidad</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Casos</td>
+                  <td>0</td>
+                </tr>
+                <tr>
+                  <td>Contratos</td>
+                  <td>0</td>
+                </tr>
+                <tr>
+                  <td>Audiencias</td>
+                  <td>0</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

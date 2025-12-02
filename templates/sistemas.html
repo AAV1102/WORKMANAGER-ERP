@@ -1,0 +1,239 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <h2><i class="fas fa-server"></i> Módulo de Sistemas</h2>
+        <p class="text-muted">Infraestructura, soporte técnico y gestión IT</p>
+
+        <!-- Filtros -->
+        <div class="row mb-4">
+            <div class="col-md-12">
+                <div class="card fade-in">
+                    <div class="card-header">
+                        <h5><i class="fas fa-filter"></i> Filtros</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-3">
+                                <button class="btn btn-primary w-100" onclick="location.href='{{ url_for('mesa_ayuda.mesa_ayuda') }}'">
+                                    <i class="fas fa-plus"></i> Nuevo Ticket
+                                </button>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="text-center">
+                                    <h4 class="text-success">{{ servidores_online }}</h4>
+                                    <small class="text-muted">de {{ total_servidores }} servidores</small>
+                                    <p class="mb-0"><strong>Servidores Online</strong></p>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="text-center">
+                                    <h4 class="text-danger">{{ tickets_abiertos }}</h4>
+                                    <small class="text-muted">{{ tickets_alta_prioridad }} alta prioridad</small>
+                                    <p class="mb-0"><strong>Tickets Abiertos</strong></p>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="text-center">
+                                    <h4 class="text-info">{{ uptime_promedio }}%</h4>
+                                    <small class="text-muted">Últimos 30 días</small>
+                                    <p class="mb-0"><strong>Uptime Promedio</strong></p>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="text-center">
+                                    <h4 class="text-primary">{{ equipos_disponibles }}</h4>
+                                    <small class="text-muted">de {{ total_equipos }} equipos</small>
+                                    <p class="mb-0"><strong>Equipos Disponibles</strong></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Licencias -->
+        <div class="row mb-4">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5><i class="fas fa-key"></i> Licencias</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="text-center">
+                                    <h3 class="text-primary">{{ licencias_disponibles }}</h3>
+                                    <p class="mb-0">de {{ total_licencias }} disponibles</p>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="progress" style="height: 20px;">
+                                    <div class="progress-bar bg-success" role="progressbar"
+                                         style="width: {{ (licencias_disponibles / total_licencias * 100)|round }}%"
+                                         aria-valuenow="{{ licencias_disponibles }}"
+                                         aria-valuemin="0"
+                                         aria-valuemax="{{ total_licencias }}">
+                                        {{ (licencias_disponibles / total_licencias * 100)|round }}%
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Infraestructura -->
+        <div class="row mb-4">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5><i class="fas fa-network-wired"></i> Infraestructura</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <!-- Tickets -->
+                            <div class="col-md-4">
+                                <h6>Tickets</h6>
+                                <div class="list-group">
+                                    {% for ticket in tickets_recientes %}
+                                    <div class="list-group-item">
+                                        <div class="d-flex w-100 justify-content-between">
+                                            <h6 class="mb-1">{{ ticket[2] }}</h6>
+                                            <small class="text-muted">{{ ticket[4] }}</small>
+                                        </div>
+                                        <p class="mb-1">{{ ticket[3][:50] }}...</p>
+                                        <small class="text-{% if ticket[5] == 'alta' %}danger{% elif ticket[5] == 'media' %}warning{% else %}success{% endif %}">
+                                            Prioridad: {{ ticket[5] }}
+                                        </small>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+
+                            <!-- Monitoreo -->
+                            <div class="col-md-4">
+                                <h6>Monitoreo</h6>
+                                <div class="card mb-3">
+                                    <div class="card-body">
+                                        <h6 class="card-title">Estado de servidores principales</h6>
+
+                                        <!-- WEB-SERVER-01 -->
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                            <div>
+                                                <strong>WEB-SERVER-01</strong><br>
+                                                <small class="text-muted">Web Server</small>
+                                            </div>
+                                            <span class="badge bg-success">Online</span>
+                                        </div>
+                                        <div class="row mb-2">
+                                            <div class="col-4">
+                                                <small>CPU: 45%</small>
+                                            </div>
+                                            <div class="col-4">
+                                                <small>RAM: 67%</small>
+                                            </div>
+                                            <div class="col-4">
+                                                <small>Disk: 34%</small>
+                                            </div>
+                                        </div>
+
+                                        <!-- DB-SERVER-01 -->
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                            <div>
+                                                <strong>DB-SERVER-01</strong><br>
+                                                <small class="text-muted">Database Server</small>
+                                            </div>
+                                            <span class="badge bg-success">Online</span>
+                                        </div>
+                                        <div class="row mb-2">
+                                            <div class="col-4">
+                                                <small>CPU: 78%</small>
+                                            </div>
+                                            <div class="col-4">
+                                                <small>RAM: 89%</small>
+                                            </div>
+                                            <div class="col-4">
+                                                <small>Disk: 56%</small>
+                                            </div>
+                                        </div>
+
+                                        <!-- BACKUP-SERVER-01 -->
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                            <div>
+                                                <strong>BACKUP-SERVER-01</strong><br>
+                                                <small class="text-muted">Backup Server</small>
+                                            </div>
+                                            <span class="badge bg-warning">Warning</span>
+                                        </div>
+                                        <div class="row mb-2">
+                                            <div class="col-4">
+                                                <small>CPU: 23%</small>
+                                            </div>
+                                            <div class="col-4">
+                                                <small>RAM: 45%</small>
+                                            </div>
+                                            <div class="col-4">
+                                                <small>Disk: 91%</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Componentes de Red -->
+                            <div class="col-md-4">
+                                <h6>Componentes de Red</h6>
+                                <div class="card">
+                                    <div class="card-body">
+                                        <h6 class="card-title">Estado de infraestructura crítica</h6>
+
+                                        <!-- Red Principal -->
+                                        <div class="d-flex justify-content-between align-items-center mb-3">
+                                            <div>
+                                                <strong>Red Principal</strong><br>
+                                                <small class="text-muted">Network</small>
+                                            </div>
+                                            <div class="text-end">
+                                                <span class="badge bg-success">Online</span><br>
+                                                <small class="text-muted">Utilización 34%</small>
+                                            </div>
+                                        </div>
+
+                                        <!-- Firewall Principal -->
+                                        <div class="d-flex justify-content-between align-items-center mb-3">
+                                            <div>
+                                                <strong>Firewall Principal</strong><br>
+                                                <small class="text-muted">Security</small>
+                                            </div>
+                                            <div class="text-end">
+                                                <span class="badge bg-success">Online</span><br>
+                                                <small class="text-muted">Utilización 23%</small>
+                                            </div>
+                                        </div>
+
+                                        <!-- Storage Principal -->
+                                        <div class="d-flex justify-content-between align-items-center mb-3">
+                                            <div>
+                                                <strong>Storage Principal</strong><br>
+                                                <small class="text-muted">Storage</small>
+                                            </div>
+                                            <div class="text-end">
+                                                <span class="badge bg-warning">Warning</span><br>
+                                                <small class="text-muted">Utilización 78%</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

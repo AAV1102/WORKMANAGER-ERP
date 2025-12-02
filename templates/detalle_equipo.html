@@ -1,0 +1,166 @@
+{% extends "base.html" %}
+
+{% block content %}
+{% if not equipo %}
+    <p class="text-center text-muted">Equipo no encontrado.</p>
+{% else %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+        <h3>
+            <i class="fas fa-desktop text-primary"></i>
+            {{ equipo.codigo_barras_individual }}
+        </h3>
+        <p class="text-muted mb-0">
+            {{ equipo.tecnologia or 'Equipo' }} · {{ equipo.marca or '' }} {{ equipo.modelo or '' }}
+        </p>
+    </div>
+    <div>
+        <a href="{{ url_for('inventarios.inventarios') }}" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left"></i> Volver al listado
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="card mb-3">
+            <div class="card-header fw-bold">Datos generales</div>
+            <div class="card-body">
+                <p><strong>Código:</strong> {{ equipo.codigo_barras_individual }}</p>
+                <p><strong>Tecnología:</strong> {{ equipo.tecnologia or '-' }}</p>
+                <p><strong>Marca / Modelo:</strong> {{ equipo.marca or '-' }} / {{ equipo.modelo or '-' }}</p>
+                <p><strong>Serial:</strong> {{ equipo.serial or '-' }}</p>
+                <p><strong>Placa:</strong> {{ equipo.placa or '-' }}</p>
+                <p><strong>Estado:</strong>
+                    {% if equipo.estado == 'disponible' %}
+                        <span class="badge bg-success">Disponible</span>
+                    {% elif equipo.estado == 'asignado' %}
+                        <span class="badge bg-primary">Asignado</span>
+                    {% elif equipo.estado == 'pendiente recogida' %}
+                        <span class="badge bg-warning text-dark">Pendiente recogida</span>
+                    {% elif equipo.estado == 'baja' %}
+                        <span class="badge bg-danger">Baja</span>
+                    {% else %}
+                        <span class="badge bg-light text-dark">{{ equipo.estado }}</span>
+                    {% endif %}
+                </p>
+            </div>
+        </div>
+
+        <div class="card mb-3">
+            <div class="card-header fw-bold">Especificaciones</div>
+            <div class="card-body">
+                <p><strong>Procesador:</strong> {{ equipo.procesador or '-' }}</p>
+                <p><strong>RAM:</strong> {{ equipo.cantidad_ram or '-' }} ({{ equipo.arch_ram or '-' }})</p>
+                <p><strong>Disco:</strong> {{ equipo.espacio_disco or '-' }} ({{ equipo.tipo_disco or '-' }})</p>
+                <p><strong>Sistema Operativo:</strong> {{ equipo.so or '-' }}</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card mb-3">
+            <div class="card-header fw-bold">Ubicación y asignación</div>
+            <div class="card-body">
+                <p><strong>Asignado a:</strong> {{ equipo.asignado_nuevo or '-' }}</p>
+                <p><strong>Área:</strong> {{ equipo.area or '-' }}</p>
+                <p><strong>Sede:</strong> {{ equipo.sede_nombre or '-' }} ({{ equipo.sede_ciudad or '-' }})</p>
+                <p><strong>Ciudad (registro):</strong> {{ equipo.ciudad or '-' }}</p>
+                <p><strong>Fecha:</strong> {{ equipo.fecha or '-' }}</p>
+                <p><strong>Fecha de Llegada:</strong> {{ equipo.fecha_llegada or '-' }}</p>
+            </div>
+        </div>
+
+        <div class="card mb-3">
+            <div class="card-header fw-bold">Proveedor / Documentación</div>
+            <div class="card-body">
+                <p><strong>Proveedor:</strong> {{ equipo.proveedor or '-' }}</p>
+                <p><strong>OC:</strong> {{ equipo.oc or '-' }}</p>
+                <p><strong>Creador Registro:</strong> {{ equipo.creador_registro or '-' }}</p>
+            </div>
+        </div>
+
+        {% if empleado %}
+        <div class="card fade-in">
+            <div class="card-header fw-bold">
+                Empleado asignado
+            </div>
+            <div class="card-body">
+                <p><strong>{{ empleado.nombre }} {{ empleado.apellido }}</strong></p>
+                <p><strong>Cédula:</strong> {{ empleado.cedula or '-' }}</p>
+                <p><strong>Cargo:</strong> {{ empleado.cargo or '-' }}</p>
+                <p><strong>Ciudad:</strong> {{ empleado.ciudad or '-' }}</p>
+                <p><strong>Usuario Windows:</strong> {{ empleado.usuario_windows or '-' }}</p>
+                <p><strong>Correo Office:</strong> {{ empleado.correo_office or '-' }}</p>
+                <a href="{{ url_for('gestion_humana.detalle_empleado', empleado_id=empleado.id) }}"
+                   class="btn btn-sm btn-outline-primary">
+                    Ver perfil completo
+                </a>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<hr>
+
+<div class="card shadow-sm">
+    <div class="card-body">
+        <h5><i class="fa-solid fa-user-check"></i> Reasignar Equipo</h5>
+        <p class="text-muted">Selecciona un nuevo responsable y define qué hacer con el equipo anterior.</p>
+
+        <form action="{{ url_for('inventario_individual.reasignar_equipo', equipo_id=equipo.id) }}" method="POST">
+
+            <div class="row">
+                <div class="col-md-6">
+                    <h6>Nuevo Responsable</h6>
+                    <select name="nuevo_empleado" class="form-select" required>
+                        <option value="">Seleccione usuario</option>
+                        {% for e in empleados %}
+                        <option value="{{ e.id }}">
+                            {{ e.nombre_completo }} - {{ e.cedula }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="col-md-6">
+                    <h6>¿Qué hacer con el equipo anterior?</h6>
+
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="accion_reasignacion"
+                               value="pendiente_recogida" checked>
+                        <label class="form-check-label">
+                            Marcar como <strong>Pendiente recogida</strong>
+                        </label>
+                    </div>
+
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="accion_reasignacion"
+                               value="disponible">
+                        <label class="form-check-label">
+                            Marcar como <strong>Disponible</strong>
+                        </label>
+                    </div>
+
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="accion_reasignacion"
+                               value="requiere_aprobacion">
+                        <label class="form-check-label">
+                            <strong>Requiere aprobación</strong> por RRHH/Sistemas
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <br>
+
+            <button type="submit" class="btn btn-primary btn-custom">
+                <i class="fa-solid fa-save"></i> Guardar Reasignación
+            </button>
+
+        </form>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

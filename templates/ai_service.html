@@ -1,0 +1,360 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <h2><i class="fas fa-robot"></i> AI Manav - Servicio de Inteligencia Artificial</h2>
+        <p class="text-muted">Sistema avanzado de IA con agentes especializados y bot de WhatsApp</p>
+
+        <!-- Status Cards -->
+        <div class="row mb-4">
+            <div class="col-md-4">
+                <div class="card text-white bg-success">
+                    <div class="card-body">
+                        <h5 class="card-title"><i class="fab fa-whatsapp"></i> Bot WhatsApp</h5>
+                        <p class="card-text">Estado: {{ whatsapp_status }}</p>
+                        <small>Última actividad: hace 5 minutos</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card text-white bg-primary">
+                    <div class="card-body">
+                        <h5 class="card-title"><i class="fas fa-boxes"></i> Agente Inventario</h5>
+                        <p class="card-text">{{ inventory_agent_stats.total_queries }} consultas totales</p>
+                        <small>{{ inventory_agent_stats.successful_responses }} respuestas exitosas</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card text-white bg-info">
+                    <div class="card-body">
+                        <h5 class="card-title"><i class="fas fa-brain"></i> IA General</h5>
+                        <p class="card-text">Modelo: GPT-4</p>
+                        <small>Versión: 1.2.3</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <ul class="nav nav-tabs mb-3" id="aiTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="logs-tab" data-bs-toggle="tab" data-bs-target="#logs" type="button" role="tab">Logs de IA</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="detector-tab" data-bs-toggle="tab" data-bs-target="#detector" type="button" role="tab">AI Detector</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="corrector-tab" data-bs-toggle="tab" data-bs-target="#corrector" type="button" role="tab">AI Corrector</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="whatsapp-tab" data-bs-toggle="tab" data-bs-target="#whatsapp" type="button" role="tab">Bot WhatsApp</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="agents-tab" data-bs-toggle="tab" data-bs-target="#agents" type="button" role="tab">Agentes Especializados</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="config-tab" data-bs-toggle="tab" data-bs-target="#config" type="button" role="tab">Configuración</button>
+            </li>
+        </ul>
+
+        <!-- Tab Content -->
+        <div class="tab-content" id="aiTabsContent">
+            <!-- Logs Tab -->
+            <div class="tab-pane fade show active" id="logs" role="tabpanel">
+                <div class="card fade-in">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">Historial de Consultas IA</h5>
+                        <button class="btn btn-primary btn-sm" onclick="exportLogs()"><i class="fas fa-download"></i> Exportar</button>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-striped" id="logsTable">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Fecha</th>
+                                        <th>Categoría</th>
+                                        <th>Consulta</th>
+                                        <th>Estado</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for log in ai_logs %}
+                                    <tr>
+                                        <td>{{ log.id }}</td>
+                                        <td>{{ log.created_at }}</td>
+                                        <td><span class="badge bg-{{ 'primary' if log.category == 'inventory' else 'secondary' }}">{{ log.category }}</span></td>
+                                        <td>{{ log.query[:50] }}...</td>
+                                        <td><span class="badge bg-{{ 'success' if log.status == 'success' else 'danger' }}">{{ log.status }}</span></td>
+                                        <td>
+                                            <button class="btn btn-sm btn-info" onclick="viewLog({{ log.id }})"><i class="fas fa-eye"></i></button>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- WhatsApp Bot Tab -->
+            <div class="tab-pane fade" id="whatsapp" role="tabpanel">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5><i class="fab fa-whatsapp text-success"></i> Estado del Bot</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="alert alert-success">
+                                    <strong>Bot Activo</strong> - Procesando mensajes automáticamente
+                                </div>
+                                <div class="mb-3">
+                                    <strong>Número:</strong> +57 300 123 4567<br>
+                                    <strong>Mensajes hoy:</strong> 47<br>
+                                    <strong>Respuesta promedio:</strong> 2.3 segundos
+                                </div>
+                                <button class="btn btn-warning btn-custom" onclick="restartBot()"><i class="fas fa-redo"></i> Reiniciar Bot</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5>Configuración WhatsApp</h5>
+                            </div>
+                            <div class="card-body">
+                                <form>
+                                    <div class="mb-3">
+                                        <label class="form-label">Token API</label>
+                                        <input type="password" class="form-control" value="••••••••••••••••">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Mensaje de Bienvenida</label>
+                                        <textarea class="form-control" rows="3">¡Hola! Soy AI Manav, tu asistente inteligente. ¿En qué puedo ayudarte?</textarea>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary btn-custom">Guardar Cambios</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Agents Tab -->
+            <div class="tab-pane fade" id="agents" role="tabpanel">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5><i class="fas fa-boxes text-primary"></i> Agente de Inventario</h5>
+                            </div>
+                            <div class="card-body">
+                                <p>Agente especializado en consultas de inventario y equipos.</p>
+                                <div class="mb-3">
+                                    <strong>Consultas totales:</strong> {{ inventory_agent_stats.total_queries }}<br>
+                                    <strong>Éxito:</strong> {{ inventory_agent_stats.successful_responses }}<br>
+                                    <strong>Última actividad:</strong> {{ inventory_agent_stats.last_activity or 'Nunca' }}
+                                </div>
+                                <button class="btn btn-primary btn-custom" onclick="testAgent('inventory')"><i class="fas fa-play"></i> Probar Agente</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5><i class="fas fa-users text-success"></i> Agente de RRHH</h5>
+                            </div>
+                            <div class="card-body">
+                                <p>Agente especializado en consultas de recursos humanos.</p>
+                                <div class="mb-3">
+                                    <strong>Consultas totales:</strong> 23<br>
+                                    <strong>Éxito:</strong> 21<br>
+                                    <strong>Última actividad:</strong> hace 2 horas
+                                </div>
+                                <button class="btn btn-success btn-custom" onclick="testAgent('hr')"><i class="fas fa-play"></i> Probar Agente</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- AI Detector Tab -->
+            <div class="tab-pane fade" id="detector" role="tabpanel">
+                <div class="card">
+                    <div class="card-header">
+                        <h5><i class="fas fa-search"></i> AI Detector - Detectar Contenido Generado por IA</h5>
+                    </div>
+                    <div class="card-body">
+                        <form id="detectorForm" method="POST" action="{{ url_for('ai_service.ai_detector') }}">
+                            <div class="mb-3">
+                                <label for="detectorText" class="form-label">Texto a analizar</label>
+                                <textarea class="form-control" id="detectorText" name="text" rows="6" placeholder="Pegue aquí el texto que desea analizar para determinar si fue generado por IA..."></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-primary btn-custom">
+                                <i class="fas fa-search"></i> Analizar Texto
+                            </button>
+                        </form>
+
+                        {% if result %}
+                        <div class="mt-4">
+                            <h6>Resultado del Análisis:</h6>
+                            <div class="alert alert-{{ 'warning' if result.is_ai_generated else 'success' }}">
+                                <strong>{{ result.analysis }}</strong>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="card">
+                                        <div class="card-body">
+                                            <h6>Confianza: {{ result.confidence }}%</h6>
+                                            <div class="progress mb-2">
+                                                <div class="progress-bar bg-{{ 'warning' if result.is_ai_generated else 'success' }}" style="width: {{ result.confidence }}%"></div>
+                                            </div>
+                                            <small>Probabilidad de ser generado por IA</small>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="card">
+                                        <div class="card-body">
+                                            <h6>Métricas Técnicas:</h6>
+                                            <ul class="list-unstyled">
+                                                <li><strong>Perplejidad:</strong> {{ result.details.perplexity_score }}</li>
+                                                <li><strong>Ráfagas:</strong> {{ result.details.burstiness_score }}</li>
+                                                <li><strong>Repetitividad:</strong> {{ result.details.repetitiveness }}</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- AI Corrector Tab -->
+            <div class="tab-pane fade" id="corrector" role="tabpanel">
+                <div class="card">
+                    <div class="card-header">
+                        <h5><i class="fas fa-edit"></i> AI Corrector - Corrección de Texto con IA</h5>
+                    </div>
+                    <div class="card-body">
+                        <form id="correctorForm" method="POST" action="{{ url_for('ai_service.ai_corrector') }}">
+                            <div class="mb-3">
+                                <label for="correctorText" class="form-label">Texto a corregir</label>
+                                <textarea class="form-control" id="correctorText" name="text" rows="6" placeholder="Pegue aquí el texto que desea corregir con IA..."></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-success btn-custom">
+                                <i class="fas fa-edit"></i> Corregir Texto
+                            </button>
+                        </form>
+
+                        {% if corrected_text %}
+                        <div class="mt-4">
+                            <h6>Texto Corregido:</h6>
+                            <div class="card">
+                                <div class="card-body">
+                                    <p class="mb-0">{{ corrected_text.texto_corregido }}</p>
+                                </div>
+                            </div>
+
+                            <div class="row mt-3">
+                                <div class="col-md-6">
+                                    <h6>Errores Encontrados:</h6>
+                                    <ul class="list-group">
+                                        {% for error in corrected_text.errores %}
+                                        <li class="list-group-item">{{ error }}</li>
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+                                <div class="col-md-6">
+                                    <h6>Sugerencias:</h6>
+                                    <ul class="list-group">
+                                        {% for suggestion in corrected_text.sugerencias %}
+                                        <li class="list-group-item">{{ suggestion }}</li>
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Config Tab -->
+            <div class="tab-pane fade" id="config" role="tabpanel">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>Configuración del Sistema IA</h5>
+                    </div>
+                    <div class="card-body">
+                        <form>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">API Key OpenAI</label>
+                                        <input type="password" class="form-control" value="sk-••••••••••••••••••••••••••••••••••••">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Modelo por defecto</label>
+                                        <select class="form-control">
+                                            <option>GPT-4</option>
+                                            <option>GPT-3.5-turbo</option>
+                                            <option>GPT-4-turbo</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Temperatura</label>
+                                        <input type="range" class="form-range" min="0" max="2" step="0.1" value="0.7">
+                                        <small class="text-muted">0.7 (Creatividad equilibrada)</small>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Límite de tokens</label>
+                                        <input type="number" class="form-control" value="2000">
+                                    </div>
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-primary btn-custom">Guardar Configuración</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function viewLog(logId) {
+        // Implementar vista detallada del log
+        alert('Vista detallada del log ' + logId);
+    }
+
+    function exportLogs() {
+        // Implementar exportación de logs
+        alert('Exportando logs...');
+    }
+
+    function restartBot() {
+        if (confirm('¿Reiniciar el bot de WhatsApp?')) {
+            alert('Bot reiniciado exitosamente');
+        }
+    }
+
+    function testAgent(agentType) {
+        const testQueries = {
+            'inventory': '¿Cuántos equipos hay en total?',
+            'hr': '¿Cuántos empleados activos hay?'
+        };
+
+        alert('Probando agente ' + agentType + ' con consulta: "' + testQueries[agentType] + '"');
+    }
+</script>
+{% endblock %}

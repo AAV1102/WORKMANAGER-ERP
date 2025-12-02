@@ -1,0 +1,317 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container-fluid">
+    <h1 class="mb-4">Módulo Médico</h1>
+
+    {% if section == 'nuevo_paciente' %}
+        <h2>Nuevo Paciente</h2>
+        <form method="post" action="{{ url_for('medico.nuevo_paciente') }}">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="tipo_documento" class="form-label">Tipo de Documento</label>
+                        <select class="form-select" id="tipo_documento" name="tipo_documento" required>
+                            <option value="CC">Cédula de Ciudadanía</option>
+                            <option value="TI">Tarjeta de Identidad</option>
+                            <option value="CE">Cédula de Extranjería</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="numero_documento" class="form-label">Número de Documento</label>
+                        <input type="text" class="form-control" id="numero_documento" name="numero_documento" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="nombres" class="form-label">Nombres</label>
+                        <input type="text" class="form-control" id="nombres" name="nombres" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="apellidos" class="form-label">Apellidos</label>
+                        <input type="text" class="form-control" id="apellidos" name="apellidos" required>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="fecha_nacimiento" class="form-label">Fecha de Nacimiento</label>
+                        <input type="date" class="form-control" id="fecha_nacimiento" name="fecha_nacimiento" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="genero" class="form-label">Género</label>
+                        <select class="form-select" id="genero" name="genero" required>
+                            <option value="M">Masculino</option>
+                            <option value="F">Femenino</option>
+                            <option value="O">Otro</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="telefono" class="form-label">Teléfono</label>
+                        <input type="tel" class="form-control" id="telefono" name="telefono">
+                    </div>
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Email</label>
+                        <input type="email" class="form-control" id="email" name="email">
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="direccion" class="form-label">Dirección</label>
+                        <textarea class="form-control" id="direccion" name="direccion" rows="3"></textarea>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="ciudad" class="form-label">Ciudad</label>
+                        <input type="text" class="form-control" id="ciudad" name="ciudad">
+                    </div>
+                    <div class="mb-3">
+                        <label for="eps" class="form-label">EPS</label>
+                        <input type="text" class="form-control" id="eps" name="eps">
+                    </div>
+                    <div class="mb-3">
+                        <label for="tipo_afiliacion" class="form-label">Tipo de Afiliación</label>
+                        <select class="form-select" id="tipo_afiliacion" name="tipo_afiliacion">
+                            <option value="contributivo">Contributivo</option>
+                            <option value="subsidiado">Subsidiado</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <button type="submit" class="btn btn-primary">Guardar Paciente</button>
+            <a href="{{ url_for('medico.medico') }}" class="btn btn-secondary">Cancelar</a>
+        </form>
+
+    {% elif section == 'citas' %}
+        <h2>Citas Médicas</h2>
+        <a href="#" class="btn btn-primary mb-3"><i class="fas fa-plus"></i> Nueva Cita</a>
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Paciente</th>
+                        <th>Médico</th>
+                        <th>Fecha</th>
+                        <th>Estado</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Citas data would go here -->
+                </tbody>
+            </table>
+        </div>
+
+    {% elif section == 'historias_clinicas' %}
+        <h2>Historias Clínicas</h2>
+        <div class="mb-3">
+            <input type="text" class="form-control" placeholder="Buscar paciente..." id="searchPaciente">
+        </div>
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Paciente</th>
+                        <th>Última Consulta</th>
+                        <th>Diagnóstico</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Historias clínicas data would go here -->
+                </tbody>
+            </table>
+        </div>
+
+    {% elif section == 'examenes' %}
+        <h2>Exámenes Médicos</h2>
+        <a href="#" class="btn btn-primary mb-3"><i class="fas fa-plus"></i> Nuevo Examen</a>
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Paciente</th>
+                        <th>Tipo de Examen</th>
+                        <th>Fecha</th>
+                        <th>Resultado</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Exámenes data would go here -->
+                </tbody>
+            </table>
+        </div>
+
+    {% elif section == 'medicamentos' %}
+        <h2>Medicamentos</h2>
+        <a href="#" class="btn btn-primary mb-3"><i class="fas fa-plus"></i> Nuevo Medicamento</a>
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nombre</th>
+                        <th>Principio Activo</th>
+                        <th>Stock</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Medicamentos data would go here -->
+                </tbody>
+            </table>
+        </div>
+
+    {% else %}
+        <!-- Dashboard Principal -->
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="card stats-card">
+                    <div class="card-body text-center">
+                        <h5 class="card-title">Total Pacientes</h5>
+                        <h3>{{ pacientes|length if pacientes else 0 }}</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card stats-card">
+                    <div class="card-body text-center">
+                        <h5 class="card-title">Citas Hoy</h5>
+                        <h3>0</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card stats-card">
+                    <div class="card-body text-center">
+                        <h5 class="card-title">Consultas</h5>
+                        <h3>0</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card stats-card">
+                    <div class="card-body text-center">
+                        <h5 class="card-title">Exámenes</h5>
+                        <h3>0</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>Acciones Rápidas</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-grid gap-2">
+                            <a href="{{ url_for('medico.nuevo_paciente') }}" class="btn btn-primary">
+                                <i class="fas fa-user-plus"></i> Nuevo Paciente
+                            </a>
+                            <a href="{{ url_for('medico.citas') }}" class="btn btn-success">
+                                <i class="fas fa-calendar-plus"></i> Agendar Cita
+                            </a>
+                            <a href="{{ url_for('medico.examenes') }}" class="btn btn-warning">
+                                <i class="fas fa-flask"></i> Registrar Examen
+                            </a>
+                            <a href="{{ url_for('medico.medicamentos') }}" class="btn btn-info">
+                                <i class="fas fa-pills"></i> Gestionar Medicamentos
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>Consultas Recientes</h5>
+                    </div>
+                    <div class="card-body">
+                        <p class="text-muted">No hay consultas recientes.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mt-4">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>Pacientes Registrados</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Documento</th>
+                                        <th>Nombre Completo</th>
+                                        <th>Teléfono</th>
+                                        <th>Email</th>
+                                        <th>Estado</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for paciente in pacientes %}
+                                    <tr>
+                                        <td>{{ paciente.id }}</td>
+                                        <td>{{ paciente.tipo_documento }} {{ paciente.numero_documento }}</td>
+                                        <td>{{ paciente.nombres }} {{ paciente.apellidos }}</td>
+                                        <td>{{ paciente.telefono or '-' }}</td>
+                                        <td>{{ paciente.email or '-' }}</td>
+                                        <td>
+                                            <span class="badge bg-{{ 'success' if paciente.estado == 'activo' else 'secondary' }}">
+                                                {{ paciente.estado.title() }}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <a href="{{ url_for('medico.edit_paciente', paciente_id=paciente.id) }}" class="btn btn-sm btn-warning">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            <a href="{{ url_for('medico.historias_clinicas') }}" class="btn btn-sm btn-info">
+                                                <i class="fas fa-file-medical"></i>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+</div>
+
+<script>
+    // Search functionality
+    document.getElementById('searchPaciente')?.addEventListener('input', function() {
+        const filter = this.value.toUpperCase();
+        const table = document.querySelector('table');
+        const tr = table?.getElementsByTagName('tr');
+
+        if (tr) {
+            for (let i = 1; i < tr.length; i++) {
+                const td = tr[i].getElementsByTagName('td');
+                let found = false;
+                for (let j = 0; j < td.length; j++) {
+                    if (td[j].innerHTML.toUpperCase().indexOf(filter) > -1) {
+                        found = true;
+                        break;
+                    }
+                }
+                tr[i].style.display = found ? '' : 'none';
+            }
+        }
+    });
+</script>
+{% endblock %}

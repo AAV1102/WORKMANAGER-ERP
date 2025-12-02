@@ -1,0 +1,534 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h3 class="mb-3">
+    <i class="fas fa-plus-square text-primary"></i>
+    Nuevo Equipo Individual - Inventario Detallado
+</h3>
+
+<form method="POST" class="card card-body">
+
+    <div class="card mb-3">
+        <div class="card-body">
+            <h5 class="card-title"><i class="fas fa-microchip"></i> Tipo de equipo</h5>
+            <div class="row g-3 align-items-end">
+                <div class="col-md-4">
+                    <label class="form-label">Tecnologia *</label>
+                    <select name="tecnologia" id="tecnologiaSelect" class="form-select" required>
+                        {% if tecnologias %}
+                            <option value="">Seleccione...</option>
+                            {% for t in tecnologias %}
+                                <option value="{{ t }}">{{ t }}</option>
+                            {% endfor %}
+                        {% else %}
+                            <option value="">(No hay tecnologias definidas)</option>
+                        {% endif %}
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label d-flex justify-content-between align-items-center">
+                        <span>Codigo de barras individual</span>
+                        <button type="button" class="btn btn-sm btn-outline-primary" id="generateCodeBtn">Generar</button>
+                    </label>
+                    <div class="input-group">
+                        <input type="text" name="codigo_barras_individual" id="codigoInput" class="form-control"
+                               placeholder="Se generara automatico si queda vacio">
+                    </div>
+                    <small class="text-muted">Usa sede + tecnologia para crear el prefijo y consecutivo.</small>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Codigo unificado / agrupado</label>
+                    <input type="text" name="codigo_unificado" class="form-control"
+                           placeholder="Codigo del paquete asignado">
+                    <small class="text-muted">Permite enlazar el equipo a un codigo agrupado existente.</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card mb-3" data-field-group="general_info">
+        <div class="card-body">
+            <h5 class="card-title">Identificacion y ubicacion</h5>
+            <div class="row g-3">
+                <div class="col-md-3">
+                    <label class="form-label">Serial</label>
+                    <input type="text" name="serial" class="form-control">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Placa</label>
+                    <input type="text" name="placa" class="form-control">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Anterior placa</label>
+                    <input type="text" name="anterior_placa" class="form-control">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Ciudad</label>
+                    <input type="text" name="ciudad" class="form-control">
+                </div>
+            </div>
+            <div class="row g-3 mt-1">
+                <div class="col-md-4">
+                    <label class="form-label">Marca</label>
+                    <input type="text" name="marca" class="form-control">
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Modelo</label>
+                    <input type="text" name="modelo" class="form-control">
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">MAC</label>
+                    <input type="text" name="mac" class="form-control">
+                </div>
+            </div>
+            <div class="row g-3 mt-1">
+                <div class="col-md-4">
+                    <label class="form-label">Hostname</label>
+                    <input type="text" name="hostname" class="form-control">
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">IP equipo</label>
+                    <input type="text" name="ip" class="form-control">
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Sede *</label>
+                    <select name="sede_id" class="form-select" required>
+                        <option value="">Seleccione sede...</option>
+                        {% if sedes %}
+                            {% for s in sedes %}
+                                <option value="{{ s.id }}">{{ s.nombre }} - {{ s.ciudad }}</option>
+                            {% endfor %}
+                        {% else %}
+                            <option value="">(No hay sedes registradas)</option>
+                        {% endif %}
+                    </select>
+                </div>
+            </div>
+            <div class="row g-3 mt-1">
+                <div class="col-md-6">
+                    <label class="form-label">IP sede</label>
+                    <input type="text" name="ip_sede" class="form-control">
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Entrada OC compra</label>
+                    <input type="text" name="entrada_oc_compra" class="form-control">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card mb-3" data-field-group="network_info">
+        <div class="card-body">
+            <h5 class="card-title">Red y direccionamiento</h5>
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <label class="form-label">MAC</label>
+                    <input type="text" name="mac" class="form-control">
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Hostname</label>
+                    <input type="text" name="hostname" class="form-control">
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">IP equipo</label>
+                    <input type="text" name="ip" class="form-control">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card mb-3" data-field-group="hardware_specs">
+        <div class="card-body">
+            <h5 class="card-title">Especificaciones tecnicas</h5>
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <label class="form-label">Procesador</label>
+                    <input type="text" name="procesador" class="form-control" placeholder="Ej: Intel Core i5">
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Arquitectura RAM</label>
+                    <input type="text" name="arch_ram" class="form-control" placeholder="Ej: DDR4">
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Cantidad RAM</label>
+                    <input type="text" name="cantidad_ram" class="form-control" placeholder="Ej: 16 GB">
+                </div>
+            </div>
+            <div class="row g-3 mt-1">
+                <div class="col-md-4">
+                    <label class="form-label">Tipo de disco</label>
+                    <input type="text" name="tipo_disco" class="form-control" placeholder="Ej: SSD">
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Almacenamiento</label>
+                    <input type="text" name="espacio_disco" class="form-control" placeholder="Ej: 512 GB">
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Sistema operativo</label>
+                    <input type="text" name="so" class="form-control" placeholder="Ej: Windows 11 Pro">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card mb-3" data-field-group="monitor_info">
+        <div class="card-body">
+            <h5 class="card-title">Monitor principal / adicional</h5>
+            <div class="row g-3">
+                <div class="col-md-3">
+                    <label class="form-label">Marca monitor</label>
+                    <input type="text" name="marca_monitor" class="form-control">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Modelo monitor</label>
+                    <input type="text" name="modelo_monitor" class="form-control">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Serial monitor</label>
+                    <input type="text" name="serial_monitor" class="form-control">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Placa monitor</label>
+                    <input type="text" name="placa_monitor" class="form-control">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card mb-3" data-field-group="peripherals_info">
+        <div class="card-body">
+            <h5 class="card-title">Perifericos</h5>
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label class="form-label">Mouse</label>
+                    <input type="text" name="mouse" class="form-control">
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Teclado</label>
+                    <input type="text" name="teclado" class="form-control">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card mb-3" data-field-group="component_info">
+        <div class="card-body">
+            <h5 class="card-title">Componentes adicionales</h5>
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <label class="form-label">Tipo componente</label>
+                    <input type="text" name="tipo_componente_adicional" class="form-control" placeholder="Base, dock, adaptador, etc.">
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Marca / modelo componente</label>
+                    <input type="text" name="marca_modelo_componente_adicional" class="form-control">
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Serial componente</label>
+                    <input type="text" name="serial_componente_adicional" class="form-control">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card mb-3" data-field-group="telemedicina_info">
+        <div class="card-body">
+            <h5 class="card-title">Telemedicina</h5>
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label class="form-label">Marca y modelo telemedicina</label>
+                    <input type="text" name="marca_modelo_telemedicina" class="form-control">
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Serial telemedicina</label>
+                    <input type="text" name="serial_telemedicina" class="form-control">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card mb-3" data-field-group="telephony_info">
+        <div class="card-body">
+            <h5 class="card-title">Telefonia corporativa</h5>
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <label class="form-label">Marca y modelo telefono</label>
+                    <input type="text" name="marca_modelo_telefono" class="form-control">
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Serial telefono</label>
+                    <input type="text" name="serial_telefono" class="form-control">
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">IMEI / identificador</label>
+                    <input type="text" name="imei_telefono" class="form-control">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card mb-3" data-field-group="printer_info">
+        <div class="card-body">
+            <h5 class="card-title">Impresoras</h5>
+            <div class="row g-3">
+                <div class="col-md-3">
+                    <label class="form-label">Marca y modelo</label>
+                    <input type="text" name="marca_modelo_impresora" class="form-control">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">IP impresora</label>
+                    <input type="text" name="ip_impresora" class="form-control">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Serial impresora</label>
+                    <input type="text" name="serial_impresora" class="form-control">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">PIN / clave</label>
+                    <input type="text" name="pin_impresora" class="form-control">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card mb-3" data-field-group="cctv_info">
+        <div class="card-body">
+            <h5 class="card-title">CCTV</h5>
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label class="form-label">Marca y modelo CCTV</label>
+                    <input type="text" name="marca_modelo_cctv" class="form-control">
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Serial CCTV</label>
+                    <input type="text" name="serial_cctv" class="form-control">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card mb-3" data-field-group="assignment_info">
+        <div class="card-body">
+            <h5 class="card-title">Asignacion y contacto</h5>
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label class="form-label">Anterior asignado</label>
+                    <input type="text" name="anterior_asignado" class="form-control">
+                </div>
+                <div class="col-md-6">
+                    <label for="asignado_nuevo" class="form-label">Asignado A</label>
+                    <input class="form-control" list="empleadosOptions" id="asignado_nuevo" name="asignado_nuevo" placeholder="Escribe para buscar un empleado...">
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Contacto / telefono</label>
+                    <input type="text" name="contacto" class="form-control">
+                </div>
+            </div>
+            <div class="row g-3 mt-1">
+                <div class="col-md-4">
+                    <label class="form-label">Cargo</label>
+                    <input type="text" name="cargo" class="form-control">
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Area</label>
+                    <input type="text" name="area" class="form-control">
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Fecha asignacion</label>
+                    <input type="date" name="fecha" class="form-control">
+                </div>
+            </div>
+            <div class="row g-3 mt-1">
+                <div class="col-md-4">
+                    <label class="form-label">Fecha de llegada</label>
+                    <input type="date" name="fecha_llegada" class="form-control">
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">IP sede</label>
+                    <input type="text" name="ip_sede" class="form-control">
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Creador del registro</label>
+                    <input type="text" name="creador_registro" class="form-control" placeholder="Ej: Anderson Ayala">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card mb-3" data-field-group="procurement_info">
+        <div class="card-body">
+            <h5 class="card-title">Compras y soporte</h5>
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <label class="form-label">Proveedor</label>
+                    <input type="text" name="proveedor" class="form-control">
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Orden de compra (OC)</label>
+                    <input type="text" name="oc" class="form-control">
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Mueble asignado / ubicacion</label>
+                    <input type="text" name="mueble_asignado" class="form-control">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card mb-3" data-field-group="logistics_info">
+        <div class="card-body">
+            <h5 class="card-title">Logistica y envio</h5>
+            <div class="row g-3">
+                <div class="col-md-3">
+                    <label class="form-label">Cargado NIT</label>
+                    <input type="text" name="cargado_nit" class="form-control">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Enviado NIT</label>
+                    <input type="text" name="enviado_nit" class="form-control">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Fecha enviado</label>
+                    <input type="date" name="fecha_enviado" class="form-control">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Guia / soporte</label>
+                    <input type="text" name="guia" class="form-control">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card mb-3" data-field-group="status_info">
+        <div class="card-body">
+            <h5 class="card-title">Estado y observaciones</h5>
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <label class="form-label">Estado</label>
+                    <select name="estado" class="form-select">
+                        <option value="disponible" selected>Disponible</option>
+                        <option value="asignado">Asignado</option>
+                        <option value="pendiente recogida">Pendiente recogida</option>
+                        <option value="baja">Baja</option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Disponible</label>
+                    <select name="disponible" class="form-select">
+                        <option value="Si" selected>Si</option>
+                        <option value="No">No</option>
+                    </select>
+                </div>
+            </div>
+            <div class="mt-3">
+                <label class="form-label">Observaciones / trazabilidad</label>
+                <textarea name="observaciones" class="form-control" rows="3"
+                          placeholder="Historial de soporte, mantenimientos, cambios de usuario, etc."></textarea>
+            </div>
+        </div>
+    </div>
+
+    <div class="text-end">
+        <button class="btn btn-primary btn-custom">
+            <i class="fas fa-save"></i> Guardar equipo
+        </button>
+        <a href="{{ url_for('inventarios.inventarios') }}" class="btn btn-secondary">
+            Cancelar
+        </a>
+    </div>
+</form>
+
+<!-- Datalist para las opciones de empleados -->
+<datalist id="empleadosOptions">
+    {% for empleado in empleados %}
+        <option value="{{ empleado.nombre }} {{ empleado.apellido }} ({{ empleado.correo_office }})" 
+                data-sede-id="{{ empleado.sede_id }}" 
+                data-area="{{ empleado.departamento }}">
+        </option>
+    {% endfor %}
+</datalist>
+
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // --- Script para autocompletar campos ---
+        const inputAsignado = document.getElementById('asignado_nuevo');
+        const optionsList = document.getElementById('empleadosOptions');
+
+        if (inputAsignado && optionsList) {
+            inputAsignado.addEventListener('input', function(e) {
+                const selectedValue = e.target.value;
+                const selectedOption = Array.from(optionsList.options).find(option => option.value === selectedValue);
+
+                if (selectedOption) {
+                    const sedeId = selectedOption.getAttribute('data-sede-id');
+                    const area = selectedOption.getAttribute('data-area');
+
+                    const sedeSelect = document.querySelector('select[name="sede_id"]');
+                    if (sedeSelect && sedeId) {
+                        sedeSelect.value = sedeId;
+                    }
+
+                    const areaInput = document.querySelector('input[name="area"]');
+                    if (areaInput && area) {
+                        areaInput.value = area;
+                    }
+                }
+            });
+        }
+
+        // --- Script para mostrar/ocultar secciones por tecnologia ---
+        const tecnologiaSelect = document.getElementById("tecnologiaSelect");
+        const sedeSelect = document.querySelector('select[name="sede_id"]');
+        const codigoInput = document.getElementById('codigoInput');
+        const generateBtn = document.getElementById('generateCodeBtn');
+        const technologyGroups = {{ technology_groups|tojson }};
+        const baseGroups = {{ base_field_groups|tojson }};
+        const sections = document.querySelectorAll("[data-field-group]");
+
+        const updateSections = () => {
+            const selected = tecnologiaSelect.value;
+            const allowed = new Set(baseGroups);
+            if (selected && technologyGroups[selected]) {
+                technologyGroups[selected].forEach(group => allowed.add(group));
+            }
+            sections.forEach(section => {
+                if (allowed.has(section.dataset.fieldGroup)) {
+                    section.classList.remove("d-none");
+                } else {
+                    section.classList.add("d-none");
+                }
+            });
+        };
+
+        if (tecnologiaSelect) {
+            tecnologiaSelect.addEventListener("change", updateSections);
+            updateSections(); // Ejecutar al cargar la pagina
+        }
+
+        if (generateBtn) {
+            generateBtn.addEventListener('click', async () => {
+                const sede = sedeSelect ? sedeSelect.value : '';
+                const tecnologia = tecnologiaSelect ? tecnologiaSelect.value : '';
+                if (!sede || !tecnologia) {
+                    alert('Selecciona sede y tecnologia antes de generar el codigo.');
+                    return;
+                }
+                try {
+                    const resp = await fetch(`/inventarios/api/generar_codigo?sede_id=${encodeURIComponent(sede)}&tecnologia=${encodeURIComponent(tecnologia)}`);
+                    const data = await resp.json();
+                    if (data.codigo) {
+                        codigoInput.value = data.codigo;
+                    } else {
+                        alert(data.error || 'No se pudo generar el codigo');
+                    }
+                } catch (err) {
+                    alert('Error generando el codigo');
+                }
+            });
+        }
+    });
+</script>
+{% endblock %}

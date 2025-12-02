@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-6">
+        <h2>Nueva Licencia</h2>
+        <form action="{{ url_for('licencias.new_licencia') }}" method="post">
+            <div class="mb-3">
+                <label for="software" class="form-label">Software</label>
+                <input type="text" class="form-control" id="software" name="software" required>
+            </div>
+            <div class="mb-3">
+                <label for="license_key" class="form-label">License Key</label>
+                <input type="text" class="form-control" id="license_key" name="license_key" required>
+            </div>
+            <div class="mb-3">
+                <label for="expiration" class="form-label">Expiration</label>
+                <input type="date" class="form-control" id="expiration" name="expiration" required>
+            </div>
+            <button type="submit" class="btn btn-primary btn-custom"><i class="fas fa-save"></i> Guardar</button>
+            <a href="{{ url_for('licencias.licencias') }}" class="btn btn-secondary"><i class="fas fa-arrow-left"></i> Cancelar</a>
+        </form>
+    </div>
+</div>
+{% endblock %}

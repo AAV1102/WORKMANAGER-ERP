@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <div>
+                <h3><i class="fas fa-boxes text-primary"></i> Componentes del Equipo Agrupado</h3>
+                <p class="text-muted mb-0">
+                    Codigo: <strong>{{ equipo_agrupado[1] }}</strong> |
+                    Estado: {{ equipo_agrupado[7] or 'N/D' }} |
+                    Asignado: {{ equipo_agrupado[5] or 'No asignado' }}
+                </p>
+            </div>
+            <div>
+                <a href="{{ url_for('inventarios.inventarios') }}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Volver a Inventarios
+                </a>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-body">
+                {% if componentes and componentes|length > 0 %}
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Codigo Individual</th>
+                                <th>Tipo</th>
+                                <th>Marca</th>
+                                <th>Modelo</th>
+                                <th>Serial</th>
+                                <th>Estado</th>
+                                <th>Observaciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for comp in componentes %}
+                            <tr>
+                                <td>{{ comp[0] }}</td>
+                                <td>{{ comp[2] or '-' }}</td>
+                                <td>{{ comp[3] or '-' }}</td>
+                                <td>{{ comp[4] or '-' }}</td>
+                                <td>{{ comp[5] or '-' }}</td>
+                                <td>{{ comp[6] or '-' }}</td>
+                                <td>{{ comp[8] or '-' }}</td>
+                                <td>{{ comp[9] or '-' }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                    <p class="text-muted mb-0">No hay componentes registrados para este equipo.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

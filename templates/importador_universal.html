@@ -1,0 +1,373 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container py-4">
+  <div class="row align-items-center mb-4">
+    <div class="col-md-8">
+      <h2><i class="fas fa-file-import"></i> Importador Universal</h2>
+      <p class="text-muted mb-0">
+        Este centro unifica las cargas de inventario, licencias, empleados y bajas en un solo flujo. Elige un m?dulo o deja la detecci?n autom?tica encargarse del destino.
+      </p>
+    </div>
+    <div class="col-md-4 text-md-end">
+      <span class="badge bg-info text-dark">
+        Formatos admitidos: CSV, XLS, XLSX + detecci?n inteligente
+      </span>
+    </div>
+  </div>
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      <div class="row mb-3">
+        <div class="col">
+          {% for category, message in messages %}
+            <div class="alert alert-{{ 'danger' if category == 'error' else category }} mb-2">
+              {{ message }}
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+    {% endif %}
+  {% endwith %}
+
+  <div class="row g-4">
+    <div class="col-lg-6">
+      <div class="card shadow-sm">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <h5 class="mb-0"><i class="fas fa-upload"></i> Importar datos</h5>
+          {% if detected_target %}
+            <span class="badge bg-success">Detectado: {{ detected_target }}</span>
+          {% endif %}
+        </div>
+        <div class="card-body">
+          <form action="{{ url_for('export_import_v2.importar_preview') }}" method="post" enctype="multipart/form-data">
+            <div class="mb-3">
+              <label class="form-label">Archivos (CSV/Excel)</label>
+              <input type="file" name="files" class="form-control" required accept=".csv,.xls,.xlsx" multiple />
+              <small class="text-muted">Puedes seleccionar varios a la vez; los combinaremos antes de previsualizar.</small>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Destino</label>
+              <select name="target" class="form-select">
+                <option value="auto" {% if target == 'auto' or not target %}selected{% endif %}>Detecci?n autom?tica</option>
+                {% for module in modules %}
+                  <option value="{{ module.alias }}" {% if target == module.alias %}selected{% endif %}>{{ module.label }}</option>
+                {% endfor %}
+              </select>
+              <small class="text-muted">{{ modules[0].description }}</small>
+            </div>
+            <div class="d-flex justify-content-between">
+              <button type="submit" class="btn btn-primary btn-custom">
+                <i class="fas fa-search"></i> Vista previa
+              </button>
+              <a class="btn btn-outline-secondary" href="{{ url_for('export_import_v2.importar_form') }}">Reiniciar</a>
+            </div>
+          </form>
+
+          {% if tmp_file %}
+            <div class="alert alert-info mt-4">
+              Archivo listo para procesar. Presiona "Procesar importaci?n" en la vista previa.
+            </div>
+          {% endif %}
+
+          {% if file_previews %}
+          <div class="card mt-3 border-info">
+            <div class="card-header bg-info bg-opacity-10">
+              <strong>Resumen de archivos</strong> (estilo Power BI)
+            </div>
+            <div class="card-body p-0">
+              <div class="table-responsive">
+                <table class="table mb-0 table-sm align-middle">
+                  <thead class="table-light">
+                    <tr>
+                      <th>Archivo</th>
+                      <th class="text-end">Filas</th>
+                      <th class="text-end">Columnas</th>
+                      <th>Primeras columnas</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for f in file_previews %}
+                      <tr>
+                        <td>{{ f.name }}</td>
+                        <td class="text-end">{{ f.rows }}</td>
+                        <td class="text-end">{{ f.cols }}</td>
+                        <td class="small text-muted">
+                          {{ f.headers|join(', ') }}
+                        </td>
+                      </tr>
+                    {% endfor %}
+                  </tbody>
+                  <tfoot class="table-light">
+                    <tr>
+                      <th>Total combinado</th>
+                      <th class="text-end">{{ combined_shape.rows }}</th>
+                      <th class="text-end">{{ combined_shape.cols }}</th>
+                      <th class="small text-muted">Vista previa disponible abajo</th>
+                    </tr>
+                  </tfoot>
+                </table>
+              </div>
+            </div>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+
+      {% if tmp_file and headers %}
+        <div class="card mt-3">
+            <div class="card-header">
+              <h6 class="mb-0"><i class="fas fa-table"></i> Previsualizaci?n</h6>
+            </div>
+            <div class="card-body">
+            <form action="{{ url_for('export_import_v2.importar_procesar') }}" method="post">
+              <input type="hidden" name="tmp_file" value="{{ tmp_file }}" />
+              <input type="hidden" name="target" value="{{ target }}" />
+              <input type="hidden" name="selected_columns" id="selectedColumnsInput" value="{{ headers|join(',') }}">
+
+              <div class="d-flex flex-wrap align-items-center gap-2 mb-3">
+                <button type="submit" class="btn btn-success btn-sm">
+                  <i class="fas fa-play"></i> Procesar importaci?n
+                </button>
+                <button type="button" class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#powerBiModal">
+                  <i class="fas fa-filter"></i> Previsualizar y escoger columnas
+                </button>
+                <button type="button" class="btn btn-outline-secondary btn-sm" id="selectMappedBtn">
+                  <i class="fas fa-magic"></i> Auto-seleccionar mapeadas
+                </button>
+                <a class="btn btn-outline-info btn-sm" href="{{ url_for('export_import_v2.export_unmapped') }}">
+                  <i class="fas fa-download"></i> Bajar no mapeadas (staging)
+                </a>
+                <span class="badge bg-light text-dark">Destino sugerido: {{ detected_target }}</span>
+              </div>
+
+              <div class="table-responsive mb-3">
+                <table class="table table-sm table-bordered align-middle">
+                  <thead class="table-light">
+                    <tr>
+                      <th>Columna origen</th>
+                      <th>Campo destino (IA / manual)</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% set options = [
+                      ('', '-- Dejar sin mapear --'),
+                      ('serial', 'serial'),
+                      ('codigo_barras_individual', 'codigo_barras_individual / placa'),
+                      ('placa', 'placa'),
+                      ('modelo', 'modelo'),
+                      ('marca', 'marca'),
+                      ('procesador', 'procesador'),
+                      ('ram', 'ram'),
+                      ('ip', 'ip'),
+                      ('hostname', 'hostname'),
+                      ('estado', 'estado'),
+                      ('ubicacion', 'ubicacion'),
+                      ('tecnologia', 'tecnologia'),
+                      ('email', 'email'),
+                      ('tipo_licencia', 'tipo_licencia'),
+                      ('usuario_lic', 'usuario_lic'),
+                      ('cedula', 'cedula'),
+                      ('nombre', 'nombre'),
+                      ('apellido', 'apellido'),
+                      ('nombre_completo', 'nombre_completo'),
+                      ('motivo_baja', 'motivo_baja'),
+                      ('responsable_baja', 'responsable_baja'),
+                      ('tipo_inventario', 'tipo_inventario'),
+                      ('nombre_insumo', 'nombre_insumo'),
+                      ('cantidad_total', 'cantidad_total'),
+                      ('asignado_a', 'asignado_a'),
+                      ('numero_tanda', 'numero_tanda'),
+                      ('descripcion', 'descripcion'),
+                      ('cantidad_equipos', 'cantidad_equipos'),
+                      ('proveedor', 'proveedor'),
+                      ('valor_total', 'valor_total'),
+                      ('observaciones', 'observaciones')
+                    ] %}
+                    {% for header in headers %}
+                    {% set idx = loop.index0 %}
+                    <tr>
+                      <td class="small">{{ header }}</td>
+                      <td>
+                        <select class="form-select form-select-sm" name="map-{{ idx }}">
+                          {% set current = column_mapping.get(header) if column_mapping else '' %}
+                          {% for val, label in options %}
+                          <option value="{{ val }}" {% if current == val %}selected{% endif %}>{{ label }}</option>
+                          {% endfor %}
+                        </select>
+                      </td>
+                    </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+            </form>
+            <div class="table-responsive">
+              <table class="table table-sm table-bordered">
+                <thead>
+                  <tr>
+                    {% for header in headers %}
+                      <th>{{ header }}</th>
+                    {% endfor %}
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for row in preview_rows %}
+                    <tr>
+                      {% for header in headers %}
+                        <td>{{ row.get(header, '') }}</td>
+                      {% endfor %}
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      {% endif %}
+    </div>
+
+    <div class="col-lg-6">
+      <div class="card shadow-sm h-100">
+        <div class="card-header">
+          <h5 class="mb-0"><i class="fas fa-file-export"></i> Exportar por m?dulo</h5>
+        </div>
+        <div class="card-body">
+          <p class="text-muted">
+            Descarga el contenido actual de cada m?dulo con los formatos habituales (Excel, CSV, PDF, JSON, TXT, Imagen).
+          </p>
+          <div class="row gy-3">
+            {% for module in modules %}
+              <div class="col-12">
+                <div class="d-flex flex-column border rounded p-2">
+                  <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                      <strong>{{ module.label }}</strong>
+                      <p class="mb-0 text-muted small">{{ module.description }}</p>
+                    </div>
+                    <span class="badge bg-light text-dark">{{ module.alias }}</span>
+                  </div>
+                  <div class="btn-toolbar flex-wrap gap-1 mt-2">
+                    {% for fmt in export_formats %}
+                      <a class="btn btn-outline-primary btn-sm" role="button"
+                         href="{{ url_for('export_import_v2.export_dispatch', fmt=fmt, table=module.alias) }}"
+                         target="_blank">{{ fmt.upper() }}</a>
+                    {% endfor %}
+                  </div>
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% if headers %}
+<!-- Modal estilo Power BI para seleccionar columnas -->
+<div class="modal fade" id="powerBiModal" tabindex="-1" aria-labelledby="powerBiModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-xl modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="powerBiModalLabel"><i class="fas fa-table"></i> Vista previa y selección de columnas</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="mb-3">
+          <label class="form-label">Buscar columna</label>
+          <input type="text" class="form-control form-control-sm" id="columnSearch" placeholder="Filtra por nombre de columna...">
+        </div>
+        <div class="d-flex gap-2 mb-2">
+          <button class="btn btn-outline-secondary btn-sm" type="button" id="selectAllCols">Seleccionar todo</button>
+          <button class="btn btn-outline-secondary btn-sm" type="button" id="clearAllCols">Limpiar</button>
+        </div>
+        <div class="border rounded p-2 mb-3" style="max-height: 220px; overflow:auto;">
+          <div class="row g-2" id="columnCheckboxes">
+            {% for header in headers %}
+            <div class="col-6 col-md-4 col-lg-3">
+              <div class="form-check">
+                <input class="form-check-input column-check" type="checkbox" value="{{ header }}" id="col-{{ loop.index }}" checked>
+                <label class="form-check-label small" for="col-{{ loop.index }}">{{ header }}</label>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+        <div class="table-responsive" style="max-height: 360px;">
+          <table class="table table-sm table-bordered">
+            <thead>
+              <tr>
+                {% for header in headers %}
+                <th class="preview-col" data-col="{{ header }}">{{ header }}</th>
+                {% endfor %}
+              </tr>
+            </thead>
+            <tbody>
+              {% for row in preview_rows %}
+              <tr>
+                {% for header in headers %}
+                <td class="preview-col" data-col="{{ header }}">{{ row.get(header, '') }}</td>
+                {% endfor %}
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <small class="text-muted me-auto">Solo se procesarán las columnas seleccionadas.</small>
+        <button type="button" class="btn btn-primary" data-bs-dismiss="modal" id="applyColumns">Aplicar selección</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const columnChecks = Array.from(document.querySelectorAll('.column-check'));
+  const searchInput = document.getElementById('columnSearch');
+  const selectAllBtn = document.getElementById('selectAllCols');
+  const clearAllBtn = document.getElementById('clearAllCols');
+  const selectedInput = document.getElementById('selectedColumnsInput');
+  const applyBtn = document.getElementById('applyColumns');
+  const selectMappedBtn = document.getElementById('selectMappedBtn');
+  const mapping = {{ column_mapping|tojson if column_mapping else '{}'|safe }};
+
+  function selectMapped() {
+    if (!mapping || Object.keys(mapping).length === 0) return;
+    columnChecks.forEach(c => {
+      const mapped = mapping[c.value] !== undefined && mapping[c.value] !== null && mapping[c.value] !== '';
+      c.checked = mapped;
+    });
+    syncSelected();
+  }
+
+  function syncSelected() {
+    const selected = columnChecks.filter(c => c.checked).map(c => c.value);
+    selectedInput.value = selected.join(',');
+    document.querySelectorAll('.preview-col').forEach(cell => {
+      const col = cell.dataset.col;
+      cell.style.display = selected.includes(col) ? '' : 'none';
+    });
+  }
+
+  columnChecks.forEach(c => c.addEventListener('change', syncSelected));
+  selectAllBtn?.addEventListener('click', () => { columnChecks.forEach(c => c.checked = true); syncSelected(); });
+  clearAllBtn?.addEventListener('click', () => { columnChecks.forEach(c => c.checked = false); syncSelected(); });
+  applyBtn?.addEventListener('click', syncSelected);
+  selectMappedBtn?.addEventListener('click', selectMapped);
+  searchInput?.addEventListener('input', (e) => {
+    const term = e.target.value.toLowerCase();
+    columnChecks.forEach(c => {
+      const label = c.nextElementSibling?.textContent.toLowerCase() || '';
+      c.closest('.col-6').style.display = label.includes(term) ? '' : 'none';
+    });
+  });
+  // Por defecto mostrar todas las columnas; si quieres solo las mapeadas, usa el botón.
+  columnChecks.forEach(c => c.checked = true);
+  syncSelected();
+});
+</script>
+{% endif %}
+{% endblock %}

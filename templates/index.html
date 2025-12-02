@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2><i class="fas fa-tachometer-alt"></i> {{ _('Dashboard Principal') }}</h2>
+        <button class="btn btn-outline-secondary btn-sm" id="editDashboardBtn" data-bs-toggle="tooltip" title="Funcionalidad para personalizar el dashboard próximamente. Podrás añadir, quitar y reordenar widgets."><i class="fas fa-edit"></i> {{ _('Personalizar') }}</button>
+    </div>
+
+    <!-- Contenedor para los widgets del dashboard -->
+    <div class="row" id="dashboard-container">
+        <!-- Los widgets KPI se cargarán aquí dinámicamente -->
+    </div>
+
+    <hr class="my-4">
+
+    <!-- Sección de Accesos Directos a Módulos -->
+    <h4 class="mb-3">{{ _('Accesos Directos a Módulos') }}</h4>
+    <div class="row">
+        <!-- Tarjeta de Gestión Humana -->
+        <div class="col-md-4 col-lg-3 mb-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body text-center">
+                    <i class="fas fa-users fa-3x text-primary mb-3"></i>
+                    <h5 class="card-title">{{ _('Gestión Humana') }}</h5>
+                    <p class="card-text small">{{ _('Gestiona empleados, solicitudes y reportes de RRHH.') }}</p>
+                    <a href="{{ url_for('user.users') }}" class="btn btn-primary">{{ _('Ir al Módulo') }}</a>
+                </div>
+            </div>
+        </div>
+        <!-- Tarjeta de Inventario -->
+        <div class="col-md-4 col-lg-3 mb-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body text-center">
+                    <i class="fas fa-boxes fa-3x text-success mb-3"></i>
+                    <h5 class="card-title">{{ _('Inventario') }}</h5>
+                    <p class="card-text small">{{ _('Controla y gestiona todos los activos tecnológicos de la empresa.') }}</p>
+                    <a href="{{ url_for('inventarios.inventarios') }}" class="btn btn-success">{{ _('Ir al Módulo') }}</a>
+                </div>
+            </div>
+        </div>
+        <!-- Puedes añadir más tarjetas para otros módulos aquí -->
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_scripts %}
+<!-- El script de dashboard_manager.js se encargará de llenar el contenedor #dashboard-container -->
+<script src="{{ url_for('static', filename='js/dashboard_manager.js') }}"></script>
+{% endblock %}

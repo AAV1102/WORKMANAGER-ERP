@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="{{ g.locale or 'es' }}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}WORKMANAGER ERP{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/styles.css') }}" rel="stylesheet">
+
+</head>
+<body>
+    <a href="#main-content" class="visually-hidden-focusable bg-primary text-white p-2">{{ _('Saltar al contenido principal') }}</a>
+    <div class="d-flex" id="wrapper" role="document">
+        <!-- Sidebar -->
+        <nav id="sidebar" class="sidebar">
+            <div class="sidebar-header">
+                <h4 class="text-white text-center py-3">WORKMANAGER ERP</h4>
+            </div>
+            <ul class="list-unstyled components">
+                <li class="sidebar-item">
+                    <a href="{{ url_for('index') }}"><i class="fas fa-home" aria-hidden="true"></i> {{ _('Dashboard') }}</a>
+                </li>
+                <li class="sidebar-item">
+                    <a href="{{ url_for('export_import_v2.importar_form') }}">
+                        <i class="fas fa-file-import"></i> Importador Universal
+                    </a>
+                </li>
+
+                <!-- Gestión Humana -->
+                <li class="sidebar-section">
+                    <a href="#gestionHumanaSubmenu" data-bs-toggle="collapse" aria-expanded="false" class="dropdown-toggle">
+                        <i class="fas fa-users" aria-hidden="true"></i> {{ _('Gestión Humana') }}
+                    </a>
+                    <ul class="collapse list-unstyled show" id="gestionHumanaSubmenu">
+                        <li>
+                            <a href="{{ url_for('user.users') }}" class="submenu-item">
+                                <i class="fas fa-list"></i> Empleados
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{ url_for('user.new_user') }}" class="submenu-item">
+                                <i class="fas fa-plus"></i> Nuevo Empleado
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{ url_for('solicitudes.list_solicitudes') }}" class="submenu-item">
+                                <i class="fas fa-clipboard-list"></i> {{ _('Solicitudes') }}
+                                {% if current_user.is_authenticated and current_user.rol == 'admin' and pending_requests_count > 0 %}
+                                    <span class="badge rounded-pill bg-danger ms-2">{{ pending_requests_count }}</span>
+                                {% endif %}
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{ url_for('gestion_humana.dashboard_gestion_humana') }}#performance" class="submenu-item">
+                                <i class="fas fa-chart-line"></i> Performance
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{ url_for('gestion_humana.dashboard_gestion_humana') }}#reportes" class="submenu-item">
+                                <i class="fas fa-file-alt"></i> Reportes RRHH
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{ url_for('inventarios.inventarios') }}#asignados" class="submenu-item">
+                                <i class="fas fa-boxes"></i> Inventario Asignado
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+
+
+                <!-- Inventario Tecnológico -->
+                <li class="sidebar-section">
+                    <a href="#inventarioSubmenu" data-bs-toggle="collapse" aria-expanded="false" class="dropdown-toggle">
+                        <i class="fas fa-boxes" aria-hidden="true"></i> {{ _('Inventario Tecnológico') }}
+                    </a>
+                    <ul class="collapse list-unstyled show" id="inventarioSubmenu">
+                        <li>
+                            <a href="{{ url_for('inventarios.inventarios') }}" class="submenu-item">
+                                <i class="fas fa-list"></i> Ver Inventario
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{ url_for('inventarios.new_inventario') }}" class="submenu-item">
+                                <i class="fas fa-plus"></i> Nuevo Equipo Individual
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{ url_for('mantenimientos.dashboard') }}" class="submenu-item">
+                                <i class="fas fa-tools"></i> Mantenimientos
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{ url_for('inventario_general.dashboard_inventario') }}" class="submenu-item">
+                                <i class="fas fa-search"></i> Inventario General
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{ url_for('inventarios.inventarios') }}" class="submenu-item">
+                                <i class="fas fa-file-alt"></i> Hoja de Vida
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{ url_for('inventarios.inventarios') }}" class="submenu-item">
+                                <i class="fas fa-exchange-alt"></i> Movimientos
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{ url_for('inventario_maestro.inventario_maestro_home') }}" class="submenu-item">
+                                <i class="fas fa-database"></i> Inventario Maestro
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+
+
+                <!-- Sistemas -->
+                <li class="sidebar-section">
+                    <a href="#sistemasSubmenu" data-bs-toggle="collapse" aria-expanded="false" class="dropdown-toggle">
+                        <i class="fas fa-server" aria-hidden="true"></i> {{ _('Sistemas') }}
+                    </a>
+                    <ul class="collapse list-unstyled show" id="sistemasSubmenu">
+                        <li>
+                            <a href="{{ url_for('sistemas.sistemas') }}" class="submenu-item">
+                                <i class="fas fa-tachometer-alt"></i> Dashboard Sistemas
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{ url_for('mesa_ayuda.mesa_ayuda') }}" class="submenu-item">
+                                <i class="fas fa-headset"></i> Mesa de Ayuda
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{ url_for('licencias.dashboard_licencias') }}" class="submenu-item">
+                                <i class="fas fa-key"></i> Licencias Office 365
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{ url_for('ai_service.ai_service') }}" class="submenu-item">
+                                <i class="fas fa-robot"></i> AI Service
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{ url_for('infraestructura.infraestructura') }}" class="submenu-item">
+                                <i class="fas fa-server"></i> Infraestructura
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{ url_for('monitoreo.monitoreo') }}" class="submenu-item">
+                                <i class="fas fa-eye"></i> Monitoreo
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{ url_for('seguridad.seguridad') }}" class="submenu-item">
+                                <i class="fas fa-shield-alt"></i> Seguridad
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+
+
+                <!-- Médico -->
+                <li class="sidebar-section">
+                    <a href="#medicoSubmenu" data-bs-toggle="collapse" aria-expanded="false" class="dropdown-toggle"><i class="fas fa-stethoscope" aria-hidden="true"></i> {{ _('Médico') }}</a>
+                    <ul class="collapse list-unstyled" id="medicoSubmenu">
+                        <li>
+                            <a href="{{ url_for('medico.medico') }}" class="submenu-item"><i class="fas fa-list"></i> Pacientes</a>
+                        </li>
+                        <li>
+                            <a href="{{ url_for('medico.nuevo_paciente') }}" class="submenu-item"><i class="fas fa-plus"></i> Nuevo Paciente</a>
+                        </li>
+                        <li>
+                            <a href="{{ url_for('medico.citas') }}" class="submenu-item"><i class="fas fa-calendar"></i> Citas Médicas</a>
+                        </li>
+                        <li>
+                            <a href="{{ url_for('medico.historias_clinicas') }}" class="submenu-item"><i class="fas fa-file-medical"></i> Historias Clínicas</a>
+                        </li>
+                        <li>
+                            <a href="{{ url_for('medico.examenes') }}" class="submenu-item"><i class="fas fa-heartbeat"></i> Exámenes Médicos</a>
+                        </li>
+                        <li>
+                            <a href="{{ url_for('medico.medicamentos') }}" class="submenu-item"><i class="fas fa-pills"></i> Medicamentos</a>
+                        </li>
+                    </ul>
+                </li>
+
+                <!-- Biomédica -->
+                <li class="sidebar-section">
+                    <a href="#biomedicaSubmenu" data-bs-toggle="collapse" aria-expanded="false" class="dropdown-toggle"><i class="fas fa-flask" aria-hidden="true"></i> {{ _('Biomédica') }}</a>
+                    <ul class="collapse list-unstyled" id="biomedicaSubmenu">
+                        <li>
+                            <a href="{{ url_for('biomedica.biomedica') }}" class="submenu-item"><i class="fas fa-list"></i> Equipos Biomédicos</a>
+                        </li>
+                        <li>
+                            <a href="{{ url_for('biomedica.nuevo_equipo') }}" class="submenu-item"><i class="fas fa-plus"></i> Nuevo Equipo</a>
+                        </li>
+                        <li>
+                            <a href="{{ url_for('biomedica.mantenimiento') }}" class="submenu-item"><i class="fas fa-tools"></i> Mantenimiento</a>
+                        </li>
+                        <li>
+                            <a href="{{ url_for('biomedica.programacion') }}" class="submenu-item"><i class="fas fa-calendar"></i> Programación</a>
+                        </li>
+                        <li>
+                            <a href="{{ url_for('biomedica.calibraciones') }}" class="submenu-item"><i class="fas fa-check-circle"></i> Calibraciones</a>
+                        </li>
+                        <li>
+                            <a href="{{ url_for('biomedica.certificaciones') }}" class="submenu-item"><i class="fas fa-shield-alt"></i> Certificaciones</a>
+                        </li>
+                    </ul>
+                </li>
+
+                <!-- Administración -->
+                <li class="sidebar-section">
+                    <a href="#adminSubmenu" data-bs-toggle="collapse" aria-expanded="false" class="dropdown-toggle">
+                        <i class="fas fa-cog" aria-hidden="true"></i> {{ _('Administración') }}
+                    </a>
+                    <ul class="collapse list-unstyled show" id="adminSubmenu">
+                        <li>
+                            <a href="{{ url_for('admin.admin') }}" class="submenu-item">
+                                <i class="fas fa-tachometer-alt"></i> Panel Administrativo
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{ url_for('admin.inventario_administrativo') }}" class="submenu-item">
+                                <i class="fas fa-couch"></i> Inventario Administrativo
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{ url_for('admin.insumos') }}" class="submenu-item">
+                                <i class="fas fa-tools"></i> Insumos
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{ url_for('admin.facturas') }}" class="submenu-item">
+                                <i class="fas fa-file-invoice-dollar"></i> Facturas
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{ url_for('admin.garantias') }}" class="submenu-item">
+                                <i class="fas fa-shield-alt"></i> Garantías
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{ url_for('admin.proveedores') }}" class="submenu-item">
+                                <i class="fas fa-truck"></i> Proveedores
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{ url_for('sedes.sedes') }}" class="submenu-item">
+                                <i class="fas fa-building"></i> Sedes
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{ url_for('compras.lista_compras') }}" class="submenu-item">
+                                <i class="fas fa-shopping-cart"></i> Compras
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+
+
+                <!-- Configuración -->
+                <li class="sidebar-section">
+                    <a href="#configSubmenu" data-bs-toggle="collapse" aria-expanded="false" class="dropdown-toggle"><i class="fas fa-wrench" aria-hidden="true"></i> {{ _('Configuración') }}</a>
+                    <ul class="collapse list-unstyled" id="configSubmenu">
+                        <li>
+                            <a href="/configuracion#roles" class="submenu-item"><i class="fas fa-user-shield"></i> Permisos y Roles</a>
+                        </li>
+                        <li>
+                            <a href="/configuracion#personalizacion" class="submenu-item"><i class="fas fa-palette"></i> Personalización</a>
+                        </li>
+                        <li>
+                            <a href="/configuracion#notificaciones" class="submenu-item"><i class="fas fa-bell"></i> Notificaciones</a>
+                        </li>
+                        <li>
+                            <a href="/configuracion#seguridad" class="submenu-item"><i class="fas fa-shield-alt"></i> Seguridad</a>
+                        </li>
+                        <li>
+                            <a href="/configuracion#respaldos" class="submenu-item"><i class="fas fa-database"></i> Respaldos</a>
+                        </li>
+                        <li>
+                            <a href="/configuracion#reportes" class="submenu-item"><i class="fas fa-chart-bar"></i> Reportes</a>
+                        </li>
+                        <li>
+                            <a href="{{ url_for('auth.credentials_dashboard') }}" class="submenu-item"><i class="fas fa-key"></i> Credenciales</a>
+                        </li>
+                        <li>
+                            <a href="{{ url_for('configuracion.configuracion') }}" class="submenu-item"><i class="fas fa-cogs"></i> Configuración General</a>
+                        </li>
+                    </ul>
+                </li>
+
+                <!-- Módulos Próximamente -->
+                <li class="sidebar-section">
+                    <a href="#proximamenteSubmenu" data-bs-toggle="collapse" aria-expanded="false" class="dropdown-toggle"><i class="fas fa-clock" aria-hidden="true"></i> {{ _('Módulos Próximamente') }}</a>
+                    <ul class="collapse list-unstyled" id="proximamenteSubmenu">
+                        <li>
+                            <a href="{{ url_for('tesoreria.index') }}" class="submenu-item"><i class="fas fa-wallet"></i> Tesorería</a>
+                        </li>
+                        <li>
+                            <a href="{{ url_for('juridico.index') }}" class="submenu-item"><i class="fas fa-scale-balanced"></i> Jurídico</a>
+                        </li>
+                        <li>
+                            <a href="{{ url_for('logistica.index') }}" class="submenu-item"><i class="fas fa-cart-flatbed"></i> Logística</a>
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+        </nav>
+        <!-- Page Content -->
+        <div id="page-content-wrapper" class="content" role="main">
+            <nav class="navbar navbar-expand-lg navbar-light bg-light border-bottom" aria-label="{{ _('Navegación Principal') }}" role="navigation">
+                <button class="btn btn-primary" id="sidebarToggle"><i class="fas fa-bars"></i></button>
+                <a class="navbar-brand ms-3" href="{{ url_for('index') }}">WORKMANAGER ERP</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                    <ul class="navbar-nav ms-auto mt-2 mt-lg-0 align-items-center">
+                        <!-- Botones de Exportación e Importación -->
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="exportImportDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-file-export" aria-hidden="true"></i> {{ _('Exportar / Importar') }}
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="exportImportDropdown">
+                                <li><h6 class="dropdown-header">{{ _('Exportar Datos') }}</h6></li>
+                                <li><a class="dropdown-item" href="{{ url_for('universal_exporter.export_data', data_source='empleados', file_format='excel') }}"><i class="fas fa-file-excel text-success"></i> {{ _('Exportar Empleados') }}</a></li>
+                                <li><a class="dropdown-item" href="{{ url_for('universal_exporter.export_data', data_source='inventario_tecnologico', file_format='excel') }}"><i class="fas fa-file-excel text-success"></i> {{ _('Exportar Inventario Tec.') }}</a></li>
+                                <li><a class="dropdown-item" href="{{ url_for('universal_exporter.export_data', data_source='licencias', file_format='csv') }}"><i class="fas fa-file-csv text-info"></i> {{ _('Exportar Licencias') }}</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><h6 class="dropdown-header">{{ _('Herramientas') }}</h6></li>
+                                <li><a class="dropdown-item" href="{{ url_for('barcodes.barcode_center') }}"><i class="fas fa-barcode text-dark"></i> {{ _('Centro de Códigos de Barras') }}</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <a class="dropdown-item" href="{{ url_for('export_import_v2.importar_form') }}">
+                                        <i class="fas fa-file-import text-primary"></i> Ir al Importador Universal
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" href="{{ url_for('inventory_report.inventario_report_form') }}">
+                                        <i class="fas fa-file-excel text-success"></i> Generar reporte consolidado
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" href="{{ url_for('inventory_report.inventario_report_db_view') }}">
+                                        <i class="fas fa-database text-dark"></i> Tablas de inventario (BD)
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+
+                        <!-- Selector de Idioma -->
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="languageDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="{{ _('Elegir idioma') }}">
+                                <i class="fas fa-globe" aria-hidden="true"></i> {{ g.locale.upper() if g.locale else 'ES' }}
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="languageDropdown">
+                                {% for lang in LANGUAGES %}
+                                <li>
+                                    <a class="dropdown-item {% if g.locale == lang %}active{% endif %}" href="{{ url_for('set_language', language=lang) }}">{{ lang.upper() }}</a>
+                                </li>
+                                {% endfor %}
+                            </ul>
+                        </li>
+
+                        <!-- Notificaciones -->
+                        <li class="nav-item dropdown" id="notifications-dropdown-container">
+                            <a class="nav-link" href="#" id="notificationsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-bell" aria-hidden="true"></i>
+                                <span class="badge rounded-pill bg-danger" id="notifications-count" aria-live="polite" style="position: absolute; top: 5px; right: 0; display: none;"></span>
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end" id="notifications-list" aria-labelledby="notificationsDropdown">
+                                <!-- Las notificaciones se cargarán aquí -->
+                                <li class="p-2 text-center text-muted">{{ _('Cargando...') }}</li>
+                            </ul>
+                        </li>
+
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <i class="fas fa-user" aria-hidden="true"></i> {{ current_user.nombre if current_user.is_authenticated else 'Guest' }}
+                            </a>
+                            <div class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+                                <a class="dropdown-item" href="{{ url_for('auth.profile') }}">{{ _('Mi Perfil') }}</a>
+                                {% if current_user.is_authenticated %}
+                                <button
+                                    class="dropdown-item"
+                                    id="userViewSwitch"
+                                    type="button"
+                                    data-user-mode-toggle
+                                    aria-pressed="false"
+                                    data-mode-on="{{ _('Desactivar modo accesible') }}"
+                                    data-mode-off="{{ _('Activar modo accesible') }}"
+                                >
+                                    <i class="fas fa-universal-access"></i>
+                                    <span class="ms-1 user-mode-label">{{ _('Activar modo accesible') }}</span>
+                                </button>
+                                {% endif %}
+                                <a class="dropdown-item" href="{{ url_for('configuracion.configuracion') }}">{{ _('Configuración') }}</a>
+                                <div class="dropdown-divider"></div>
+                                <a class="dropdown-item text-danger" href="{{ url_for('auth.logout') }}">
+                                    <i class="fas fa-sign-out-alt" aria-hidden="true"></i> {{ _('Cerrar Sesión') }}
+                                </a>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+            <main id="main-content" class="container-fluid mt-4">
+                {% with messages = get_flashed_messages() %}
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="alert alert-info">{{ message }}</div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+                {% block content %}{% endblock %}
+            </main>
+        </div>
+    </div>
+
+    <footer class="footer mt-auto py-3 bg-light border-top">
+        <div class="container-fluid text-center small" role="contentinfo">
+            <p class="mb-1">
+                <strong>WORKMANAGER ERP</strong> &copy; {{ current_year }} | {{ _('Desarrollado y adaptado por') }} <strong>Anderson A.</strong> {{ _('para') }} <strong>Integral Ips</strong>.
+            </p>
+            <p class="text-muted mb-0">
+                {{ _('Este software es de uso exclusivo para Integral Ips. Prohibida su venta, distribución o reproducción sin autorización explícita. Todos los derechos reservados.') }}
+            </p>
+        </div>
+    </footer>
+
+
+    <!-- Export Modal -->
+    <div class="modal fade" id="exportModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Seleccionar Columnas para Exportar</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="columnsContainer">
+                        <!-- Columnas se cargarán dinámicamente -->
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary btn-custom" onclick="performExport()">Exportar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Import Modal -->
+    <div class="modal fade" id="importModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Importar Datos</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="importForm" enctype="multipart/form-data">
+                        <div class="mb-3">
+                            <label for="importFile" class="form-label">Seleccionar archivo</label>
+                            <input type="file" class="form-control" id="importFile" accept=".xlsx,.xls,.csv" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="importTable" class="form-label">Tabla destino</label>
+                            <select class="form-select" id="importTable">
+                                <option value="users">Usuarios</option>
+                                <option value="inventarios">Inventario</option>
+                                <option value="empleados">Empleados</option>
+                                <option value="pacientes">Pacientes</option>
+                                <option value="equipos">Equipos</option>
+                                <option value="licencias">Licencias</option>
+                            </select>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary btn-custom" onclick="performImport()">Importar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/scripts.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/modal_manager.js') }}" defer></script>
+    <script src="{{ url_for('static', filename='js/notifications.js') }}" defer></script>
+    {% block extra_scripts %}{% endblock %}
+    <script>
+        function getCurrentTable() {
+            const path = window.location.pathname;
+            const segments = path.split('/').filter(s => s);
+            return segments[0] || 'inventarios';
+        }
+
+        function exportData(type, table) {
+            if (!table) table = getCurrentTable();
+            const base = '/export_import/export';
+            if (type === 'excel' || type === 'xlsm') {
+                window.location.href = `/export_import/export/excel/${table}`;
+            } else if (type === 'pdf') {
+                window.location.href = `/export_import/export/pdf/${table}`;
+            } else if (type === 'csv') {
+                window.location.href = `/export_import/export/csv/${table}`;
+            } else if (type === 'txt') {
+                window.location.href = `/export_import/export/txt/${table}`;
+            } else if (type === 'image') {
+                alert('Exportar imágenes - Funcionalidad en desarrollo');
+            } else if (type === 'barcode') {
+                const itemId = prompt('Ingrese el ID del equipo para generar código de barras:');
+                if (itemId) {
+                    window.location.href = `/export_import/export/barcode/${itemId}`;
+                }
+            }
+        }
+
+        function openHelpDesk() {
+            window.location.href = '{{ url_for("mesa_ayuda.mesa_ayuda") }}';
+        }
+            // Redirige el botón global "Importar Datos" al importador universal central
+    function showImportModal() {
+        window.location.href = "{{ url_for('export_import_v2.importar_form') }}";
+    }
+    </script>
+
+    {% include 'shared_modals.html' %}
+
+</body>
+</html>

@@ -1,0 +1,54 @@
+<!-- templates/inventory/view.html -->
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Inventario Actual - Integral IPS</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        h1 { text-align: center; color: #1F4E78; }
+        .actions { text-align: center; margin-bottom: 20px; }
+        .actions a { background-color: #00B0F0; color: white; padding: 10px 20px; border-radius: 5px; text-decoration: none; font-weight: bold; margin: 0 10px; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { border: 1px solid #ddd; padding: 8px; font-size: 0.9em; }
+        th { background-color: #1F4E78; color: white; position: sticky; top: 0; }
+        .table-container { max-height: 70vh; overflow: auto; }
+    </style>
+</head>
+<body>
+    <h1>Inventario Actual en Base de Datos</h1>
+    <div class="actions">
+        <a href="{{ url_for('inventory.index') }}">Volver a Cargar</a>
+        <a href="{{ url_for('inventory.download_excel') }}">Descargar como Excel</a>
+    </div>
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    {% if items %}
+                        {% for col in items[0].__table__.columns %}
+                            <th>{{ col.name.replace('_', ' ').title() }}</th>
+                        {% endfor %}
+                    {% else %}
+                        <th>Inventario Vacío</th>
+                    {% endif %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in items %}
+                <tr>
+                    {% for col in item.__table__.columns %}
+                        <td>{{ item.__dict__[col.name] or '' }}</td>
+                    {% endfor %}
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="68" style="text-align:center;">No hay ítems en el inventario.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>

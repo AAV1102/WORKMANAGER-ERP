@@ -1,0 +1,38 @@
+<!-- templates/inventory/upload.html -->
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Cargar Inventario - Integral IPS</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #f4f4f9; margin: 20px; text-align: center; }
+        .container { background: #fff; padding: 30px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); display: inline-block; max-width: 600px; }
+        h1 { color: #1F4E78; }
+        .flash { padding: 10px; margin: 15px 0; border-radius: 5px; font-weight: bold; }
+        .flash.error { background-color: #f8d7da; color: #721c24; }
+        .flash.success { background-color: #d4edda; color: #155724; }
+        input[type="submit"] { background-color: #70AD47; color: white; padding: 15px 30px; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Módulo de Inventario</h1>
+        <p>Sube todos tus archivos de inventario (.xlsx), incluyendo <strong>Sedes.xlsx</strong>.</p>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="flash {{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        <form action="{{ url_for('inventory.upload_and_process') }}" method="post" enctype="multipart/form-data">
+            <input type="file" name="inventory_files" multiple required>
+            <br><br>
+            <input type="submit" value="Procesar y Guardar en Base de Datos">
+        </form>
+        <br>
+        <a href="{{ url_for('inventory.view') }}">Ver Inventario Actual</a>
+    </div>
+</body>
+</html>

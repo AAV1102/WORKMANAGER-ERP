@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <h2 class="mt-4">Hoja de Vida del Equipo</h2>
+
+    {% if equipo %}
+    <div class="card mt-4">
+        <div class="card-header">
+            <h4>Detalles del Equipo</h4>
+        </div>
+        <div class="card-body">
+            <p><strong>ID:</strong> {{ equipo.id }}</p>
+            {% if tipo == 'individual' %}
+            <p><strong>Código Individual:</strong> {{ equipo.codigo_barras_individual }}</p>
+            <p><strong>Serial:</strong> {{ equipo.serial }}</p>
+            <p><strong>Marca:</strong> {{ equipo.marca }}</p>
+            <p><strong>Modelo:</strong> {{ equipo.modelo }}</p>
+            {% else %}
+            <p><strong>Código Unificado:</strong> {{ equipo.codigo_barras_unificado }}</p>
+            <p><strong>Descripción:</strong> {{ equipo.descripcion_general }}</p>
+            {% endif %}
+            <p><strong>Estado:</strong> {{ equipo.estado or equipo.estado_general }}</p>
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="card mt-4">
+        <div class="card-header">
+            <h4>Registros de Hoja de Vida</h4>
+        </div>
+        <div class="card-body">
+            {% if registros %}
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Fecha</th>
+                        <th>Acción</th>
+                        <th>Usuario Anterior</th>
+                        <th>Usuario Nuevo</th>
+                        <th>Sede Anterior</th>
+                        <th>Sede Nueva</th>
+                        <th>Observaciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for registro in registros %}
+                    <tr>
+                        <td>{{ registro.fecha_accion }}</td>
+                        <td>{{ registro.accion }}</td>
+                        <td>{{ registro.usuario_anterior }}</td>
+                        <td>{{ registro.usuario_nuevo }}</td>
+                        <td>{{ registro.sede_anterior }}</td>
+                        <td>{{ registro.sede_nueva }}</td>
+                        <td>{{ registro.observaciones }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <p class="text-muted">No hay registros en la hoja de vida para este equipo.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

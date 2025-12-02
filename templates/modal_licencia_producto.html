@@ -1,0 +1,36 @@
+<div class="row">
+    <div class="col-md-8">
+        <h5>{{ producto.nombre_producto }}</h5>
+        <p class="text-muted mb-1">Resumen por producto exportado desde Office 365.</p>
+        <ul class="list-group list-group-flush">
+            <li class="list-group-item d-flex justify-content-between">
+                <span>Total licencias</span>
+                <strong>{{ producto.total_licencias or 0 }}</strong>
+            </li>
+            <li class="list-group-item d-flex justify-content-between">
+                <span>Asignadas</span>
+                <strong>{{ producto.licencias_asignadas or 0 }}</strong>
+            </li>
+            <li class="list-group-item d-flex justify-content-between">
+                <span>Disponibles</span>
+                <strong>{{ producto.total_licencias - producto.licencias_asignadas if producto.total_licencias else 0 }}</strong>
+            </li>
+            <li class="list-group-item d-flex justify-content-between">
+                <span>Expiradas</span>
+                <strong>{{ producto.licencias_expiradas or 0 }}</strong>
+            </li>
+        </ul>
+    </div>
+    <div class="col-md-4">
+        <div class="card border-info h-100">
+            <div class="card-body">
+                <h6 class="card-title">Estado del producto</h6>
+                {% if producto.mensaje_estado %}
+                    <p>{{ producto.mensaje_estado }}</p>
+                {% else %}
+                    <p class="text-success">Sin novedades registradas.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>

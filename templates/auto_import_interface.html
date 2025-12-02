@@ -1,0 +1,291 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <h2 class="mb-4">
+                <i class="fas fa-upload text-primary"></i> Importación Automática de Inventario
+            </h2>
+        </div>
+    </div>
+
+    <!-- Import Options -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-cogs"></i> Opciones de Importación</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="importAgrupados" checked>
+                                <label class="form-check-label" for="importAgrupados">
+                                    Equipos Agrupados
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="importIndividuales" checked>
+                                <label class="form-check-label" for="importIndividuales">
+                                    Equipos Individuales
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="importGeneral" checked>
+                                <label class="form-check-label" for="importGeneral">
+                                    Inventario General
+                                </label>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="importAsignados" checked>
+                                <label class="form-check-label" for="importAsignados">
+                                    Equipos Asignados
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="importBajas" checked>
+                                <label class="form-check-label" for="importBajas">
+                                    Equipos Dados de Baja
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="importTandas" checked>
+                                <label class="form-check-label" for="importTandas">
+                                    Tandas Nuevas
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- File Upload -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-file-upload"></i> Seleccionar Archivo</h5>
+                </div>
+                <div class="card-body">
+                    <form id="importForm" enctype="multipart/form-data">
+                        <div class="mb-3">
+                            <label for="importFile" class="form-label">Archivo JSON de Inventario</label>
+                            <input type="file" class="form-control" id="importFile" accept=".json" required>
+                            <div class="form-text">
+                                Seleccione un archivo JSON con la estructura de datos de inventario
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="backupBeforeImport" checked>
+                                <label class="form-check-label" for="backupBeforeImport">
+                                    Crear respaldo antes de importar
+                                </label>
+                            </div>
+                        </div>
+                        <button type="button" class="btn btn-primary" onclick="startImport()">
+                            <i class="fas fa-play"></i> Iniciar Importación
+                        </button>
+                        <button type="button" class="btn btn-secondary" onclick="downloadTemplate()">
+                            <i class="fas fa-download"></i> Descargar Plantilla JSON
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Progress and Results -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card" id="progressCard" style="display: none;">
+                <div class="card-header">
+                    <h5><i class="fas fa-spinner fa-spin"></i> Progreso de Importación</h5>
+                </div>
+                <div class="card-body">
+                    <div class="progress mb-3">
+                        <div class="progress-bar" id="progressBar" style="width: 0%"></div>
+                    </div>
+                    <div id="progressText">Iniciando importación...</div>
+                    <div id="resultsContainer" style="display: none;">
+                        <h6>Resultados:</h6>
+                        <div id="resultsStats"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sample Data Structure -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-code"></i> Estructura del Archivo JSON</h5>
+                </div>
+                <div class="card-body">
+                    <pre><code id="jsonStructure">{
+  "equipos_agrupados": [
+    {
+      "codigo_barras_unificado": "AGR001",
+      "nit": "901.234.567-8",
+      "sede_id": 1,
+      "asignado_anterior": "Usuario Anterior",
+      "asignado_actual": "Usuario Actual",
+      "descripcion_general": "Descripción del equipo agrupado",
+      "estado_general": "disponible",
+      "creador_registro": "AUTO_IMPORT",
+      "trazabilidad_soporte": "Documentos de soporte",
+      "documentos_entrega": "Documentos de entrega",
+      "observaciones": "Observaciones adicionales"
+    }
+  ],
+  "equipos_individuales": [
+    {
+      "codigo_barras_individual": "IND001",
+      "entrada_oc_compra": "OC001",
+      "cargado_nit": "Sí",
+      "ciudad": "Bogotá",
+      "tecnologia": "Laptop",
+      "serial": "SN123456",
+      "modelo": "ThinkPad T14",
+      "marca": "Lenovo",
+      "procesador": "Intel i7",
+      "arch_ram": "16GB",
+      "tipo_disco": "SSD",
+      "espacio_disco": "512GB",
+      "so": "Windows 11",
+      "estado": "disponible",
+      "sede_id": 1
+    }
+  ],
+  "equipos_asignados": [
+    {
+      "codigo": "IND001",
+      "asignado_a": "Juan Pérez"
+    }
+  ],
+  "equipos_baja": [
+    {
+      "equipo_id": 1,
+      "tipo_inventario": "individual",
+      "motivo_baja": "Obsoleto",
+      "responsable_baja": "Admin",
+      "observaciones": "Equipo reemplazado"
+    }
+  ],
+  "tandas_nuevas": [
+    {
+      "numero_tanda": "TANDA001",
+      "descripcion": "Nueva tanda de equipos",
+      "cantidad_equipos": 50,
+      "proveedor": "Proveedor XYZ",
+      "valor_total": 150000.00,
+      "observaciones": "Equipos nuevos para sede norte"
+    }
+  ]
+}</code></pre>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function startImport() {
+    const fileInput = document.getElementById('importFile');
+    const progressCard = document.getElementById('progressCard');
+    const progressBar = document.getElementById('progressBar');
+    const progressText = document.getElementById('progressText');
+
+    if (!fileInput.files[0]) {
+        alert('Por favor seleccione un archivo JSON');
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append('file', fileInput.files[0]);
+    formData.append('backup', document.getElementById('backupBeforeImport').checked);
+
+    // Get selected import options
+    const options = {
+        equipos_agrupados: document.getElementById('importAgrupados').checked,
+        equipos_individuales: document.getElementById('importIndividuales').checked,
+        inventario_general: document.getElementById('importGeneral').checked,
+        equipos_asignados: document.getElementById('importAsignados').checked,
+        equipos_baja: document.getElementById('importBajas').checked,
+        tandas_nuevas: document.getElementById('importTandas').checked
+    };
+    formData.append('options', JSON.stringify(options));
+
+    progressCard.style.display = 'block';
+    progressBar.style.width = '0%';
+    progressText.textContent = 'Iniciando importación...';
+
+    fetch('/api/auto_import', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        progressBar.style.width = '100%';
+        progressText.textContent = 'Importación completada!';
+
+        if (data.success) {
+            displayResults(data.stats);
+        } else {
+            progressText.textContent = 'Error en la importación: ' + data.error;
+            progressBar.className = 'progress-bar bg-danger';
+        }
+    })
+    .catch(error => {
+        progressText.textContent = 'Error: ' + error.message;
+        progressBar.className = 'progress-bar bg-danger';
+    });
+}
+
+function displayResults(stats) {
+    const resultsContainer = document.getElementById('resultsContainer');
+    const resultsStats = document.getElementById('resultsStats');
+
+    let html = '<div class="row">';
+    for (const [key, value] of Object.entries(stats)) {
+        html += `
+            <div class="col-md-4 mb-3">
+                <div class="card bg-light">
+                    <div class="card-body text-center">
+                        <h5 class="card-title">${key.replace('_', ' ').toUpperCase()}</h5>
+                        <h3 class="text-primary">${value}</h3>
+                        <p class="card-text">registros importados</p>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+    html += '</div>';
+
+    resultsStats.innerHTML = html;
+    resultsContainer.style.display = 'block';
+}
+
+function downloadTemplate() {
+    const data = document.getElementById('jsonStructure').textContent;
+    const blob = new Blob([data], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'plantilla_inventario.json';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+}
+</script>
+{% endblock %}

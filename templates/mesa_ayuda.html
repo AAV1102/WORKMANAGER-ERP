@@ -1,0 +1,148 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row mb-3">
+    <div class="col-md-8">
+        <h2><i class="fas fa-headset"></i> Mesa de Ayuda</h2>
+        <p class="text-muted">Centraliza tickets por sede, usuario y tipo de consulta. Filtra por sede y exporta a múltiples formatos.</p>
+    </div>
+    <div class="col-md-4 text-md-end">
+        <a href="{{ url_for('mesa_ayuda.new_ticket') }}" class="btn btn-primary btn-custom me-2"><i class="fas fa-plus"></i> Nuevo Ticket</a>
+        <div class="btn-group">
+            <button class="btn btn-success btn-custom" onclick="exportData('excel')"><i class="fas fa-file-excel"></i></button>
+            <button class="btn btn-danger btn-custom" onclick="exportData('pdf')"><i class="fas fa-file-pdf"></i></button>
+            <button class="btn btn-info btn-custom" onclick="exportData('csv')"><i class="fas fa-file-csv"></i></button>
+            <button class="btn btn-secondary btn-custom" onclick="exportData('txt')"><i class="fas fa-file-alt"></i></button>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-3 g-3">
+    <div class="col-md-4">
+        <select id="sedeFilter" class="form-select" onchange="filterBySeat()">
+            <option value="">Todas las sedes</option>
+            {% for sede in sedes %}
+                <option value="{{ sede.id }}" {% if sede.id|string == current_sede %}selected{% endif %}>
+                    {{ sede.nombre }}
+                </option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="col-md-4">
+        <input type="text" id="searchTickets" class="form-control" placeholder="Buscar por título, categoría, usuario..." onkeyup="filterTable()">
+    </div>
+    <div class="col-md-4">
+        <select id="statusFilter" class="form-select" onchange="filterByStatus()">
+            <option value="">Todos los estados</option>
+            <option value="Abierto">Abierto</option>
+            <option value="En Progreso">En Progreso</option>
+            <option value="Resuelto">Resuelto</option>
+            <option value="Cerrado">Cerrado</option>
+        </select>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <div class="table-responsive">
+            <table class="table table-striped" id="ticketsTable">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Fecha creación</th>
+                        <th>Título</th>
+                        <th>Categoría</th>
+                        <th>Prioridad</th>
+                        <th>Estado</th>
+                        <th>Sede</th>
+                        <th>Reporta</th>
+                        <th>Asignado</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for ticket in tickets %}
+                    <tr>
+                        <td>{{ ticket.id }}</td>
+                        <td>{{ ticket.created_at }}</td>
+                        <td>{{ ticket.titulo }}</td>
+                        <td>{{ ticket.categoria }}</td>
+                        <td>{{ ticket.prioridad }}</td>
+                        <td>
+                            {% if ticket.estado == 'Abierto' %}
+                                <span class="badge bg-primary">Abierto</span>
+                            {% elif ticket.estado == 'En Progreso' %}
+                                <span class="badge bg-warning">En Progreso</span>
+                            {% elif ticket.estado == 'Resuelto' %}
+                                <span class="badge bg-success">Resuelto</span>
+                            {% elif ticket.estado == 'Cerrado' %}
+                                <span class="badge bg-secondary">Cerrado</span>
+                            {% else %}
+                                <span class="badge bg-light text-dark">{{ ticket.estado }}</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ ticket.sede_nombre or 'Sin sede' }}</td>
+                        <td>{{ ticket.reporta_nombre or 'Sin asignar' }}</td>
+                        <td>{{ ticket.asignado_nombre or 'Sin encargado' }}</td>
+                        <td class="d-flex gap-1">
+                            <button type="button"
+                                    class="btn btn-sm btn-outline-primary modal-trigger"
+                                    data-modal-api="{{ url_for('realtime.detail', module='ticket', item_id=ticket.id) }}"
+                                    data-modal-renderer="ticket"
+                                    data-modal-title="Ticket #{{ ticket.id }}">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            <a href="{{ url_for('mesa_ayuda.edit_ticket', ticket_id=ticket.id) }}" class="btn btn-sm btn-outline-warning me-0">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                            <form action="{{ url_for('mesa_ayuda.delete_ticket', ticket_id=ticket.id) }}" method="post" class="d-inline">
+                                <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('¿Eliminar ticket?')">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+    function filterTable() {
+        const input = document.getElementById('searchTickets').value.toLowerCase();
+        const rows = document.querySelectorAll('#ticketsTable tbody tr');
+        rows.forEach(row => {
+            const text = row.innerText.toLowerCase();
+            row.style.display = text.includes(input) ? '' : 'none';
+        });
+    }
+
+    function filterByStatus() {
+        const status = document.getElementById('statusFilter').value;
+        const rows = document.querySelectorAll('#ticketsTable tbody tr');
+        rows.forEach(row => {
+            const badge = row.querySelector('td:nth-child(6) .badge');
+            const text = badge ? badge.textContent.trim() : '';
+            row.style.display = status === '' || text === status ? '' : 'none';
+        });
+    }
+
+    function filterBySeat() {
+        const select = document.getElementById('sedeFilter');
+        const params = new URLSearchParams(window.location.search);
+        if (select.value) {
+            params.set('sede_id', select.value);
+        } else {
+            params.delete('sede_id');
+        }
+        window.location.search = params.toString();
+    }
+
+    function exportData(type) {
+        const table = 'tickets';
+        window.location.href = `/export_import/export/${type}/${table}`;
+    }
+</script>
+{% endblock %}

@@ -1,0 +1,705 @@
+
+{% extends "base.html" %}
+
+{% block content %}
+<div id="empleados">
+<div class="row mb-3">
+    <div class="col-md-8">
+        <h2><i class="fas fa-users-cog"></i> Gestión Humana</h2>
+        <p class="text-muted mb-0">
+            Administración de empleados, estado laboral, asignaciones de inventario y accesos de TI.
+        </p>
+    </div>
+    <div class="col-md-4 text-md-end mt-3 mt-md-0">
+        <a href="{{ url_for('gestion_humana.nuevo_empleado') }}" class="btn btn-primary btn-custom">
+            <i class="fas fa-user-plus"></i> Nuevo empleado
+        </a>
+    </div>
+</div>
+
+<!-- Navegación por secciones -->
+<div class="mb-4">
+    <nav aria-label="Navegación de secciones">
+        <ul class="nav nav-pills">
+            <li class="nav-item">
+                <a class="nav-link active" href="#empleados">Empleados</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{{ url_for('gestion_humana.solicitudes') }}">Solicitudes</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#performance">Performance</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{{ url_for('gestion_humana.reportes') }}">Reportes RRHH</a>
+            </li>
+        </ul>
+    </nav>
+</div>
+
+<!-- Tarjetas resumen -->
+<div class="row mb-4">
+    <div class="col-lhsx   <is="h5 mb-0 fw-bold text-gray-800">{{ stats.total_empleados }}</div>
+                </div>
+                <div class="col-auto"><i class="fas fa-users fa-2x text-gray-300"></i></div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="card shadow-sm border-start-success h-100">
+            <div class="card-body d-flex align-items-center">
+                <div class="flex-grow-1">
+                    <div class="text-xs fw-bold text-success text-uppercase mb-1">Activos</div>
+                     c
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="card shadow-sm border-start-warning h-100">
+            <div class="card-body d-flex align-items-center">
+                <div class="flex-grow-1">
+                    <div class="text-xs fw-bold text-warning text-uppercase mb-1">Solicitudes Pendientes</div>
+                    <div class="h5 mb-0 fw-bold text-gray-800">{{ stats.solicitudes_pendientes }}</div>
+                </div>
+                <div class="col-auto"><i class="fas fa-clock fa-2x text-gray-300"></i></div>
+            </div>
+        </div>
+    </div>=mdiv lass="text-xs fw-bold text-danger text-uppercase mb-1">Retirados</div>
+                    <div class="h5 mb-0 fw-bold text-gray-800">{{ stats.total_retirados }}</div>
+                </div>
+                <div class="col-auto"><i class="fas fa-user-times fa-2x text-gray-300"></i></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Buscador -->
+<div cdivchEmpleados" name="search"
+                       value="{{ search }}" placeholder="Cédula, nombre, usuario Windows, correo...">
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">Estado</label>
+                <select name="estado" id="filterEstado" class="form-select">
+                    <option value="">Todos</option>
+                    <option value="activo" {% if estado == 'activo' %}selected{% endif %}>Activo</option>
+                    <option value="temporal" {% if estado == 'temporal' %}selected{% endif %}>Temporal</option>
+                    <option value="retirado" {% if estado == 'retirado' %}selected{% endif %}>Retirado</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">Cargo</label>
+                <input type="text" class="form-control" id="filterCargo" name="cargo" placeholder="Filtrar por cargo">
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">Sede</label>
+                <input type="text" class="form-control" id="filterSede" name="sede" placeholder="Filtrar por sede">
+            </div>
+            <div class="col-md-3 d-flex align-items-end">
+                <button class="btn btn-primary me-2" type="submit">
+                    <i class="fas fa-search"></i> Filtrar
+                </button>
+                <button class="btn btn-secondary" type="button" onclick="clearSearch()">
+                    <i class="fas fa-times"></i> Limpiar
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Lista de empleados -->
+<div class="card fade-in">
+    <div class="card-body">
+        {% if empleados|length == 0 %}
+            <p class="text-center text-muted mb-0">
+                No hay empleados registrados. Carga tu archivo de RRHH o crea uno nuevo.
+            </p>
+        {% else %}
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead>
+                <tr>
+                    <th>Empleado</th>
+                    <th>Cédula</th>
+                    <th>Cargo / Razón Social</th>
+                    <th>Ciudad</th>
+                    <th>Sede</th>
+                    <th>Windows</th>
+                    <th>Quirón</th>
+                    <th>Código Biométrico</th>
+                    <th>Código HV</th>
+                    <th>Estado</th>
+                    <th class="text-end">Acciones</th>
+                </tr>
+                </thead>
+                <tbody id="empleadosTableBody">
+                {% for e in empleados %}
+                    {% set iniciales = (e.nombre[:1] ~ (e.apellido[:1] if e.apellido else '')) %}
+                    <tr>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center me-2" style="width:32px;height:32px;">
+                                    <small>{{ iniciales }}</small>
+                                </div>
+                                <div>
+                                    <strong>{{ e.nombre }} {{ e.apellido }}</strong><br>
+                                    <small class="text-muted">
+                                        Ingreso: {{ e.fecha_ingreso or 'N/D' }}
+                                    </small>
+                                </div>
+                            </div>
+                        </td>
+                        <td>{{ e.cedula or '-' }}</td>
+                        <td>
+                            {{ e.cargo or '-' }}<br>
+                            <small class="text-muted">{{ e.razon_social or '' }}</small>
+                        </td>
+                        <td>{{ e.ciudad or '-' }}</td>
+                        <td>{{ e.sede_nombre or e.sede_id or '-' }}</td>
+                        <td>{{ e.usuario_windows or '-' }}</td>
+                        <td>{{ e.usuario_quiron or '-' }}</td>
+                        <td>{{ e.codigo_biometrico or '-' }}</td>
+                        <td>{{ e.codigo_unico_hv_equipo or '-' }}</td>
+                        <td>
+                            {% if e.estado == 'activo' %}
+                                <span class="badge bg-success">Activo</span>
+                            {% elif e.estado == 'temporal' %}
+                                <span class="badge bg-warning text-dark">Temporal</span>
+                            {% elif e.estado == 'retirado' %}
+                                <span class="badge bg-secondary">Retirado</span>
+                            {% else %}
+                                <span class="badge bg-light text-dark">{{ e.estado }}</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-end">
+                            <div class="btn-group">
+                                <button type="button"
+                                        class="btn btn-sm btn-outline-primary modal-trigger"                                        
+                                        data-modal-url="{{ url_for('gestion_humana.empleado_modal', empleado_id=e.id) }}"
+                                        data-modal-renderer="empleado"
+                                        data-modal-title="Empleado {{ e.nombre }} {{ e.apellido or '' }}">
+                                    Ver Perfil
+                                </button>
+                                <a href="{{ url_for('gestion_humana.editar_empleado', empleado_id=e.id) }}"
+                                   class="btn btn-sm btn-outline-secondary">
+                                    Editar
+                                </a>
+                                <button type="button" class="btn btn-sm btn-outline-success"
+                                        onclick="assignEquipment({{ e.id }}, '{{ e.nombre }} {{ e.apellido }}', '{{ e.sede_id or '' }}')">
+                                    Asignar equipo
+                                </button>
+                                <button type="button" class="btn btn-sm btn-outline-info"
+                                        onclick="assignLicense({{ e.id }}, '{{ e.correo_office or '' }}', '{{ e.usuario_windows or '' }}', '{{ e.cedula or '' }}')">
+                                    Licencia
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% endif %}
+</div>
+
+<div id="solicitudes" class="mt-5">
+    <h3><i class="fas fa-clipboard-list"></i> Solicitudes Recientes</h3>
+    <div class="card">
+        <div class="card-body">
+            {% if recent_solicitudes %}
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Empleado</th>
+                            <th>Tipo</th>
+                            <th>Fecha Solicitud</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for solicitud in recent_solicitudes %}
+                        <tr>
+                            <td>{{ solicitud.id }}</td>
+                            <td>{{ solicitud.empleado_nombre or 'Interno' }} {{ solicitud.empleado_apellido or '' }}</td>
+                            <td>{{ solicitud.tipo_solicitud or solicitud.tipo }}</td>
+                            <td>{{ solicitud.fecha_solicitud }}</td>
+                            <td>
+                                <span class="badge {% if solicitud.estado == 'aprobada' %}bg-success{% elif solicitud.estado == 'pendiente' %}bg-warning text-dark{% else %}bg-danger{% endif %}">
+                                    {{ solicitud.estado|title }}
+                                </span>
+                            </td>
+                            <td>
+                                <a href="{{ url_for('gestion_humana.ver_solicitud', solicitud_id=solicitud.id) }}" class="btn btn-sm btn-info">
+                                    <i class="fas fa-eye"></i> Ver
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <p class="text-muted mb-0">No hay solicitudes recientes.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<div id="performance" class="mt-5">
+    <h3><i class="fas fa-chart-line"></i> Performance de Empleados</h3>
+    <div class="card">
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <h6>Top Performers del Mes</h6>
+                    <div class="list-group">
+                        <div class="list-group-item d-flex justify-content-between align-items-center">
+                            María González
+                            <span class="badge bg-success rounded-pill">95%</span>
+                        </div>
+                        <div class="list-group-item d-flex justify-content-between align-items-center">
+                            Carlos Rodríguez
+                            <span class="badge bg-success rounded-pill">92%</span>
+                        </div>
+                        <div class="list-group-item d-flex justify-content-between align-items-center">
+                            Ana López
+                            <span class="badge bg-warning rounded-pill">88%</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <h6>Evaluaciones Pendientes</h6>
+                    <div class="list-group">
+                        <div class="list-group-item d-flex justify-content-between align-items-center">
+                            Juan Pérez - Evaluación Anual
+                            <span class="badge bg-warning rounded-pill">Pendiente</span>
+                        </div>
+                        <div class="list-group-item d-flex justify-content-between align-items-center">
+                            Laura Martínez - Revisión Semestral
+                            <span class="badge bg-warning rounded-pill">Pendiente</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="reportes" class="mt-5">
+    <h3><i class="fas fa-file-alt"></i> Reportes RRHH</h3>
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <form method="POST" action="{{ url_for('gestion_humana.generar_reporte', tipo='empleados_activos') }}">
+                <div class="card text-center h-100">
+                    <div class="card-body">
+                        <i class="fas fa-users fa-3x text-primary mb-3"></i>
+                        <h5>Empleados activos</h5>
+                        <p class="text-muted">Resumen de personal actualmente activo</p>
+                        <button type="submit" class="btn btn-primary">Generar Reporte</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="col-md-4">
+            <form method="POST" action="{{ url_for('gestion_humana.generar_reporte', tipo='performance') }}">
+                <div class="card text-center h-100">
+                    <div class="card-body">
+                        <i class="fas fa-chart-pie fa-3x text-success mb-3"></i>
+                        <h5>Performance</h5>
+                        <p class="text-muted">Promedio, top performers y alertas</p>
+                        <button type="submit" class="btn btn-success">Generar Reporte</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="col-md-4">
+            <form method="POST" action="{{ url_for('gestion_humana.generar_reporte', tipo='solicitudes_pendientes') }}">
+                <div class="card text-center h-100">
+                    <div class="card-body">
+                        <i class="fas fa-clock fa-3x text-warning mb-3"></i>
+                        <h5>Solicitudes pendientes</h5>
+                        <p class="text-muted">Tickets y aprobaciones en curso</p>
+                        <button type="submit" class="btn btn-warning text-dark">Generar Reporte</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-body">
+            <h5 class="card-title mb-3"><i class="fas fa-list"></i> Historial de reportes</h5>
+            {% if recent_reportes %}
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Tipo</th>
+                            <th>Período</th>
+                            <th>Fecha Generación</th>
+                            <th>Generado por</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for reporte in recent_reportes %}
+                        <tr>
+                            <td>{{ reporte.tipo_reporte|replace('_', ' ')|title }}</td>
+                            <td>{{ reporte.periodo }}</td>
+                            <td>{{ reporte.fecha_generacion }}</td>
+                            <td>{{ reporte.generado_por_nombre or 'Sistema' }} {{ reporte.generado_por_apellido or '' }}</td>
+                            <td>
+                                <a href="{{ url_for('gestion_humana.ver_reporte', reporte_id=reporte.id) }}" class="btn btn-sm btn-info">
+                                    <i class="fas fa-eye"></i> Ver
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+                <p class="text-muted mb-0">No hay reportes recientes.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+// Variables globales
+let empleadosData = [];
+let searchTimeout = null;
+
+// Función de búsqueda en tiempo real
+function searchEmpleados() {
+    const searchTerm = document.getElementById('searchEmpleados').value;
+    const estado = document.getElementById('filterEstado').value;
+    const cargo = document.getElementById('filterCargo').value;
+    const sede = document.getElementById('filterSede').value;
+
+    if (searchTerm.length < 2 && !estado && !cargo && !sede) {
+        // Si no hay filtros específicos, mostrar todos
+        location.reload();
+        return;
+    }
+
+    fetch(`/gestion-humana/api/search?q=${encodeURIComponent(searchTerm)}&estado=${encodeURIComponent(estado)}&cargo=${encodeURIComponent(cargo)}&sede=${encodeURIComponent(sede)}`)
+        .then(response => response.json())
+        .then(data => {
+            updateEmpleadosTable(data);
+        })
+        .catch(error => {
+            console.error('Error searching employees:', error);
+            alert('Error en la búsqueda de empleados');
+        });
+}
+
+function clearSearch() {
+    document.getElementById('searchEmpleados').value = '';
+    document.getElementById('filterEstado').value = '';
+    document.getElementById('filterCargo').value = '';
+    document.getElementById('filterSede').value = '';
+    location.reload();
+}
+
+function updateEmpleadosTable(data) {
+    const tbody = document.querySelector('#empleados table tbody');
+    tbody.innerHTML = '';
+
+    if (data.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="11" class="text-center text-muted">No se encontraron empleados</td></tr>';
+        return;
+    }
+
+    data.forEach(empleado => {
+        const iniciales = ((empleado.nombre || '')[0] + (empleado.apellido || '')[0]).toUpperCase();
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td>
+                <div class="d-flex align-items-center">
+                    <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center me-2" style="width:32px;height:32px;">
+                        <small>${iniciales}</small>
+                    </div>
+                    <div>
+                        <strong>${empleado.nombre || ''} ${empleado.apellido || ''}</strong><br>
+                        <small class="text-muted">Ingreso: ${empleado.fecha_ingreso || 'N/D'}</small>
+                    </div>
+                </div>
+            </td>
+            <td>${empleado.cedula || '-'}</td>
+            <td>${empleado.cargo || '-'}<br><small class="text-muted">${empleado.razon_social || ''}</small></td>
+            <td>${empleado.ciudad || '-'}</td>
+            <td>${empleado.sede_nombre || empleado.sede_id || '-'}</td>
+            <td>${empleado.usuario_windows || '-'}</td>
+            <td>${empleado.usuario_quiron || '-'}</td>
+            <td>${empleado.codigo_biometrico || '-'}</td>
+            <td>${empleado.codigo_unico_hv_equipo || '-'}</td>
+            <td>
+                ${getEstadoBadge(empleado.estado)}
+            </td>
+            <td class="text-end">
+                <div class="btn-group">
+                    <a href="/gestion-humana/empleados/${empleado.id}" class="btn btn-sm btn-outline-primary">Ver Perfil</a>
+                    <a href="/gestion-humana/empleados/${empleado.id}/editar" class="btn btn-sm btn-outline-secondary">Editar</a>
+                    <button type="button" class="btn btn-sm btn-outline-success" onclick="assignEquipment(${empleado.id}, '${empleado.nombre} ${empleado.apellido}', '${empleado.sede_id || ''}')">Asignar equipo</button>
+                    <button type="button" class="btn btn-sm btn-outline-info" onclick="assignLicense(${empleado.id}, '${empleado.correo_office || ''}', '${empleado.usuario_windows || ''}', '${empleado.cedula || ''}')">Licencia</button>
+                </div>
+            </td>
+        `;
+        tbody.appendChild(row);
+    });
+}
+
+function getEstadoBadge(estado) {
+    if (estado === 'activo') {
+        return '<span class="badge bg-success">Activo</span>';
+    } else if (estado === 'temporal') {
+        return '<span class="badge bg-warning text-dark">Temporal</span>';
+    } else if (estado === 'retirado') {
+        return '<span class="badge bg-secondary">Retirado</span>';
+    } else {
+        return `<span class="badge bg-light text-dark">${estado || 'Sin estado'}</span>`;
+    }
+}
+
+function assignEquipment(empId, empName, sedeId) {
+    // Mostrar modal de asignación de equipo
+    const modalHtml = `
+        <div class="modal fade" id="assignEquipmentModal" tabindex="-1">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Asignar Equipo a ${empName}</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label class="form-label">Buscar Equipo Disponible</label>
+                            <input type="text" class="form-control" id="equipmentSearch" placeholder="Código, placa, serial o marca...">
+                            <div id="equipmentResults" class="list-group mt-2" style="max-height: 200px; overflow-y: auto;"></div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Equipo Seleccionado</label>
+                            <div class="border p-2 bg-light" id="selectedEquipment">Ningún equipo seleccionado</div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Fecha de Asignación</label>
+                                    <input type="date" class="form-control" id="assignmentDate" value="${new Date().toISOString().split('T')[0]}">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Observaciones</label>
+                                    <textarea class="form-control" id="assignmentNotes" rows="2"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="button" class="btn btn-primary" onclick="submitEquipmentAssignment(${empId}, '${sedeId}')">Asignar Equipo</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+
+    document.body.insertAdjacentHTML('beforeend', modalHtml);
+    const modal = new bootstrap.Modal(document.getElementById('assignEquipmentModal'));
+    modal.show();
+
+    // Configurar búsqueda en tiempo real
+    document.getElementById('equipmentSearch').addEventListener('input', function() {
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(searchAvailableEquipment, 300);
+    });
+}
+
+function searchAvailableEquipment() {
+    const query = document.getElementById('equipmentSearch').value;
+    if (query.length < 2) {
+        document.getElementById('equipmentResults').innerHTML = '';
+        return;
+    }
+
+    fetch(`/inventarios/api/search?q=${encodeURIComponent(query)}&estado=disponible`)
+        .then(response => response.json())
+        .then(data => {
+            const results = document.getElementById('equipmentResults');
+            results.innerHTML = '';
+
+            if (data.length === 0) {
+                results.innerHTML = '<div class="list-group-item text-muted">No se encontraron equipos disponibles</div>';
+                return;
+            }
+
+            data.forEach(equipment => {
+                const item = document.createElement('div');
+                item.className = 'list-group-item list-group-item-action';
+                item.onclick = () => selectEquipmentForAssignment(equipment);
+                item.innerHTML = `
+                    <strong>${equipment.marca || 'N/A'} ${equipment.modelo || 'N/A'}</strong><br>
+                    <small class="text-muted">Código: ${equipment.codigo || 'N/A'} | Serial: ${equipment.serial || 'N/A'}</small>
+                `;
+                results.appendChild(item);
+            });
+        })
+        .catch(error => {
+            console.error('Error searching equipment:', error);
+        });
+}
+
+let selectedEquipmentId = null;
+function selectEquipmentForAssignment(equipment) {
+    selectedEquipmentId = equipment.id;
+    document.getElementById('selectedEquipment').innerHTML = `
+        <strong>${equipment.marca || 'N/A'} ${equipment.modelo || 'N/A'}</strong><br>
+        <small>Código: ${equipment.codigo || 'N/A'} | Serial: ${equipment.serial || 'N/A'}</small>
+    `;
+    document.getElementById('equipmentResults').innerHTML = '';
+}
+
+function submitEquipmentAssignment(empId, sedeId) {
+    if (!selectedEquipmentId) {
+        alert('Por favor selecciona un equipo');
+        return;
+    }
+
+    const assignmentDate = document.getElementById('assignmentDate').value;
+    const notes = document.getElementById('assignmentNotes').value;
+
+    const payload = {
+        equipo_id: selectedEquipmentId,
+        tipo_equipo: 'individual',
+        user_id: empId,
+        sede_id: sedeId || null,
+        assignment_date: assignmentDate,
+        notes: notes
+    };
+
+    fetch('/inventarios/api/assign_equipment', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+    })
+    .then(async (response) => {
+        const data = await response.json().catch(() => ({}));
+        if (!response.ok) throw new Error(data.error || 'No se pudo asignar el equipo');
+        alert(data.message || 'Equipo asignado correctamente');
+
+        // Cerrar modal y recargar
+        bootstrap.Modal.getInstance(document.getElementById('assignEquipmentModal')).hide();
+        document.getElementById('assignEquipmentModal').remove();
+        location.reload();
+    })
+    .catch((error) => {
+        console.error(error);
+        alert(error.message);
+    });
+}
+
+function assignLicense(empId, correo, usuarioWindows, cedula) {
+    // Mostrar modal de asignación de licencia
+    const modalHtml = `
+        <div class="modal fade" id="assignLicenseModal" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Asignar Licencia Office 365</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label for="licenseEmail" class="form-label">Correo/UPN *</label>
+                            <input type="email" class="form-control" id="licenseEmail" value="${(correo || '').replace(/"/g, '"')}" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="licenseUser" class="form-label">Usuario Asignado</label>
+                            <input type="text" class="form-control" id="licenseUser" value="${(usuarioWindows || '').replace(/"/g, '"')}">
+                        </div>
+                        <div class="mb-3">
+                            <label for="licenseType" class="form-label">Tipo de Licencia</label>
+                            <select class="form-select" id="licenseType">
+                                <option value="Microsoft 365">Microsoft 365</option>
+                                <option value="Office 365 E3">Office 365 E3</option>
+                                <option value="Office 365 E5">Office 365 E5</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="licenseStatus" class="form-label">Estado</label>
+                            <select class="form-select" id="licenseStatus">
+                                <option value="activa">Activa</option>
+                                <option value="inactiva">Inactiva</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="button" class="btn btn-primary" onclick="submitLicenseAssignment(${empId}, '${cedula}')">Asignar Licencia</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+
+    document.body.insertAdjacentHTML('beforeend', modalHtml);
+    const modal = new bootstrap.Modal(document.getElementById('assignLicenseModal'));
+    modal.show();
+}
+
+function submitLicenseAssignment(empId, cedula) {
+    const email = document.getElementById('licenseEmail').value;
+    const usuarioAsignado = document.getElementById('licenseUser').value;
+    const tipoLicencia = document.getElementById('licenseType').value;
+    const estado = document.getElementById('licenseStatus').value;
+
+    if (!email) {
+        alert('El correo es obligatorio');
+        return;
+    }
+
+    const payload = {
+        email: email.trim(),
+        usuario_asignado: usuarioAsignado.trim(),
+        cedula_usuario: cedula,
+        tipo_licencia: tipoLicencia,
+        estado: estado
+    };
+
+    fetch('/licencias/api/assign_user', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+    })
+    .then(async (response) => {
+        const data = await response.json().catch(() => ({}));
+        if (!response.ok) throw new Error(data.error || 'No se pudo asignar la licencia');
+        alert(data.message || 'Licencia asignada correctamente');
+
+        // Cerrar modal y recargar
+        bootstrap.Modal.getInstance(document.getElementById('assignLicenseModal')).hide();
+        document.getElementById('assignLicenseModal').remove();
+        location.reload();
+    })
+    .catch((error) => {
+        console.error(error);
+        alert(error.message);
+    });
+}
+
+// Event listeners al cargar la página
+document.addEventListener("DOMContentLoaded", function () {
+    // Búsqueda en tiempo real para empleados
+    document.getElementById('searchEmpleados').addEventListener('input', function() {
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(searchEmpleados, 300);
+    });
+
+    // Búsqueda con Enter en filtros
+    ['filterEstado', 'filterCargo', 'filterSede'].forEach(id => {
+        document.getElementById(id).addEventListener('change', searchEmpleados);
+    });
+});
+</script>
+
+{% endblock %}

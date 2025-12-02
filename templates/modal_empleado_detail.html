@@ -1,0 +1,67 @@
+<div class="row g-3">
+    <div class="col-md-6">
+        <h6>Datos personales</h6>
+        <dl class="row">
+            <dt class="col-sm-5">Nombre completo</dt>
+            <dd class="col-sm-7">{{ empleado.nombre }} {{ empleado.apellido or '' }}</dd>
+            <dt class="col-sm-5">Cédula</dt>
+            <dd class="col-sm-7">{{ empleado.cedula or 'Sin cédula' }}</dd>
+            <dt class="col-sm-5">Cargo</dt>
+            <dd class="col-sm-7">{{ empleado.cargo or 'No definido' }}</dd>
+            <dt class="col-sm-5">Departamento</dt>
+            <dd class="col-sm-7">{{ empleado.departamento or 'Sin departamento' }}</dd>
+            <dt class="col-sm-5">Sede</dt>
+            <dd class="col-sm-7">{{ empleado.sede_nombre or empleado.sede_id or 'Sin sede' }}</dd>
+        </dl>
+    </div>
+    <div class="col-md-6">
+        <h6>Contacto y sistemas</h6>
+        <dl class="row">
+            <dt class="col-sm-5">Correo Office</dt>
+            <dd class="col-sm-7">{{ empleado.correo_office or 'Sin correo' }}</dd>
+            <dt class="col-sm-5">Usuario Windows</dt>
+            <dd class="col-sm-7">{{ empleado.usuario_windows or 'N/D' }}</dd>
+            <dt class="col-sm-5">Usuario Quirón</dt>
+            <dd class="col-sm-7">{{ empleado.usuario_quiron or 'N/D' }}</dd>
+            <dt class="col-sm-5">Código biométrico</dt>
+            <dd class="col-sm-7">{{ empleado.codigo_biometrico or 'No asignado' }}</dd>
+            <dt class="col-sm-5">HV equipo</dt>
+            <dd class="col-sm-7">{{ empleado.codigo_unico_hv_equipo or 'No tiene' }}</dd>
+        </dl>
+    </div>
+    <div class="col-12">
+        <h6>Equipos asignados</h6>
+        {% if equipos %}
+        <div class="list-group">
+            {% for equipo in equipos %}
+            <div class="list-group-item">
+                <strong>{{ equipo.marca or 'Equipo' }} {{ equipo.modelo or '' }}</strong><br>
+                <small>Serial: {{ equipo.codigo_barras_individual or '' }} · Estado: {{ equipo.estado }}</small>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p class="text-muted">No hay equipos individuales registrados para este empleado.</p>
+        {% endif %}
+    </div>
+    <div class="col-md-6">
+        <h6>Licencias activas</h6>
+        {% if licencias %}
+        <ul class="list-group list-group-flush">
+            {% for licencia in licencias %}
+            <li class="list-group-item p-2">
+                <strong>{{ licencia.tipo_licencia or 'Licencia 365' }}</strong><br>
+                <small>{{ licencia.email }}</small><br>
+                <small>Estado: {{ licencia.estado or 'N/A' }} · Asignado: {{ licencia.usuario_asignado or 'N/A' }}</small>
+            </li>
+            {% endfor %}
+        </ul>
+        {% else %}
+        <p class="text-muted">No hay licencias Office 365 asociadas.</p>
+        {% endif %}
+    </div>
+    <div class="col-md-6">
+        <h6>Observaciones</h6>
+        <p class="small text-muted">{{ empleado.observaciones or 'Sin observaciones registradas.' }}</p>
+    </div>
+</div>

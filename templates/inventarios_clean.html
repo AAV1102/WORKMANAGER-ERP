@@ -1,0 +1,478 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <h2>Inventario Tecnológico</h2>
+
+        <!-- Statistics Cards -->
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="card bg-primary text-white">
+                    <div class="card-body">
+                        <h5 class="card-title"><i class="fas fa-boxes"></i> Total Equipos</h5>
+                        <h3>{{ stats.total_equipment }}</h3>
+                        <small>En inventario</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-success text-white">
+                    <div class="card-body">
+                        <h5 class="card-title"><i class="fas fa-check-circle"></i> Disponibles</h5>
+                        <h3>{{ stats.grouped.get('disponible', 0) + stats.individual.get('disponible', 0) }}</h3>
+                        <small>Listos para asignar</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-warning text-white">
+                    <div class="card-body">
+                        <h5 class="card-title"><i class="fas fa-user-check"></i> Asignados</h5>
+                        <h3>{{ stats.grouped.get('asignado', 0) + stats.individual.get('asignado', 0) }}</h3>
+                        <small>En uso activo</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-danger text-white">
+                    <div class="card-body">
+                        <h5 class="card-title"><i class="fas fa-tools"></i> Mantenimiento</h5>
+                        <h3>{{ stats.grouped.get('mantenimiento', 0) + stats.individual.get('mantenimiento', 0) }}</h3>
+                        <small>En reparación</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Equipment Types Statistics -->
+        <div class="row mb-4">
+            <div class="col-md-12">
+                <div class="card fade-in">
+                    <div class="card-header">
+                        <h5><i class="fas fa-chart-pie"></i> Distribución por Tipo de Equipo</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            {% for type_name, count in stats.types.items() %}
+                            <div class="col-md-2">
+                                <div class="text-center">
+                                    <h4 class="text-primary">{{ count }}</h4>
+                                    <small class="text-muted">{{ type_name|title }}</small>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <ul class="nav nav-tabs mb-3" id="inventoryTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="agrupados-tab" data-bs-toggle="tab" data-bs-target="#agrupados" type="button" role="tab">Equipos Agrupados</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="individuales-tab" data-bs-toggle="tab" data-bs-target="#individuales" type="button" role="tab">Equipos Individuales</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="asignados-tab" data-bs-toggle="tab" data-bs-target="#asignados" type="button" role="tab">Equipos Asignados</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="bajas-tab" data-bs-toggle="tab" data-bs-target="#bajas" type="button" role="tab">Equipos Dados de Baja</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="general-tab" data-bs-toggle="tab" data-bs-target="#general" type="button" role="tab">Inventario General</button>
+            </li>
+        </ul>
+
+        <!-- Tab Content -->
+        <div class="tab-content" id="inventoryTabsContent">
+            <!-- Equipos Agrupados Tab -->
+            <div class="tab-pane fade show active" id="agrupados" role="tabpanel">
+                <!-- Search Fields -->
+                <div class="card mb-3">
+                    <div class="card-body">
+                        <h6><i class="fas fa-search"></i> Búsqueda en Equipos Agrupados</h6>
+                        <div class="row g-3">
+                            <div class="col-md-3">
+                                <input type="text" class="form-control" id="searchSerial" placeholder="Buscar por Serial">
+                            </div>
+                            <div class="col-md-3">
+                                <input type="text" class="form-control" id="searchHostname" placeholder="Buscar por Hostname">
+                            </div>
+                            <div class="col-md-3">
+                                <input type="text" class="form-control" id="searchUser" placeholder="Buscar por Usuario">
+                            </div>
+                            <div class="col-md-3">
+                                <input type="text" class="form-control" id="searchID" placeholder="Buscar por ID">
+                            </div>
+                        </div>
+                        <div class="mt-2">
+                            <button class="btn btn-primary btn-sm" onclick="searchGroupedInventory()">
+                                <i class="fas fa-search"></i> Buscar
+                            </button>
+                            <button class="btn btn-secondary btn-sm" onclick="clearGroupedSearch()">
+                                <i class="fas fa-times"></i> Limpiar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="mb-3">
+                    <a href="{{ url_for('inventarios.new_inventario') }}" class="btn btn-primary btn-custom">
+                        <i class="fas fa-plus"></i> Nuevo Equipo Agrupado
+                    </a>
+                    <button class="btn btn-success btn-custom" onclick="exportToExcel('agrupados')">
+                        <i class="fas fa-file-excel"></i> Exportar Excel
+                    </button>
+                    <button class="btn btn-danger btn-custom" onclick="exportToPDF('agrupados')">
+                        <i class="fas fa-file-pdf"></i> Exportar PDF
+                    </button>
+                    <button class="btn btn-info btn-custom" onclick="exportToJSON('agrupados')">
+                        <i class="fas fa-file-code"></i> Exportar JSON
+                    </button>
+                </div>
+
+                <!-- Table -->
+                <div class="table-responsive">
+                    <table class="table table-striped" id="agrupadosTable">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Código Barras Unificado</th>
+                                <th>Descripción General</th>
+                                <th>Asignado Actual</th>
+                                <th>Sede</th>
+                                <th>Estado</th>
+                                <th>Creador</th>
+                                <th>Fecha Creación</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="agrupadosTableBody">
+                            {% for item in equipos_agrupados %}
+                            <tr>
+                                <td>{{ item[0] }}</td>
+                                <td><strong>{{ item[1] }}</strong></td>
+                                <td>{{ item[6] }}</td>
+                                <td>{{ item[5] if item[5] else 'No asignado' }}</td>
+                                <td>
+                                    {% if item[3] %}
+                                        {% if item[3] == 1 %}Sede Principal Bogotá{% endif %}
+                                        {% if item[3] == 2 %}Sede Norte Bogotá{% endif %}
+                                        {% if item[3] == 3 %}Sede Sur Bogotá{% endif %}
+                                        {% if item[3] == 4 %}Medellín{% endif %}
+                                        {% if item[3] == 5 %}Sede Cali{% endif %}
+                                        {% if item[3] == 6 %}Sede Barranquilla{% endif %}
+                                        {% if item[3] == 7 %}Sede Cartagena{% endif %}
+                                        {% if item[3] == 8 %}Sede Bucaramanga{% endif %}
+                                        {% if item[3] == 9 %}Sede Pereira{% endif %}
+                                        {% if item[3] == 10 %}Sede Manizales{% endif %}
+                                        {% if item[3] == 11 %}Sede Ibagué{% endif %}
+                                        {% if item[3] == 12 %}Sede Villavicencio{% endif %}
+                                        {% if item[3] == 13 %}Sede Neiva{% endif %}
+                                    {% else %}
+                                        No asignada
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <span class="badge {% if item[7] == 'disponible' %}bg-success{% elif item[7] == 'asignado' %}bg-primary{% elif item[7] == 'en reparacion' %}bg-warning{% else %}bg-danger{% endif %}">
+                                        {{ item[7] }}
+                                    </span>
+                                </td>
+                                <td>{{ item[8] }}</td>
+                                <td>{{ item[11] }}</td>
+                                <td>
+                                    <button class="btn btn-sm btn-info" onclick="viewComponents({{ item[0] }})">
+                                        <i class="fas fa-list"></i> Ver Componentes
+                                    </button>
+                                    <button class="btn btn-sm btn-success" onclick="viewLifeSheet('agrupado', {{ item[0] }})">
+                                        <i class="fas fa-file-alt"></i> Hoja de Vida
+                                    </button>
+                                    <a href="{{ url_for('inventarios.edit_inventario', tipo='agrupado', inventario_id=item[0]) }}" class="btn btn-sm btn-warning">
+                                        <i class="fas fa-edit"></i> Editar
+                                    </a>
+                                    <form action="{{ url_for('inventarios.delete_inventario', inventario_id=item[0]) }}" method="post" style="display:inline;">
+                                        <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('¿Estás seguro?')">
+                                            <i class="fas fa-trash"></i> Eliminar
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Equipos Individuales Tab -->
+            <div class="tab-pane fade" id="individuales" role="tabpanel">
+                <div class="mb-3">
+                    <a href="{{ url_for('inventarios.new_inventario_individual') }}" class="btn btn-primary btn-custom">
+                        <i class="fas fa-plus"></i> Nuevo Equipo Individual
+                    </a>
+                    <button class="btn btn-success btn-custom" onclick="exportToExcel('individuales')">
+                        <i class="fas fa-file-excel"></i> Exportar Excel
+                    </button>
+                    <button class="btn btn-danger btn-custom" onclick="exportToPDF('individuales')">
+                        <i class="fas fa-file-pdf"></i> Exportar PDF
+                    </button>
+                    <button class="btn btn-info btn-custom" onclick="exportToJSON('individuales')">
+                        <i class="fas fa-file-code"></i> Exportar JSON
+                    </button>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table table-striped" id="individualesTable">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Código Barras Individual</th>
+                                <th>Marca</th>
+                                <th>Modelo</th>
+                                <th>Serial</th>
+                                <th>Procesador</th>
+                                <th>RAM</th>
+                                <th>Disco</th>
+                                <th>Asignado Nuevo</th>
+                                <th>Sede</th>
+                                <th>Estado</th>
+                                <th>Disponible</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in equipos_individuales %}
+                            <tr>
+                                <td>{{ item[0] }}</td>
+                                <td><strong>{{ item[1] }}</strong></td>
+                                <td>{{ item[10] }}</td>
+                                <td>{{ item[7] }}</td>
+                                <td>{{ item[6] }}</td>
+                                <td>{{ item[11] }}</td>
+                                <td>{{ item[13] }}</td>
+                                <td>{{ item[15] }}</td>
+                                <td>{{ item[18] if item[18] else 'No asignado' }}</td>
+                                <td>
+                                    {% if item[29] %}
+                                        {% if item[29] == 1 %}Sede Principal Bogotá{% endif %}
+                                        {% if item[29] == 2 %}Sede Norte Bogotá{% endif %}
+                                        {% if item[29] == 3 %}Sede Sur Bogotá{% endif %}
+                                        {% if item[29] == 4 %}Medellín{% endif %}
+                                        {% if item[29] == 5 %}Sede Cali{% endif %}
+                                        {% if item[29] == 6 %}Sede Barranquilla{% endif %}
+                                        {% if item[29] == 7 %}Sede Cartagena{% endif %}
+                                        {% if item[29] == 8 %}Sede Bucaramanga{% endif %}
+                                        {% if item[29] == 9 %}Sede Pereira{% endif %}
+                                        {% if item[29] == 10 %}Sede Manizales{% endif %}
+                                        {% if item[29] == 11 %}Sede Ibagué{% endif %}
+                                        {% if item[29] == 12 %}Sede Villavicencio{% endif %}
+                                        {% if item[29] == 13 %}Sede Neiva{% endif %}
+                                    {% else %}
+                                        No asignada
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <span class="badge {% if item[17] == 'disponible' %}bg-success{% elif item[17] == 'asignado' %}bg-primary{% elif item[17] == 'en reparacion' %}bg-warning{% else %}bg-danger{% endif %}">
+                                        {{ item[17] }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="badge {% if item[28] == 'Si' %}bg-success{% else %}bg-danger{% endif %}">
+                                        {{ item[28] }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <a href="{{ url_for('inventarios.edit_inventario_individual', inventario_id=item[0]) }}" class="btn btn-sm btn-warning">
+                                        <i class="fas fa-edit"></i> Editar
+                                    </a>
+                                    <form action="{{ url_for('inventarios.delete_inventario_individual', inventario_id=item[0]) }}" method="post" style="display:inline;">
+                                        <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('¿Estás seguro?')">
+                                            <i class="fas fa-trash"></i> Eliminar
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Inventario General Tab -->
+            <div class="tab-pane fade" id="general" role="tabpanel">
+                <div class="mb-3">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <input type="text" id="searchGeneral" class="form-control" placeholder="Buscar por código, serial o usuario...">
+                        </div>
+                        <div class="col-md-6">
+                            <button class="btn btn-primary btn-custom" onclick="searchGeneralInventory()">
+                                <i class="fas fa-search"></i> Buscar
+                            </button>
+                            <button class="btn btn-success btn-custom" onclick="exportToExcel('general')">
+                                <i class="fas fa-file-excel"></i> Exportar Excel
+                            </button>
+                            <button class="btn btn-danger btn-custom" onclick="exportToPDF('general')">
+                                <i class="fas fa-file-pdf"></i> Exportar PDF
+                            </button>
+                            <button class="btn btn-info btn-custom" onclick="exportToJSON('general')">
+                                <i class="fas fa-file-code"></i> Exportar JSON
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table table-striped" id="generalTable">
+                        <thead>
+                            <tr>
+                                <th>Tipo</th>
+                                <th>Código</th>
+                                <th>Serial</th>
+                                <th>Marca</th>
+                                <th>Modelo</th>
+                                <th>Asignado</th>
+                                <th>Sede</th>
+                                <th>Estado</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="generalTableBody">
+                            <!-- Results will be loaded here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+
+<script>
+    function exportToJSON(table) {
+        window.location.href = `/export_import/export/json/${table}`;
+    }
+
+    function searchGroupedInventory() {
+        const serial = document.getElementById('searchSerial').value;
+        const hostname = document.getElementById('searchHostname').value;
+        const user = document.getElementById('searchUser').value;
+        const id = document.getElementById('searchID').value;
+
+        if (!serial && !hostname && !user && !id) {
+            alert('Ingrese al menos un criterio de búsqueda');
+            return;
+        }
+
+        fetch('/inventarios/api/search_grouped', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                serial: serial,
+                hostname: hostname,
+                user: user,
+                id: id
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            const tbody = document.getElementById('agrupadosTableBody');
+            tbody.innerHTML = '';
+
+            if (data.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="9" class="text-center">No se encontraron resultados</td></tr>';
+                return;
+            }
+
+            data.forEach(item => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${item.id}</td>
+                    <td><strong>${item.codigo_barras_unificado}</strong></td>
+                    <td>${item.descripcion_general}</td>
+                    <td>${item.asignado_actual || 'No asignado'}</td>
+                    <td>${item.sede || 'No asignada'}</td>
+                    <td><span class="badge ${item.estado_general === 'disponible' ? 'bg-success' : item.estado_general === 'asignado' ? 'bg-primary' : 'bg-warning'}">${item.estado_general}</span></td>
+                    <td>${item.creador_registro}</td>
+                    <td>${item.fecha_creacion}</td>
+                    <td>
+                        <button class="btn btn-sm btn-info" onclick="viewComponents(${item.id})"><i class="fas fa-list"></i> Ver Componentes</button>
+                        <button class="btn btn-sm btn-success" onclick="viewLifeSheet('agrupado', ${item.id})"><i class="fas fa-file-alt"></i> Hoja de Vida</button>
+                        <a href="/inventarios/edit/${item.id}" class="btn btn-sm btn-warning"><i class="fas fa-edit"></i> Editar</a>
+                        <form action="/inventarios/delete/${item.id}" method="post" style="display:inline;">
+                            <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('¿Estás seguro?')"><i class="fas fa-trash"></i> Eliminar</button>
+                        </form>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        })
+        .catch(error => {
+            alert('Error en la búsqueda: ' + error.message);
+        });
+    }
+
+    function clearGroupedSearch() {
+        document.getElementById('searchSerial').value = '';
+        document.getElementById('searchHostname').value = '';
+        document.getElementById('searchUser').value = '';
+        document.getElementById('searchID').value = '';
+        location.reload();
+    }
+
+    function searchGeneralInventory() {
+        const query = document.getElementById('searchGeneral').value;
+        if (query.length < 2) {
+            alert('Ingrese al menos 2 caracteres para buscar');
+            return;
+        }
+
+        fetch(`/inventarios/api/search/${query}`)
+            .then(response => response.json())
+            .then(data => {
+                const tbody = document.getElementById('generalTableBody');
+                tbody.innerHTML = '';
+
+                if (data.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="9" class="text-center">No se encontraron resultados</td></tr>';
+                    return;
+                }
+
+                data.forEach(item => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${item.tipo}</td>
+                        <td><strong>${item.codigo}</strong></td>
+                        <td>${item.serial}</td>
+                        <td>${item.marca}</td>
+                        <td>${item.modelo}</td>
+                        <td>${item.asignado || 'No asignado'}</td>
+                        <td>${item.sede || 'No asignada'}</td>
+                        <td><span class="badge ${item.estado === 'disponible' ? 'bg-success' : item.estado === 'asignado' ? 'bg-primary' : 'bg-warning'}">${item.estado}</span></td>
+                        <td>
+                            <button class="btn btn-sm btn-info" onclick="viewDetails('${item.tipo}', ${item.id})"><i class="fas fa-eye"></i> Ver</button>
+                        </td>
+                    `;
+                    tbody.appendChild(row);
+                });
+            })
+            .catch(error => {
+                alert('Error en la búsqueda: ' + error.message);
+            });
+    }
+
+    function viewDetails(tipo, id) {
+        if (tipo === 'agrupado') {
+            window.location.href = `/inventarios/${id}/components`;
+        } else {
+            window.location.href = `/inventarios/individual/${id}`;
+        }
+    }
+</script>
+{% endblock %}

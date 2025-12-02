@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+        <h3><i class="fas fa-desktop text-primary"></i> Inventario Tecnologico - Individual</h3>
+        <p class="text-muted mb-0">Equipos individuales con codigo propio, asignaciones y estado por sede.</p>
+    </div>
+    <div>
+        <a href="{{ url_for('inventarios.new_inventario_individual') }}" class="btn btn-primary btn-custom">
+            <i class="fas fa-plus-circle"></i> Nuevo Equipo Individual
+        </a>
+    </div>
+</div>
+
+<div class="card mb-3">
+    <div class="card-body">
+        <form method="GET" class="row g-3">
+            <div class="col-md-4">
+                <label class="form-label">Buscar</label>
+                <input type="text" name="search" value="{{ search }}" class="form-control"
+                       placeholder="Codigo, serial, placa, modelo, asignado, ciudad...">
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Tecnologia</label>
+                <select name="tecnologia" class="form-select">
+                    <option value="">Todas</option>
+                    {% for t in tecnologias %}
+                        <option value="{{ t }}" {% if tecnologia_filtro == t %}selected{% endif %}>{{ t }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Estado</label>
+                <select name="estado" class="form-select">
+                    <option value="">Todos</option>
+                    <option value="disponible" {% if estado == 'disponible' %}selected{% endif %}>Disponible</option>
+                    <option value="asignado" {% if estado == 'asignado' %}selected{% endif %}>Asignado</option>
+                    <option value="pendiente recogida" {% if estado == 'pendiente recogida' %}selected{% endif %}>Pendiente recogida</option>
+                    <option value="baja" {% if estado == 'baja' %}selected{% endif %}>Baja</option>
+                </select>
+            </div>
+            <div class="col-md-2 d-flex align-items-end">
+                <button class="btn btn-primary w-100" type="submit">
+                    <i class="fas fa-search"></i> Filtrar
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="card fade-in">
+    <div class="card-body table-responsive">
+        {% if equipos|length == 0 %}
+            <p class="text-center text-muted mb-0">No hay equipos individuales registrados.</p>
+        {% else %}
+        <table class="table table-hover align-middle">
+            <thead>
+            <tr>
+                <th>Codigo</th>
+                <th>Tecnologia</th>
+                <th>Marca / Modelo</th>
+                <th>Serial / Placa</th>
+                <th>Asignado a</th>
+                <th>Sede</th>
+                <th>Estado</th>
+                <th class="text-end">Acciones</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for e in equipos %}
+                <tr>
+                    <td><strong>{{ e.codigo_barras_individual }}</strong></td>
+                    <td>{{ e.tecnologia or '-' }}</td>
+                    <td>{{ e.marca or '-' }} / {{ e.modelo or '-' }}</td>
+                    <td>
+                        <small>Serial: {{ e.serial or '-' }}</small><br>
+                        <small>Placa: {{ e.placa or '-' }}</small>
+                    </td>
+                    <td>{{ e.asignado_nuevo or '-' }}</td>
+                    <td>
+                        {{ e.sede_nombre or '-' }}<br>
+                        <small class="text-muted">{{ e.sede_ciudad or '' }}</small>
+                    </td>
+                    <td>
+                        {% if e.estado == 'disponible' %}
+                            <span class="badge bg-success">Disponible</span>
+                        {% elif e.estado == 'asignado' %}
+                            <span class="badge bg-primary">Asignado</span>
+                        {% elif e.estado == 'pendiente recogida' %}
+                            <span class="badge bg-warning text-dark">Pendiente recogida</span>
+                        {% elif e.estado == 'baja' %}
+                            <span class="badge bg-danger">Baja</span>
+                        {% else %}
+                            <span class="badge bg-light text-dark">{{ e.estado }}</span>
+                        {% endif %}
+                    </td>
+                    <td class="text-end">
+                        <button type="button"
+                                class="btn btn-sm btn-outline-primary modal-trigger"
+                                data-modal-api="{{ url_for('realtime.detail', module='inventario_individual', item_id=e.id) }}"
+                                data-modal-renderer="inventario_individual"
+                                data-modal-title="Inventario individual {{ e.codigo_barras_individual or e.id }}">
+                            Ver detalle
+                        </button>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

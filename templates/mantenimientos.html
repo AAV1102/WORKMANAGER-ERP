@@ -1,0 +1,127 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+        <h3><i class="fas fa-tools text-primary"></i> Mantenimientos</h3>
+        <p class="text-muted mb-0">Historial y programaci?n de mantenimientos de equipos.</p>
+    </div>
+    <div class="text-end">
+        <span class="badge bg-primary me-2">Pendientes: {{ stats.pendientes }}</span>
+        <span class="badge bg-warning text-dark me-2">En progreso: {{ stats.en_progreso }}</span>
+        <span class="badge bg-success">Completados: {{ stats.completados }}</span>
+    </div>
+</div>
+
+<div class="row mb-3">
+    <div class="col-md-3">
+        <div class="card">
+            <div class="card-body text-center">
+                <h4 class="mb-1">{{ stats.total }}</h4>
+                <p class="text-muted mb-0">Mantenimientos totales</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-9">
+        <form class="card" method="POST" action="{{ url_for('mantenimientos.crear_mantenimiento') }}">
+            <div class="card-body row g-2 align-items-end">
+                <div class="col-md-2">
+                    <label class="form-label">ID Equipo</label>
+                    <input type="number" class="form-control" name="equipo_id" required>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">Tipo</label>
+                    <select class="form-select" name="tipo_equipo">
+                        <option value="individual">Individual</option>
+                        <option value="agrupado">Agrupado</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">T?tulo</label>
+                    <input type="text" class="form-control" name="titulo" required>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Descripci?n</label>
+                    <input type="text" class="form-control" name="descripcion">
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">Responsable</label>
+                    <input type="text" class="form-control" name="responsable">
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">Fecha programada</label>
+                    <input type="date" class="form-control" name="fecha_programada">
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">Estado</label>
+                    <select class="form-select" name="estado">
+                        <option value="pendiente">Pendiente</option>
+                        <option value="en_progreso">En progreso</option>
+                        <option value="completado">Completado</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">Costo</label>
+                    <input type="number" step="0.01" class="form-control" name="costo">
+                </div>
+                <div class="col-md-2 mt-4">
+                    <button class="btn btn-primary w-100" type="submit"><i class="fas fa-save"></i> Guardar</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0"><i class="fas fa-clipboard-list"></i> Historial</h5>
+        <small class="text-muted">Mostrando {{ mantenimientos|length }} registros</small>
+    </div>
+    <div class="card-body">
+        {% if mantenimientos|length == 0 %}
+            <p class="text-muted mb-0">Sin mantenimientos registrados.</p>
+        {% else %}
+        <div class="table-responsive">
+            <table class="table table-striped table-hover align-middle">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Equipo</th>
+                        <th>T?tulo</th>
+                        <th>Responsable</th>
+                        <th>Fecha programada</th>
+                        <th>Estado</th>
+                        <th>Costo</th>
+                        <th>Creado</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for m in mantenimientos %}
+                    <tr>
+                        <td>{{ m.id }}</td>
+                        <td>{{ resolver(m.equipo_id, m.tipo_equipo) }}</td>
+                        <td>{{ m.titulo }}</td>
+                        <td>{{ m.responsable or '-' }}</td>
+                        <td>{{ m.fecha_programada or '-' }}</td>
+                        <td><span class="badge bg-secondary">{{ m.estado }}</span></td>
+                        <td>{{ m.costo or '-' }}</td>
+                        <td>{{ m.created_at }}</td>
+                        <td>
+                            <button type="button"
+                                    class="btn btn-sm btn-outline-primary modal-trigger"
+                                    data-modal-api="{{ url_for('realtime.detail', module='mantenimiento', item_id=m.id) }}"
+                                    data-modal-renderer="mantenimiento"
+                                    data-modal-title="Mantenimiento {{ m.id }}">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

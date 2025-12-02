@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block title %}{{ _('Nueva Solicitud') }}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card shadow-lg">
+            <div class="card-header">
+                <h3 class="text-center my-3"><i class="fas fa-paper-plane"></i> {{ _('Crear Nueva Solicitud') }}</h3>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('solicitudes.nueva_solicitud') }}" novalidate>
+                    {{ form.hidden_tag() }}
+
+                    <div class="mb-3">
+                        {{ form.tipo_solicitud.label(class="form-label") }}
+                        {{ form.tipo_solicitud(class="form-select" + (" is-invalid" if form.tipo_solicitud.errors else "")) }}
+                        {% for error in form.tipo_solicitud.errors %}<div class="invalid-feedback">{{ error }}</div>{% endfor %}
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            {{ form.fecha_inicio.label(class="form-label") }}
+                            {{ form.fecha_inicio(class="form-control" + (" is-invalid" if form.fecha_inicio.errors else "")) }}
+                            {% for error in form.fecha_inicio.errors %}<div class="invalid-feedback">{{ error }}</div>{% endfor %}
+                        </div>
+                        <div class="col-md-6">
+                            {{ form.fecha_fin.label(class="form-label") }}
+                            {{ form.fecha_fin(class="form-control" + (" is-invalid" if form.fecha_fin.errors else "")) }}
+                            {% for error in form.fecha_fin.errors %}<div class="invalid-feedback">{{ error }}</div>{% endfor %}
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        {{ form.descripcion.label(class="form-label") }}
+                        {{ form.descripcion(class="form-control" + (" is-invalid" if form.descripcion.errors else ""), rows=4, placeholder=_('Explica brevemente el motivo de tu solicitud...')) }}
+                        {% for error in form.descripcion.errors %}<div class="invalid-feedback">{{ error }}</div>{% endfor %}
+                    </div>
+
+                    <div class="d-grid">{{ form.submit(class="btn btn-primary btn-lg") }}</div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

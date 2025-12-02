@@ -1,0 +1,275 @@
+{% extends "base.html" %}
+
+{% block title %}Garantías - WorkManager ERP{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card fade-in">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <i class="fas fa-shield-alt mr-2"></i>Gestión de Garantías
+                    </h3>
+                    <div class="card-tools">
+                        <button type="button" class="btn btn-success btn-sm" data-toggle="modal" data-target="#modalNuevaGarantia">
+                            <i class="fas fa-plus"></i> Nueva Garantía
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <!-- Filtros -->
+                    <div class="row mb-3">
+                        <div class="col-md-3">
+                            <input type="text" id="searchEquipo" class="form-control" placeholder="Buscar por equipo...">
+                        </div>
+                        <div class="col-md-3">
+                            <input type="text" id="searchSerial" class="form-control" placeholder="Buscar por serial...">
+                        </div>
+                        <div class="col-md-3">
+                            <select id="filterEstado" class="form-control">
+                                <option value="">Todos los estados</option>
+                                <option value="vigente">Vigente</option>
+                                <option value="vencida">Vencida</option>
+                                <option value="sin_garantia">Sin Garantía</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <button class="btn btn-secondary" onclick="filtrarGarantias()">
+                                <i class="fas fa-search"></i> Filtrar
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Tabla de Garantías -->
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-striped" id="garantiasTable">
+                            <thead>
+                                <tr>
+                                    <th>Equipo</th>
+                                    <th>Serial</th>
+                                    <th>Fecha Compra</th>
+                                    <th>Fecha Fin Garantía</th>
+                                    <th>Días Restantes</th>
+                                    <th>Estado</th>
+                                    <th>Proveedor</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for garantia in garantias %}
+                                <tr>
+                                    <td>{{ garantia.nombre_equipo or garantia.descripcion_general }}</td>
+                                    <td>{{ garantia.serial or 'N/A' }}</td>
+                                    <td>{{ garantia.fecha_compra.strftime('%Y-%m-%d') if garantia.fecha_compra else '-' }}</td>
+                                    <td>{{ garantia.fecha_fin_garantia.strftime('%Y-%m-%d') if garantia.fecha_fin_garantia else '-' }}</td>
+                                    <td>
+                                        {% if garantia.dias_restantes is defined %}
+                                            {% if garantia.dias_restantes > 0 %}
+                                                <span class="text-success">{{ garantia.dias_restantes }} días</span>
+                                            {% elif garantia.dias_restantes == 0 %}
+                                                <span class="text-warning">Vence hoy</span>
+                                            {% else %}
+                                                <span class="text-danger">Vencida ({{ garantia.dias_restantes * -1 }} días)</span>
+                                            {% endif %}
+                                        {% else %}
+                                            -
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if garantia.estado_garantia == 'vigente' %}
+                                            <span class="badge badge-success">Vigente</span>
+                                        {% elif garantia.estado_garantia == 'vencida' %}
+                                            <span class="badge badge-danger">Vencida</span>
+                                        {% else %}
+                                            <span class="badge badge-secondary">Sin Garantía</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ garantia.proveedor or '-' }}</td>
+                                    <td>
+                                        <button type="button"
+                                                class="btn btn-sm btn-info modal-trigger"
+                                                data-modal-api="{{ url_for('realtime.detail', module='garantia', item_id=garantia.id) }}"
+                                                data-modal-renderer="garantia"
+                                                data-modal-title="Garantía {{ garantia.id }}">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-warning" onclick="editarGarantia({{ garantia.id }})">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-primary" onclick="renovarGarantia({{ garantia.id }})">
+                                            <i class="fas fa-sync"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Nueva Garantía -->
+<div class="modal fade" id="modalNuevaGarantia" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Nueva Garantía</h4>
+                <button type="button" class="close" data-dismiss="modal">
+                    <span>&times;</span>
+                </button>
+            </div>
+            <form id="formNuevaGarantia">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="id_equipo">Equipo *</label>
+                        <select class="form-control" id="id_equipo" name="id_equipo" required>
+                            <option value="">Seleccionar equipo...</option>
+                            <!-- Equipos se cargarán dinámicamente -->
+                        </select>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="fecha_inicio">Fecha de Inicio *</label>
+                                <input type="date" class="form-control" id="fecha_inicio" name="fecha_inicio" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="duracion_meses">Duración (meses) *</label>
+                                <input type="number" class="form-control" id="duracion_meses" name="duracion_meses" min="1" max="120" required>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="proveedor">Proveedor</label>
+                        <select class="form-control" id="proveedor" name="proveedor">
+                            <option value="">Seleccionar proveedor...</option>
+                            <!-- Proveedores se cargarán dinámicamente -->
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="numero_garantia">Número de Garantía</label>
+                        <input type="text" class="form-control" id="numero_garantia" name="numero_garantia">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="condiciones">Condiciones de Garantía</label>
+                        <textarea class="form-control" id="condiciones" name="condiciones" rows="3" placeholder="Describa las condiciones de la garantía..."></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="observaciones">Observaciones</label>
+                        <textarea class="form-control" id="observaciones" name="observaciones" rows="2"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary btn-custom">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+function filtrarGarantias() {
+    const equipo = document.getElementById('searchEquipo').value.toLowerCase();
+    const serial = document.getElementById('searchSerial').value.toLowerCase();
+    const estado = document.getElementById('filterEstado').value;
+
+    const rows = document.querySelectorAll('#garantiasTable tbody tr');
+
+    rows.forEach(row => {
+        const equipoCell = row.cells[0].textContent.toLowerCase();
+        const serialCell = row.cells[1].textContent.toLowerCase();
+        const estadoCell = row.cells[5].textContent.toLowerCase();
+
+        const matchesEquipo = equipoCell.includes(equipo);
+        const matchesSerial = serialCell.includes(serial);
+        const matchesEstado = !estado || estadoCell.includes(estado);
+
+        if (matchesEquipo && matchesSerial && matchesEstado) {
+            row.style.display = '';
+        } else {
+            row.style.display = 'none';
+        }
+    });
+}
+
+document.getElementById('formNuevaGarantia').addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    const formData = new FormData(this);
+
+    fetch('/admin/garantias/new', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            location.reload();
+        } else {
+            alert('Error: ' + data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error al guardar la garantía');
+    });
+});
+
+function verGarantia(id) {
+    openApiModal(`/api/detail/garantia/${id}`, `Garantía ${id}`, 'garantia');
+}
+
+function editarGarantia(id) {
+    window.location.href = `/admin/garantias/${id}/edit`;
+}
+
+function renovarGarantia(id) {
+    if (confirm('¿Desea renovar esta garantía?')) {
+        window.location.href = `/admin/garantias/${id}/renovar`;
+    }
+}
+
+// Cargar equipos y proveedores al abrir modal
+$('#modalNuevaGarantia').on('show.bs.modal', function() {
+    // Cargar equipos
+    fetch('/api/equipos')
+    .then(response => response.json())
+    .then(data => {
+        const select = document.getElementById('id_equipo');
+        select.innerHTML = '<option value="">Seleccionar equipo...</option>';
+        data.forEach(equipo => {
+            const option = document.createElement('option');
+            option.value = equipo.id;
+            option.textContent = `${equipo.nombre} (${equipo.serial})`;
+            select.appendChild(option);
+        });
+    });
+
+    // Cargar proveedores
+    fetch('/api/proveedores')
+    .then(response => response.json())
+    .then(data => {
+        const select = document.getElementById('proveedor');
+        select.innerHTML = '<option value="">Seleccionar proveedor...</option>';
+        data.forEach(proveedor => {
+            const option = document.createElement('option');
+            option.value = proveedor.id;
+            option.textContent = proveedor.nombre;
+            select.appendChild(option);
+        });
+    });
+});
+</script>
+{% endblock %}

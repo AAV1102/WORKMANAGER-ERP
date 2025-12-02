@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8 offset-md-2">
+        <div class="alert alert-info text-center my-5">
+            <h4><i class="fas fa-file-import"></i> Importador Universal</h4>
+            <p class="mb-0">
+                Este importador fue reemplazado por la experiencia centralizada. Dirige tus archivos de Inventario General, licencias o empleados al
+                <a href="{{ url_for('export_import_v2.importar_form') }}">Importador Universal</a>, donde podr?s seleccionar el m?dulo, previsualizar los datos y procesarlos con detecci?n autom?tica.
+            </p>
+            <a class="btn btn-primary mt-3" href="{{ url_for('export_import_v2.importar_form') }}">
+                <i class="fas fa-arrow-right"></i> Ir al importador central
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

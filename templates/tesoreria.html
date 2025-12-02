@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block title %}Tesorería{% endblock %}
+{% block content %}
+<div class="container-fluid">
+  <h2 class="mb-4"><i class="fas fa-wallet"></i> {{ _('Dashboard de Tesorería') }}</h2>
+
+  <!-- Tarjetas de Estadísticas -->
+  <div class="row g-3" id="stats-container">
+      <!-- Las tarjetas de estadísticas se cargarán aquí -->
+  </div>
+
+  <div class="row mt-4">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-header"><h5>Facturas recientes</h5></div>
+        <div class="card-body">
+          <div class="table-responsive">
+            <table class="table table-striped" id="facturas-table">
+              <thead>
+                <tr>
+                  <th>Número</th>
+                  <th>Proveedor</th>
+                  <th>Valor</th>
+                  <th>Fecha Emisión</th>
+                  <th>Estado</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                <!-- Las facturas se cargarán aquí -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="{{ url_for('static', filename='js/tesoreria_dashboard.js') }}"></script>
+{% endblock %}

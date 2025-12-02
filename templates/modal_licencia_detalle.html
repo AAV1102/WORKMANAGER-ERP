@@ -1,0 +1,23 @@
+<div class="row g-3">
+    <div class="col-md-6">
+        <h6>Usuario</h6>
+        <p><strong>Nombre:</strong> {{ licencia.usuario_asignado or 'Sin nombre' }}</p>
+        <p><strong>Correo (UPN):</strong> {{ licencia.email }}</p>
+        <p><strong>Cédula:</strong> {{ licencia.cedula_usuario or 'No registrada' }}</p>
+        {% if licencia.empleado_nombre %}
+        <p><strong>Empleado vinculado:</strong> {{ licencia.empleado_nombre }} {{ licencia.empleado_apellido or '' }}</p>
+        {% endif %}
+    </div>
+    <div class="col-md-6">
+        <h6>Estado</h6>
+        <p><strong>Tipo de licencia:</strong> {{ licencia.tipo_licencia or 'Microsoft 365' }}</p>
+        <p><strong>Estado actual:</strong> <span class="badge {% if licencia.estado == 'activa' %}bg-success{% elif licencia.estado == 'inactiva' %}bg-danger{% else %}bg-secondary{% endif %}">
+            {{ licencia.estado or 'N/A' }}
+        </span></p>
+        <p><strong>Fecha asignación:</strong> {{ licencia.fecha_asignacion or 'Sin registro' }}</p>
+    </div>
+    <div class="col-12">
+        <h6>Observaciones</h6>
+        <p class="small text-muted">{{ licencia.observaciones or 'Sin observaciones adicionales.' }}</p>
+    </div>
+</div>

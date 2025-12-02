@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8 offset-md-2">
+        <h2><i class="fas fa-file-import"></i> Importar Equipos Dados de Baja</h2>
+        <p class="text-muted">
+            Carga aquí tu archivo <strong>Bajas.csv</strong> o <strong>Equipos Baja General.csv</strong>.<br>
+            El sistema intentará encontrar los equipos en el Inventario General por
+            <strong>PLACA</strong> y/o <strong>SERIAL</strong>, cambiará el estado a
+            <strong>baja</strong> y registrará la información en el historial de bajas.
+        </p>
+
+        <div class="card fade-in">
+            <div class="card-body">
+                <form method="POST"
+                      action="{{ url_for('bajas_import.import_bajas') }}"
+                      enctype="multipart/form-data">
+
+                    <div class="mb-3">
+                        <label for="file" class="form-label">Archivo CSV</label>
+                        <input type="file" class="form-control" id="file" name="file" required>
+                        <div class="form-text">
+                            Encabezados recomendados: <br>
+                            <code>PLACA;SERIAL;MOTIVO BAJA;RESPONSABLE BAJA;FECHA BAJA;OBSERVACIONES</code><br>
+                            (Los nombres pueden variar un poco, el sistema intenta adaptarse).
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary btn-custom">
+                        <i class="fas fa-upload"></i> Importar Bajas
+                    </button>
+                    <a href="{{ url_for('bajas.lista_bajas') }}" class="btn btn-secondary">
+                        Ver Equipos Dados de Baja
+                    </a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

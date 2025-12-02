@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8 offset-md-2">
+        <h2>Editar Ticket</h2>
+        <form action="{{ url_for('mesa_ayuda.edit_ticket', ticket_id=ticket[0]) }}" method="post">
+            <div class="mb-3">
+                <label for="title" class="form-label">Título</label>
+                <input type="text" class="form-control" id="title" name="title" value="{{ ticket[1] }}" required>
+            </div>
+            <div class="mb-3">
+                <label for="description" class="form-label">Descripción</label>
+                <textarea class="form-control" id="description" name="description" rows="4" required>{{ ticket[2] }}</textarea>
+            </div>
+            <div class="mb-3">
+                <label for="priority" class="form-label">Prioridad</label>
+                <select class="form-select" id="priority" name="priority" required>
+                    <option value="Baja" {% if ticket[3] == 'Baja' %}selected{% endif %}>Baja</option>
+                    <option value="Media" {% if ticket[3] == 'Media' %}selected{% endif %}>Media</option>
+                    <option value="Alta" {% if ticket[3] == 'Alta' %}selected{% endif %}>Alta</option>
+                </select>
+            </div>
+            <div class="mb-3">
+                <label for="category" class="form-label">Categoría</label>
+                <select class="form-select" id="category" name="category" required>
+                    <option value="Técnico" {% if ticket[4] == 'Técnico' %}selected{% endif %}>Técnico</option>
+                    <option value="Administrativo" {% if ticket[4] == 'Administrativo' %}selected{% endif %}>Administrativo</option>
+                    <option value="Soporte" {% if ticket[4] == 'Soporte' %}selected{% endif %}>Soporte</option>
+                    <option value="Otro" {% if ticket[4] == 'Otro' %}selected{% endif %}>Otro</option>
+                </select>
+            </div>
+            <div class="mb-3">
+                <label for="status" class="form-label">Estado</label>
+                <select class="form-select" id="status" name="status" required>
+                    <option value="Abierto" {% if ticket[6] == 'Abierto' %}selected{% endif %}>Abierto</option>
+                    <option value="En Progreso" {% if ticket[6] == 'En Progreso' %}selected{% endif %}>En Progreso</option>
+                    <option value="Resuelto" {% if ticket[6] == 'Resuelto' %}selected{% endif %}>Resuelto</option>
+                    <option value="Cerrado" {% if ticket[6] == 'Cerrado' %}selected{% endif %}>Cerrado</option>
+                </select>
+            </div>
+            <div class="mb-3">
+                <label for="solution" class="form-label">Solución</label>
+                <textarea class="form-control" id="solution" name="solution" rows="3">{{ ticket[8] or '' }}</textarea>
+            </div>
+            <button type="submit" class="btn btn-primary btn-custom">Actualizar Ticket</button>
+            <a href="{{ url_for('mesa_ayuda.mesa_ayuda') }}" class="btn btn-secondary">Cancelar</a>
+        </form>
+    </div>
+</div>
+{% endblock %}

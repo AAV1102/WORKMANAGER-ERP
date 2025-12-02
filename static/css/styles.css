@@ -1,0 +1,197 @@
+/* Estilos Globales para WORKMANAGER ERP */
+
+body {
+    overflow-x: hidden;
+    background-color: #f8f9fa;
+}
+
+:root {
+    --sidebar-width: 250px;
+    --sidebar-bg: #343a40;
+    --sidebar-dark: #212529;
+    --sidebar-hover: #495057;
+    --body-bg: #f8f9fa;
+}
+
+.visually-hidden-focusable {
+    position: absolute;
+    left: 0;
+    top: 0;
+    clip: rect(0, 0, 0, 0);
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    z-index: 1000;
+}
+.visually-hidden-focusable:focus,
+.visually-hidden-focusable:active {
+    clip: auto;
+    width: auto;
+    height: auto;
+    padding: 10px 15px;
+    text-decoration: none;
+    border-radius: 0 0 4px 4px;
+    box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.5);
+}
+
+#wrapper {
+    display: flex;
+    width: 100%;
+    align-items: stretch;
+    min-height: 100vh;
+}
+
+.sidebar {
+    width: var(--sidebar-width);
+    background: var(--sidebar-bg);
+    color: #fff;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    z-index: 1050;
+    overflow-y: auto;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+}
+
+.sidebar-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.45);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease;
+    z-index: 1040;
+}
+
+.sidebar-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.sidebar-header {
+    padding: 20px;
+    background: var(--sidebar-dark);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.sidebar .components {
+    padding: 20px 0;
+}
+
+.sidebar ul p {
+    color: #fff;
+    padding: 10px;
+}
+
+.sidebar ul li a {
+    padding: 10px 20px;
+    font-size: 1.05rem;
+    display: block;
+    color: rgba(255, 255, 255, 0.85);
+    border-bottom: 1px solid transparent;
+    transition: background 0.2s ease, color 0.2s ease;
+}
+
+.sidebar ul li a,
+.sidebar ul li a:hover {
+    text-decoration: none;
+}
+
+.sidebar ul li a:hover {
+    color: #fff;
+    background: var(--sidebar-hover);
+}
+
+.sidebar ul li.active > a,
+.sidebar ul li a[aria-expanded="true"] {
+    color: #fff;
+    background: #0d6efd;
+}
+
+.sidebar ul ul a {
+    font-size: 0.9em !important;
+    padding-left: 30px !important;
+    background: #495057;
+}
+
+.sidebar.collapsed {
+    transform: translateX(-100%);
+}
+
+#wrapper.toggled .sidebar {
+    transform: translateX(-100%);
+}
+
+#wrapper.toggled #page-content-wrapper {
+    margin-left: 0;
+}
+
+#page-content-wrapper {
+    width: 100%;
+    margin-left: var(--sidebar-width);
+    transition: all 0.3s ease;
+    min-height: 100vh;
+}
+
+.content {
+    padding-bottom: 40px;
+}
+
+.navbar {
+    padding: 15px 10px;
+    background: #fff;
+    border: none;
+    border-radius: 0;
+    margin-bottom: 20px;
+    box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.body-accessibility-mode {
+    font-family: 'Inter', 'Segoe UI', sans-serif;
+}
+
+body[data-accessibility-mode="true"] {
+    font-size: 1rem;
+    background: #eef2ff;
+}
+
+.border-start-primary { border-left: .25rem solid #0d6efd !important; }
+.border-start-success { border-left: .25rem solid #198754 !important; }
+.border-start-info { border-left: .25rem solid #0dcaf0 !important; }
+.border-start-warning { border-left: .25rem solid #ffc107 !important; }
+.border-start-danger { border-left: .25rem solid #dc3545 !important; }
+
+.text-xs { font-size: .7rem; }
+.text-gray-300 { color: #dddfeb !important; }
+.text-gray-800 { color: #5a5c69 !important; }
+
+/* --- Diseño Responsivo --- */
+@media (max-width: 992px) {
+    .sidebar {
+        transform: translateX(-100%);
+    }
+
+    #wrapper.toggled .sidebar {
+        transform: translateX(0);
+    }
+
+    #page-content-wrapper {
+        margin-left: 0;
+    }
+
+    #wrapper.toggled #page-content-wrapper {
+        pointer-events: none;
+    }
+}
+
+@media (max-width: 768px) {
+    .sidebar ul li a {
+        font-size: 1em;
+        padding: 10px 16px;
+    }
+}

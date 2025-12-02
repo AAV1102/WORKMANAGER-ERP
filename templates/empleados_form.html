@@ -1,0 +1,122 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h3>
+    {% if empleado %}<i class="fas fa-edit"></i> Completar Informacion Tecnica del Empleado
+    {% else %}<i class="fas fa-plus"></i> Nuevo Empleado
+    {% endif %}
+</h3>
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="card mb-3">
+            <div class="card-header">
+                <h6>Informacion de Gestion Humana</h6>
+            </div>
+            <div class="card-body">
+                <p class="mb-1"><strong>Cedula:</strong> {{ empleado.cedula }}</p>
+                <p class="mb-1"><strong>Nombre:</strong> {{ empleado.nombre }} {{ empleado.apellido or '' }}</p>
+                <p class="mb-1"><strong>Cargo:</strong> {{ empleado.cargo or '-' }}</p>
+                <p class="mb-1"><strong>Fecha Ingreso:</strong> {{ empleado.fecha_ingreso or '-' }}</p>
+                <p class="mb-1"><strong>Razon Social:</strong> {{ empleado.razon_social or '-' }}</p>
+                <p class="mb-0"><strong>Ciudad:</strong> {{ empleado.ciudad or '-' }}</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card fade-in">
+            <div class="card-header">
+                <h6>Informacion Tecnica (Completar)</h6>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <label class="form-label">Codigo Unico HV Equipo</label>
+                            <input type="text" name="codigo_unico_hv_equipo" class="form-control"
+                                   value="{{ empleado.codigo_unico_hv_equipo if empleado else '' }}">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Usuario de Windows</label>
+                            <input type="text" name="usuario_windows" class="form-control"
+                                   value="{{ empleado.usuario_windows if empleado else '' }}">
+                        </div>
+                    </div>
+
+                    <div class="row mt-2">
+                        <div class="col-md-6">
+                            <label class="form-label">Contrasena de Windows</label>
+                            <input type="password" name="contrasena_windows" class="form-control"
+                                   value="{{ empleado.contrasena_windows if empleado else '' }}">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Correo Office</label>
+                            <input type="email" name="correo_office" class="form-control"
+                                   value="{{ empleado.correo_office if empleado else '' }}">
+                        </div>
+                    </div>
+
+                    <div class="row mt-2">
+                        <div class="col-md-6">
+                            <label class="form-label">Usuario de Quiron</label>
+                            <input type="text" name="usuario_quiron" class="form-control"
+                                   value="{{ empleado.usuario_quiron if empleado else '' }}">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Contrasena de Quiron</label>
+                            <input type="password" name="contrasena_quiron" class="form-control"
+                                   value="{{ empleado.contrasena_quiron if empleado else '' }}">
+                        </div>
+                    </div>
+
+                    <div class="row mt-2">
+                        <div class="col-md-6">
+                            <label class="form-label">Codigo Biometrico</label>
+                            <input type="text" name="codigo_biometrico" class="form-control"
+                                   value="{{ empleado.codigo_biometrico if empleado else '' }}">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Estado</label>
+                            <select name="estado" class="form-select">
+                                {% set est = (empleado.estado if empleado else 'activo')|lower %}
+                                <option value="activo" {% if est=='activo' %}selected{% endif %}>Activo</option>
+                                <option value="inactivo" {% if est=='inactivo' %}selected{% endif %}>Inactivo</option>
+                                <option value="temporal" {% if est=='temporal' %}selected{% endif %}>Temporal</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="mt-3">
+                        <label class="form-label">Sede</label>
+                        <select name="sede_id" class="form-select">
+                            <option value="">Seleccionar sede...</option>
+                            {% for s in sedes %}
+                            <option value="{{ s.id }}"
+                                {% if empleado and empleado.sede_id and empleado.sede_id == s.id %}selected{% endif %}>
+                                {{ s.ciudad }} - {{ s.nombre }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="mt-3">
+                        <label class="form-label">Observacion</label>
+                        <textarea name="observacion" class="form-control" rows="3"
+                                  placeholder="Observaciones adicionales...">{{ empleado.observacion if empleado else '' }}</textarea>
+                    </div>
+
+                    <div class="mt-3 text-end">
+                        <a href="{{ url_for('empleados.empleados') }}" class="btn btn-secondary">
+                            Cancelar
+                        </a>
+                        <button type="submit" class="btn btn-primary btn-custom">
+                            <i class="fas fa-save"></i> Guardar Informacion Tecnica
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

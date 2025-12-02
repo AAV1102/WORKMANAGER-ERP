@@ -1,0 +1,34 @@
+<div class="row g-3">
+    <div class="col-md-6">
+        <h6>Información general</h6>
+        <dl class="row">
+            <dt class="col-sm-4">ID</dt>
+            <dd class="col-sm-8">{{ ticket.id }}</dd>
+            <dt class="col-sm-4">Título</dt>
+            <dd class="col-sm-8">{{ ticket.titulo or ticket.title }}</dd>
+            <dt class="col-sm-4">Categoría</dt>
+            <dd class="col-sm-8">{{ ticket.categoria or ticket.category }}</dd>
+            <dt class="col-sm-4">Prioridad</dt>
+            <dd class="col-sm-8">{{ ticket.prioridad or ticket.priority }}</dd>
+            <dt class="col-sm-4">Estado</dt>
+            <dd class="col-sm-8">{{ ticket.estado or ticket.status }}</dd>
+        </dl>
+    </div>
+    <div class="col-md-6">
+        <h6>Responsables</h6>
+        <p><strong>Reporta:</strong> {{ ticket.reporta_nombre or 'Sin datos' }}</p>
+        <p><strong>Asignado:</strong> {{ ticket.asignado_nombre or 'Sin encargado' }}</p>
+        <p><strong>Sede:</strong> {{ ticket.sede_nombre or 'Sin sede' }}</p>
+        <p><strong>Creado:</strong> {{ ticket.created_at }}</p>
+    </div>
+    <div class="col-12">
+        <h6>Descripción</h6>
+        <p>{{ ticket.descripcion or ticket.description or 'Sin descripción' }}</p>
+    </div>
+    {% if ticket.actualizacion or ticket.updated_at %}
+    <div class="col-12">
+        <h6>Última actualización</h6>
+        <p class="small text-muted">{{ ticket.actualizacion or ticket.updated_at }}</p>
+    </div>
+    {% endif %}
+</div>

@@ -1,0 +1,258 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2><i class="fas fa-user"></i> Detalle de Empleado</h2>
+                <div>
+                    <a href="{{ url_for('gestion_humana.editar_empleado', empleado_id=empleado.id) }}" class="btn btn-warning btn-custom">
+                        <i class="fas fa-edit"></i> Editar Empleado
+                    </a>
+                    <a href="{{ url_for('gestion_humana.dashboard_gestion_humana') }}" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left"></i> Volver al Dashboard
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Informacion Basica del Empleado -->
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <div class="card fade-in">
+                <div class="card-header">
+                    <h5><i class="fas fa-id-card"></i> Informacion Personal</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p><strong>Cedula:</strong> {{ empleado.cedula or 'No registrada' }}</p>
+                            <p><strong>Nombre:</strong> {{ empleado.nombre }} {{ empleado.apellido or '' }}</p>
+                            <p><strong>Cargo:</strong> {{ empleado.cargo or 'No especificado' }}</p>
+                            <p><strong>Fecha de Ingreso:</strong> {{ empleado.fecha_ingreso or 'No registrada' }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <p><strong>Razon Social:</strong> {{ empleado.razon_social or 'No especificada' }}</p>
+                            <p><strong>Ciudad:</strong> {{ empleado.ciudad or 'No especificada' }}</p>
+                            <p><strong>Estado:</strong>
+                                <span class="badge {% if empleado.estado == 'activo' %}bg-success{% elif empleado.estado == 'temporal' %}bg-warning{% else %}bg-danger{% endif %}">
+                                    {{ empleado.estado|title }}
+                                </span>
+                            </p>
+                            <p><strong>Codigo Biometrico:</strong> {{ empleado.codigo_biometrico or 'No asignado' }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-chart-line"></i> Estadisticas</h5>
+                </div>
+                <div class="card-body text-center">
+                    <h3 class="text-primary">{{ equipos|length }}</h3>
+                    <p>Equipos Asignados</p>
+                    <hr>
+                    <h3 class="text-success">{{ licencias|length }}</h3>
+                    <p>Licencias Office 365</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Informacion de Sistemas -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-server"></i> Informacion de Sistemas</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p><strong>Codigo Unico HV Equipo:</strong> {{ empleado.codigo_unico_hv_equipo or 'No asignado' }}</p>
+                            <p><strong>Usuario Windows:</strong> {{ empleado.usuario_windows or 'No asignado' }}</p>
+                            <p><strong>Correo Office:</strong> {{ empleado.correo_office or 'No asignado' }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <p><strong>Usuario Quiron:</strong> {{ empleado.usuario_quiron or 'No asignado' }}</p>
+                            <p><strong>Observaciones:</strong> {{ empleado.observaciones or 'Sin observaciones' }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Equipos Asignados -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-laptop"></i> Equipos Asignados ({{ equipos|length }})</h5>
+                </div>
+                <div class="card-body">
+                    {% if equipos %}
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Codigo</th>
+                                        <th>Marca</th>
+                                        <th>Modelo</th>
+                                        <th>Serial</th>
+                                        <th>Estado</th>
+                                        <th>Disponible</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for equipo in equipos %}
+                                    <tr>
+                                        <td><strong>{{ equipo.codigo_barras_individual }}</strong></td>
+                                        <td>{{ equipo.marca }}</td>
+                                        <td>{{ equipo.modelo }}</td>
+                                        <td>{{ equipo.serial }}</td>
+                                        <td>
+                                            <span class="badge {% if equipo.estado == 'disponible' %}bg-success{% elif equipo.estado == 'asignado' %}bg-primary{% elif equipo.estado == 'en reparacion' %}bg-warning{% else %}bg-danger{% endif %}">
+                                                {{ equipo.estado }}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <span class="badge {% if equipo.disponible == 'Si' %}bg-success{% else %}bg-danger{% endif %}">
+                                                {{ equipo.disponible }}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <a href="{{ url_for('inventarios.inventario_individual_detail', id=equipo.id) }}" class="btn btn-sm btn-info">
+                                                <i class="fas fa-eye"></i> Ver Detalle
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <p class="text-muted">No hay equipos asignados a este empleado.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Licencias Office 365 -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-key"></i> Licencias Office 365 ({{ licencias|length }})</h5>
+                </div>
+                <div class="card-body">
+                    {% if licencias %}
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Email</th>
+                                        <th>Tipo de Licencia</th>
+                                        <th>Estado</th>
+                                        <th>Fecha Asignacion</th>
+                                        <th>Usuario Asignado</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for licencia in licencias %}
+                                    <tr>
+                                        <td>{{ licencia.email }}</td>
+                                        <td>{{ licencia.tipo_licencia }}</td>
+                                        <td>
+                                            <span class="badge {% if licencia.estado == 'activa' %}bg-success{% else %}bg-danger{% endif %}">
+                                                {{ licencia.estado }}
+                                            </span>
+                                        </td>
+                                        <td>{{ licencia.fecha_asignacion }}</td>
+                                        <td>{{ licencia.usuario_asignado }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <p class="text-muted">No hay licencias Office 365 asignadas a este empleado.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Solicitudes RRHH -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-clipboard-list"></i> Solicitudes RRHH ({{ solicitudes|length }})</h5>
+                </div>
+                <div class="card-body">
+                    {% if solicitudes %}
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Tipo</th>
+                                        <th>Descripcion</th>
+                                        <th>Estado</th>
+                                        <th>Fecha Solicitud</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for solicitud in solicitudes %}
+                                    <tr>
+                                        <td>{{ solicitud.tipo_solicitud }}</td>
+                                        <td>{{ solicitud.descripcion }}</td>
+                                        <td>
+                                            <span class="badge {% if solicitud.estado == 'aprobada' %}bg-success{% elif solicitud.estado == 'pendiente' %}bg-warning{% else %}bg-danger{% endif %}">
+                                                {{ solicitud.estado }}
+                                            </span>
+                                        </td>
+                                        <td>{{ solicitud.fecha_solicitud }}</td>
+                                        <td>
+                                            <button class="btn btn-sm btn-info ver-solicitud-btn" data-solicitud="{{ solicitud.id }}">
+                                                <i class="fas fa-eye"></i> Ver
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <p class="text-muted">No hay solicitudes registradas para este empleado.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function verSolicitud(solicitudId) {
+    window.location.href = `/gestion-humana/solicitudes/${solicitudId}`;
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('.ver-solicitud-btn').forEach(button => {
+        button.addEventListener('click', event => {
+            const id = button.dataset.solicitud;
+            if (id) {
+                verSolicitud(id);
+            }
+        });
+    });
+});
+</script>
+{% endblock %}

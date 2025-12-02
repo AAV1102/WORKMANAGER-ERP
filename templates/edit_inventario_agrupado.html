@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8">
+        <h2>Editar Equipo Agrupado</h2>
+        <form action="{{ url_for('inventarios.edit_inventario', tipo='agrupado', inventario_id=inventario[0]) }}" method="post">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="codigo_barras_unificado" class="form-label">Código Barras Unificado</label>
+                        <input type="text" class="form-control" id="codigo_barras_unificado" name="codigo_barras_unificado" value="{{ inventario[1] }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="nit" class="form-label">NIT</label>
+                        <input type="text" class="form-control" id="nit" name="nit" value="{{ inventario[2] }}">
+                    </div>
+                    <div class="mb-3">
+                        <label for="sede_id" class="form-label">Sede</label>
+                        <select class="form-control" id="sede_id" name="sede_id" required>
+                            <option value="">Seleccione una sede...</option>
+                            <option value="1" {% if inventario[3] == 1 %}selected{% endif %}>Sede Principal Bogotá</option>
+                            <option value="2" {% if inventario[3] == 2 %}selected{% endif %}>Sede Norte Bogotá</option>
+                            <option value="3" {% if inventario[3] == 3 %}selected{% endif %}>Sede Sur Bogotá</option>
+                            <option value="4" {% if inventario[3] == 4 %}selected{% endif %}>Medellín</option>
+                            <option value="5" {% if inventario[3] == 5 %}selected{% endif %}>Sede Cali</option>
+                            <option value="6" {% if inventario[3] == 6 %}selected{% endif %}>Sede Barranquilla</option>
+                            <option value="7" {% if inventario[3] == 7 %}selected{% endif %}>Sede Cartagena</option>
+                            <option value="8" {% if inventario[3] == 8 %}selected{% endif %}>Sede Bucaramanga</option>
+                            <option value="9" {% if inventario[3] == 9 %}selected{% endif %}>Sede Pereira</option>
+                            <option value="10" {% if inventario[3] == 10 %}selected{% endif %}>Sede Manizales</option>
+                            <option value="11" {% if inventario[3] == 11 %}selected{% endif %}>Sede Ibagué</option>
+                            <option value="12" {% if inventario[3] == 12 %}selected{% endif %}>Sede Villavicencio</option>
+                            <option value="13" {% if inventario[3] == 13 %}selected{% endif %}>Sede Neiva</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="asignado_anterior" class="form-label">Asignado Anterior</label>
+                        <input type="text" class="form-control" id="asignado_anterior" name="asignado_anterior" value="{{ inventario[4] }}">
+                    </div>
+                    <div class="mb-3">
+                        <label for="asignado_actual" class="form-label">Asignado Actual</label>
+                        <input type="text" class="form-control" id="asignado_actual" name="asignado_actual" value="{{ inventario[5] }}">
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="descripcion_general" class="form-label">Descripción General</label>
+                        <textarea class="form-control" id="descripcion_general" name="descripcion_general" rows="3">{{ inventario[6] }}</textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="estado_general" class="form-label">Estado General</label>
+                        <select class="form-control" id="estado_general" name="estado_general" required>
+                            <option value="disponible" {% if inventario[7] == 'disponible' %}selected{% endif %}>Disponible</option>
+                            <option value="asignado" {% if inventario[7] == 'asignado' %}selected{% endif %}>Asignado</option>
+                            <option value="en reparacion" {% if inventario[7] == 'en reparacion' %}selected{% endif %}>En Reparación</option>
+                            <option value="baja" {% if inventario[7] == 'baja' %}selected{% endif %}>Dado de Baja</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="creador_registro" class="form-label">Creador Registro</label>
+                        <input type="text" class="form-control" id="creador_registro" name="creador_registro" value="{{ inventario[8] }}">
+                    </div>
+                    <div class="mb-3">
+                        <label for="trazabilidad_soporte" class="form-label">Trazabilidad Soporte</label>
+                        <input type="text" class="form-control" id="trazabilidad_soporte" name="trazabilidad_soporte" value="{{ inventario[10] }}">
+                    </div>
+                    <div class="mb-3">
+                        <label for="documentos_entrega" class="form-label">Documentos Entrega</label>
+                        <input type="text" class="form-control" id="documentos_entrega" name="documentos_entrega" value="{{ inventario[11] }}">
+                    </div>
+                </div>
+            </div>
+            <div class="mb-3">
+                <label for="observaciones" class="form-label">Observaciones</label>
+                <textarea class="form-control" id="observaciones" name="observaciones" rows="3">{{ inventario[12] }}</textarea>
+            </div>
+            <button type="submit" class="btn btn-primary btn-custom"><i class="fas fa-save"></i> Actualizar Equipo Agrupado</button>
+            <a href="{{ url_for('inventarios.inventarios') }}" class="btn btn-secondary"><i class="fas fa-arrow-left"></i> Cancelar</a>
+        </form>
+    </div>
+</div>
+{% endblock %}

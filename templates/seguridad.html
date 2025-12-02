@@ -1,0 +1,211 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <h2 class="mb-4">
+                <i class="fas fa-shield-alt text-primary"></i> Seguridad del Sistema
+            </h2>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-12">
+            <ul class="nav nav-tabs" id="seguridadTabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="dashboard-tab" data-bs-toggle="tab" data-bs-target="#dashboard" type="button" role="tab">
+                        <i class="fas fa-tachometer-alt"></i> Dashboard
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="antivirus-tab" data-bs-toggle="tab" data-bs-target="#antivirus" type="button" role="tab">
+                        <i class="fas fa-virus-slash"></i> Antivirus
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="firewall-tab" data-bs-toggle="tab" data-bs-target="#firewall" type="button" role="tab">
+                        <i class="fas fa-fire"></i> Firewall
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="auditoria-tab" data-bs-toggle="tab" data-bs-target="#auditoria" type="button" role="tab">
+                        <i class="fas fa-search"></i> Auditor?a
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="politicas-tab" data-bs-toggle="tab" data-bs-target="#politicas" type="button" role="tab">
+                        <i class="fas fa-file-contract"></i> Pol?ticas
+                    </button>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="tab-content" id="seguridadTabContent">
+        <div class="tab-pane fade show active" id="dashboard" role="tabpanel">
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="card stats-card">
+                        <div class="card-body text-center">
+                            <h3 class="text-white">{{ stats.proteccion }}%</h3>
+                            <p class="card-title">Protecci?n Antivirus</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card stats-card">
+                        <div class="card-body text-center">
+                            <h3 class="text-white">{{ stats.firewall }}%</h3>
+                            <p class="card-title">Firewall Activo</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card stats-card">
+                        <div class="card-body text-center">
+                            <h3 class="text-white">{{ stats.alertas }}</h3>
+                            <p class="card-title">Alertas</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card stats-card">
+                        <div class="card-body text-center">
+                            <h3 class="text-white">{{ stats.cumplimiento }}%</h3>
+                            <p class="card-title">Cumplimiento Pol?ticas</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row mt-4">
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5><i class="fas fa-chart-pie"></i> Estado de Seguridad General</h5>
+                        </div>
+                        <div class="card-body">
+                            <p>Total equipos: {{ stats.total_equipos }}</p>
+                            <p>Asignados: {{ stats.asignados }} | Disponibles: {{ stats.disponibles }}</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5><i class="fas fa-exclamation-triangle"></i> Alertas Recientes</h5>
+                        </div>
+                        <div class="card-body">
+                            {% if alertas %}
+                                {% for a in alertas %}
+                                    <div class="alert alert-warning">
+                                        <strong>{{ a['query'] or 'Evento de seguridad' }}</strong><br>
+                                        <small>{{ a['created_at'] }}</small>
+                                    </div>
+                                {% endfor %}
+                            {% else %}
+                                <p class="text-muted mb-0">Sin alertas recientes.</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="tab-pane fade" id="antivirus" role="tabpanel">
+            <div class="card">
+                <div class="card-header"><h5><i class="fas fa-virus-slash"></i> Estado Antivirus</h5></div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead><tr><th>ID</th><th>Equipo</th><th>Marca</th><th>Modelo</th><th>SO</th><th>Estado</th></tr></thead>
+                            <tbody>
+                                {% for d in data %}
+                                <tr>
+                                    <td>{{ d.id }}</td>
+                                    <td>{{ d.codigo_barras_individual }}</td>
+                                    <td>{{ d.marca }}</td>
+                                    <td>{{ d.modelo }}</td>
+                                    <td>{{ d.so }}</td>
+                                    <td>{{ d.estado }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="tab-pane fade" id="firewall" role="tabpanel">
+            <div class="card">
+                <div class="card-header"><h5><i class="fas fa-fire"></i> Firewall</h5></div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead><tr><th>ID</th><th>Tecnolog?a</th><th>Marca</th><th>Modelo</th><th>Estado</th></tr></thead>
+                            <tbody>
+                                {% for f in data %}
+                                <tr>
+                                    <td>{{ f.id }}</td>
+                                    <td>{{ f.tecnologia }}</td>
+                                    <td>{{ f.marca }}</td>
+                                    <td>{{ f.modelo }}</td>
+                                    <td>{{ f.estado }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="tab-pane fade" id="auditoria" role="tabpanel">
+            <div class="card">
+                <div class="card-header"><h5><i class="fas fa-search"></i> Auditor?a</h5></div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead><tr><th>ID</th><th>Evento</th><th>Detalle</th><th>Fecha</th></tr></thead>
+                            <tbody>
+                                {% for a in data %}
+                                <tr>
+                                    <td>{{ a['id'] }}</td>
+                                    <td>{{ a['category'] or 'evento' }}</td>
+                                    <td>{{ a['query'] }}</td>
+                                    <td>{{ a['created_at'] }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="tab-pane fade" id="politicas" role="tabpanel">
+            <div class="card">
+                <div class="card-header"><h5><i class="fas fa-file-contract"></i> Pol?ticas por sede</h5></div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead><tr><th>Sede</th><th>Ciudad</th><th>Responsable</th></tr></thead>
+                            <tbody>
+                                {% for p in data %}
+                                <tr>
+                                    <td>{{ p['nombre'] }}</td>
+                                    <td>{{ p['ciudad'] }}</td>
+                                    <td>{{ p['responsable'] }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

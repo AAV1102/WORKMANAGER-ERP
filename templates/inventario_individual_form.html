@@ -1,0 +1,372 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h3>
+    {% if equipo %}<i class="fas fa-edit"></i> Editar Equipo Individual
+    {% else %}<i class="fas fa-plus"></i> Nuevo Equipo Individual - Inventario Detallado
+    {% endif %}
+</h3>
+
+<form method="POST" class="card">
+<div class="card-body">
+    <div class="row">
+        <!-- Tipo de equipo -->
+        <div class="col-md-4">
+            <label class="form-label">Seleccione el Tipo de Equipo *</label>
+            <select name="tipo_equipo" class="form-select" required>
+                {% set tec = equipo.tecnologia if equipo else '' %}
+                <option value="">Seleccionar...</option>
+                <option value="CPU/Computador" {% if 'cpu' in (tec|lower) or 'comput' in (tec|lower) %}selected{% endif %}>CPU/Computador</option>
+                <option value="Portatil" {% if 'port' in (tec|lower) or 'laptop' in (tec|lower) %}selected{% endif %}>Portatil</option>
+                <option value="Monitor" {% if 'monitor' in (tec|lower) %}selected{% endif %}>Monitor</option>
+                <option value="Impresora" {% if 'impres' in (tec|lower) %}selected{% endif %}>Impresora</option>
+                <option value="Periferico" {% if 'teclado' in (tec|lower) or 'mouse' in (tec|lower) or 'cam' in (tec|lower) %}selected{% endif %}>Periferico</option>
+                <option value="Otro" {% if tec and not tec=='' %}selected{% endif %}>Otro</option>
+            </select>
+        </div>
+
+        <!-- Codigo de barras individual -->
+        <div class="col-md-4">
+            <label class="form-label">Codigo de Barras Individual</label>
+            <input type="text" name="codigo_barras_individual" class="form-control"
+                   placeholder="Ej: MED-CPU-001"
+                   value="{{ equipo.codigo_barras_individual if equipo else '' }}">
+            <div class="form-text">Si lo dejas vacio, se generara automaticamente.</div>
+        </div>
+
+        <!-- Tecnologia -->
+        <div class="col-md-4">
+            <label class="form-label">Tecnologia / Tipo</label>
+            <input type="text" name="tecnologia" class="form-control"
+                   value="{{ equipo.tecnologia if equipo else '' }}"
+                   placeholder="CPU, Portatil, Monitor, Switch...">
+        </div>
+    </div>
+
+    <hr>
+
+    <!-- Informacion basica -->
+    <h5>Informacion Basica</h5>
+    <div class="row">
+        <div class="col-md-3">
+            <label class="form-label">Entrada OC Compra</label>
+            <input type="text" name="entrada_oc_compra" class="form-control"
+                   value="{{ equipo.entrada_oc_compra if equipo else '' }}">
+        </div>
+        <div class="col-md-3">
+            <label class="form-label">Cargado NIT</label>
+            <input type="text" name="cargado_nit" class="form-control"
+                   value="{{ equipo.cargado_nit if equipo else '' }}">
+        </div>
+        <div class="col-md-3">
+            <label class="form-label">Ciudad</label>
+            <input type="text" name="ciudad" class="form-control"
+                   value="{{ equipo.ciudad if equipo else '' }}">
+        </div>
+        <div class="col-md-3">
+            <label class="form-label">Estado</label>
+            <select name="estado" class="form-select">
+                {% set est = (equipo.estado if equipo else 'disponible')|lower %}
+                <option value="disponible" {% if est=='disponible' %}selected{% endif %}>Disponible</option>
+                <option value="asignado" {% if est=='asignado' %}selected{% endif %}>Asignado</option>
+                <option value="faltante" {% if est=='faltante' %}selected{% endif %}>Faltante</option>
+                <option value="baja" {% if est=='baja' %}selected{% endif %}>Baja</option>
+            </select>
+        </div>
+    </div>
+
+    <hr>
+
+    <!-- Especificaciones tecnicas -->
+    <h5>Especificaciones Tecnicas</h5>
+    <div class="row">
+        <div class="col-md-3">
+            <label class="form-label">Serial</label>
+            <input type="text" name="serial" class="form-control"
+                   value="{{ equipo.serial if equipo else '' }}">
+        </div>
+        <div class="col-md-3">
+            <label class="form-label">Modelo</label>
+            <input type="text" name="modelo" class="form-control"
+                   value="{{ equipo.modelo if equipo else '' }}">
+        </div>
+        <div class="col-md-3">
+            <label class="form-label">Anterior Asignado</label>
+            <input type="text" name="anterior_asignado" class="form-control"
+                   value="{{ equipo.anterior_asignado if equipo else '' }}">
+        </div>
+        <div class="col-md-3">
+            <label class="form-label">Placa</label>
+            <input type="text" name="placa" class="form-control"
+                   value="{{ equipo.placa if equipo else '' }}">
+        </div>
+    </div>
+    <div class="row mt-2">
+        <div class="col-md-3">
+            <label class="form-label">Marca</label>
+            <input type="text" name="marca" class="form-control"
+                   value="{{ equipo.marca if equipo else '' }}">
+        </div>
+        <div class="col-md-3">
+            <label class="form-label">Procesador</label>
+            <input type="text" name="procesador" class="form-control"
+                   value="{{ equipo.procesador if equipo and equipo['procesador'] is not none else '' }}"
+                   placeholder="Ej: Intel Core i5">
+        </div>
+        <div class="col-md-3">
+            <label class="form-label">Arquitectura RAM</label>
+            <input type="text" name="arch_ram" class="form-control"
+                   value="{{ equipo.arch_ram if equipo and equipo['arch_ram'] is not none else '' }}"
+                   placeholder="DDR3, DDR4...">
+        </div>
+        <div class="col-md-3">
+            <label class="form-label">Cantidad RAM</label>
+            <input type="text" name="cantidad_ram" class="form-control"
+                   value="{{ equipo.cantidad_ram if equipo and equipo['cantidad_ram'] is not none else '' }}"
+                   placeholder="Ej: 16 GB">
+        </div>
+    </div>
+    <div class="row mt-2">
+        <div class="col-md-3">
+            <label class="form-label">Tipo de Disco</label>
+            <input type="text" name="tipo_disco" class="form-control"
+                   value="{{ equipo.tipo_disco if equipo and equipo['tipo_disco'] is not none else '' }}"
+                   placeholder="SSD, HDD...">
+        </div>
+        <div class="col-md-3">
+            <label class="form-label">Espacio de Disco</label>
+            <input type="text" name="espacio_disco" class="form-control"
+                   value="{{ equipo.espacio_disco if equipo and equipo['espacio_disco'] is not none else '' }}"
+                   placeholder="Ej: 500 GB">
+        </div>
+        <div class="col-md-3">
+            <label class="form-label">Sistema Operativo</label>
+            <input type="text" name="so" class="form-control"
+                   value="{{ equipo.so if equipo and equipo['so'] is not none else '' }}"
+                   placeholder="Ej: Windows 10 Pro">
+        </div>
+    </div>
+
+    <!-- Monitor asociado -->
+    <div class="row mt-3">
+        <div class="col-md-3">
+            <label class="form-label">Marca Monitor</label>
+            <input type="text" name="marca_monitor" class="form-control"
+                   value="{{ equipo.marca_monitor if equipo and equipo['marca_monitor'] is not none else '' }}">
+        </div>
+        <div class="col-md-3">
+            <label class="form-label">Modelo Monitor</label>
+            <input type="text" name="modelo_monitor" class="form-control"
+                   value="{{ equipo.modelo_monitor if equipo and equipo['modelo_monitor'] is not none else '' }}">
+        </div>
+        <div class="col-md-3">
+            <label class="form-label">Serial Monitor</label>
+            <input type="text" name="serial_monitor" class="form-control"
+                   value="{{ equipo.serial_monitor if equipo and equipo['serial_monitor'] is not none else '' }}">
+        </div>
+        <div class="col-md-3">
+            <label class="form-label">Placa Monitor</label>
+            <input type="text" name="placa_monitor" class="form-control"
+                   value="{{ equipo.placa_monitor if equipo and equipo['placa_monitor'] is not none else '' }}">
+        </div>
+    </div>
+
+    <hr>
+
+    <!-- Asignacion y ubicacion -->
+    <h5>Asignacion y Ubicacion</h5>
+    <div class="row">
+        <div class="col-md-4">
+            <label class="form-label">Asignado Nuevo / Actual</label>
+            <div class="input-group">
+                <input type="text" name="asignado_nuevo" id="asignado_nuevo" class="form-control"
+                       value="{{ equipo.asignado_nuevo if equipo else '' }}"
+                       placeholder="Buscar por cedula, usuario Windows, nombre...">
+                <button type="button" class="btn btn-outline-secondary" onclick="buscarEmpleado()">
+                    <i class="fas fa-search"></i>
+                </button>
+            </div>
+            <div class="form-text">
+                Se buscara en la base de empleados (cedula, usuario Windows, nombre).
+            </div>
+        </div>
+        <div class="col-md-4">
+            <label class="form-label">Fecha</label>
+            <input type="date" name="fecha" class="form-control"
+                   value="{{ equipo.fecha if equipo else '' }}">
+        </div>
+        <div class="col-md-4">
+            <label class="form-label">Fecha de Llegada</label>
+            <input type="date" name="fecha_llegada" class="form-control"
+                   value="{{ equipo.fecha_llegada if equipo else '' }}">
+        </div>
+    </div>
+    <div class="row mt-2">
+        <div class="col-md-4">
+            <label class="form-label">Area</label>
+            <input type="text" name="area" class="form-control"
+                   value="{{ equipo.area if equipo else '' }}">
+        </div>
+        <div class="col-md-4">
+            <label class="form-label">Sede</label>
+            <select name="sede_id" class="form-select">
+                <option value="">Seleccionar sede...</option>
+                {% for s in sedes %}
+                <option value="{{ s.id }}"
+                    {% if equipo and equipo.sede_id and equipo.sede_id == s.id %}selected{% endif %}>
+                    {{ s.ciudad }} - {{ s.nombre }}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-4">
+            <label class="form-label">Disponible</label>
+            {% set disp = (equipo.disponible if equipo else 'Si')|lower %}
+            <select name="disponible" class="form-select">
+                <option value="Si" {% if disp=='si' %}selected{% endif %}>Si</option>
+                <option value="No" {% if disp=='no' %}selected{% endif %}>No</option>
+            </select>
+        </div>
+    </div>
+
+    <hr>
+
+    <!-- Proveedor y soporte -->
+    <h5>Proveedor y Documentacion</h5>
+    <div class="row">
+        <div class="col-md-4">
+            <label class="form-label">Proveedor</label>
+            <input type="text" name="proveedor" class="form-control"
+                   value="{{ equipo.proveedor if equipo else '' }}">
+        </div>
+        <div class="col-md-4">
+            <label class="form-label">OC (Orden de Compra)</label>
+            <input type="text" name="oc" class="form-control"
+                   value="{{ equipo.oc if equipo else '' }}">
+        </div>
+        <div class="col-md-4">
+            <label class="form-label">Creador del Registro</label>
+            <input type="text" name="creador_registro" class="form-control"
+                   value="{{ equipo.creador_registro if equipo and equipo['creador_registro'] is not none else '' }}"
+                   placeholder="Ej: Jonathan Martinez Salazar">
+        </div>
+    </div>
+
+    <div class="mt-3">
+        <label class="form-label">Trazabilidad de Soporte</label>
+        <textarea name="trazabilidad_soporte" class="form-control" rows="3"
+                  placeholder="Historial de soporte, mantenimientos, reparaciones...">{{ equipo.trazabilidad_soporte if equipo and equipo['trazabilidad_soporte'] is not none else '' }}</textarea>
+    </div>
+
+    <div class="mt-3">
+        <label class="form-label">Observaciones</label>
+        <textarea name="observaciones" class="form-control" rows="3"
+                  placeholder="Observaciones generales">{{ equipo.observaciones if equipo else '' }}</textarea>
+    </div>
+
+    <!-- Codigo unificado -->
+    <h5>Asignar a Codigo Unificado</h5>
+    <div class="row">
+        <div class="col-md-6">
+            <label class="form-label">Codigo Unificado (Opcional)</label>
+            <input type="text" name="codigo_unificado" class="form-control"
+                   placeholder="Buscar codigo unificado existente..."
+                   value="">
+            <div class="form-text">
+                Ej: MED-AGRU-001  Si este equipo pertenece a un paquete agrupado.
+            </div>
+        </div>
+    </div>
+
+</div>
+<div class="card-footer text-end">
+    <a href="{{ url_for('inventarios.inventarios') }}" class="btn btn-secondary">
+        Cancelar
+    </a>
+    <button type="submit" class="btn btn-primary btn-custom">
+        <i class="fas fa-save"></i> Guardar
+    </button>
+</div>
+</form>
+
+<!-- Modal seleccion empleado -->
+<div class="modal fade" id="empleadoModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Buscar empleado</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"
+                aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <input type="text" id="empleadoSearchInput" class="form-control mb-2"
+               placeholder="Buscar por cedula, nombre, usuario Windows, correo...">
+        <div id="empleadoResults" style="max-height: 400px; overflow-y: auto;"></div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+function buscarEmpleado() {
+    const modal = new bootstrap.Modal(document.getElementById('empleadoModal'));
+    const input = document.getElementById('empleadoSearchInput');
+    const results = document.getElementById('empleadoResults');
+
+    input.value = '';
+    results.innerHTML = '<p class="text-muted">Escribe para buscar...</p>';
+
+    input.onkeyup = function () {
+        const q = input.value.trim();
+        if (!q || q.length < 2) {
+            results.innerHTML = '<p class="text-muted">Escribe al menos 2 caracteres...</p>';
+            return;
+        }
+        fetch(`/inventario_general/buscar_empleado?q=${encodeURIComponent(q)}`)
+            .then(r => r.json())
+            .then(data => {
+                if (!data.length) {
+                    results.innerHTML = '<p class="text-muted">Sin resultados.</p>';
+                    return;
+                }
+                let html = '<ul class="list-group">';
+                data.forEach(e => {
+                    html += `
+                    <li class="list-group-item">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <strong>${e.nombre_completo}</strong> (${e.cedula || ''})<br>
+                                <small class="text-muted">
+                                    ${e.cargo || ''} - ${e.departamento || ''}<br>
+                                    Usuario Windows: ${e.usuario_windows || '-'}<br>
+                                    Sede: ${e.sede || ''} (${e.ciudad || ''})
+                                </small>
+                            </div>
+                            <button type="button" class="btn btn-sm btn-primary"
+                                    onclick="seleccionarEmpleado('${e.nombre_completo}')">
+                                Seleccionar
+                            </button>
+                        </div>
+                    </li>`;
+                });
+                html += '</ul>';
+                results.innerHTML = html;
+            })
+            .catch(err => {
+                results.innerHTML = '<div class="alert alert-danger">Error al buscar empleados.</div>';
+            });
+    };
+
+    modal.show();
+}
+
+function seleccionarEmpleado(nombre) {
+    document.getElementById('asignado_nuevo').value = nombre;
+    const modalEl = document.getElementById('empleadoModal');
+    const modal = bootstrap.Modal.getInstance(modalEl);
+    modal.hide();
+}
+</script>
+{% endblock %}

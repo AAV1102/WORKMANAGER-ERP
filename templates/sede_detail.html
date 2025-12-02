@@ -1,0 +1,479 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <h2>Detalles de Sede: {{ sede.nombre }}</h2>
+        <div class="card mb-4">
+            <div class="card-body">
+                <h5 class="card-title">Información General</h5>
+                <p><strong>Código:</strong> {{ sede.codigo }}</p>
+                <p><strong>Nombre:</strong> {{ sede.nombre }}</p>
+                <p><strong>Ciudad:</strong> {{ sede.ciudad or 'Sin ciudad' }}</p>
+                <p><strong>Departamento:</strong> {{ sede.departamento or 'Sin departamento' }}</p>
+                <p><strong>Estado:</strong> {{ sede.estado or 'N/D' }}</p>
+                <p><strong>Código Agrupado:</strong> {{ codigo_agrupado_sede }}</p>
+            </div>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="card text-white bg-primary">
+                    <div class="card-body">
+                        <h6>Equipos totales</h6>
+                        <h3>{{ sede_stats.total_equipos_individuales }}</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-white bg-success">
+                    <div class="card-body">
+                        <h6>Disponibles</h6>
+                        <h3>{{ sede_stats.disponibles }}</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-white bg-warning">
+                    <div class="card-body">
+                        <h6>Asignados</h6>
+                        <h3>{{ sede_stats.asignados }}</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-white bg-info">
+                    <div class="card-body">
+                        <h6>Licencias</h6>
+                        <h3>{{ sede_stats.total_licencias }}</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <ul class="nav nav-tabs mb-3" id="sedeTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="inventario-tecnologico-tab" data-bs-toggle="tab" data-bs-target="#inventario-tecnologico" type="button" role="tab">Inventario Tecnológico</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="inventario-administrativo-tab" data-bs-toggle="tab" data-bs-target="#inventario-administrativo" type="button" role="tab">Inventario Administrativo</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="insumos-tab" data-bs-toggle="tab" data-bs-target="#insumos" type="button" role="tab">Insumos</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="biomedica-tab" data-bs-toggle="tab" data-bs-target="#biomedica" type="button" role="tab">Biomédica</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="licencias-tab" data-bs-toggle="tab" data-bs-target="#licencias" type="button" role="tab">Licencias</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="tickets-tab" data-bs-toggle="tab" data-bs-target="#tickets" type="button" role="tab">Tickets</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="empleados-tab" data-bs-toggle="tab" data-bs-target="#empleados" type="button" role="tab">Empleados</button>
+            </li>
+        </ul>
+
+        <div class="row mb-4">
+            <div class="col-md-8">
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <h5 class="card-title">Tecnologías principales</h5>
+                        {% set total_individuales = sede_stats.total_equipos_individuales or 0 %}
+                        {% if tecnologia_breakdown %}
+                        <div class="row">
+                            {% for tech in tecnologia_breakdown %}
+                            {% set porcentaje = ((tech.total / total_individuales) * 100) if total_individuales else 0 %}
+                            <div class="col-sm-6">
+                                <p class="mb-1">{{ tech.tecnologia or 'Sin tecnología' }}</p>
+                                <div class="progress mb-2" style="height:8px;">
+                                    <div class="progress-bar" role="progressbar" data-width="{{ porcentaje | round(2) }}%" aria-valuenow="{{ tech.total }}" aria-valuemin="0" aria-valuemax="{{ total_individuales }}"></div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% else %}
+                        <p class="text-muted mb-0">Sin registros aún para esta sede.</p>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="card mt-3">
+                    <div class="card-body">
+                        <h5 class="card-title">Licencias por estado</h5>
+                        {% if licencias_summary %}
+                        <div class="row g-2">
+                            {% for estado, total in licencias_summary.items() %}
+                            <div class="col-sm-6">
+                                <div class="border rounded p-2 d-flex justify-content-between">
+                                    <span>{{ estado }}</span>
+                                    <strong>{{ total }}</strong>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% else %}
+                        <p class="text-muted mb-0">No hay licencias registradas.</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card shadow-sm h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">Tickets por estado</h5>
+                        {% if tickets_summary %}
+                        <ul class="list-group list-group-flush">
+                            {% for estado, total in tickets_summary.items() %}
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                {{ estado }}
+                                <span class="badge bg-secondary">{{ total }}</span>
+                            </li>
+                            {% endfor %}
+                        </ul>
+                        {% else %}
+                        <p class="text-muted mb-0">Sin tickets registrados para esta sede.</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab Content -->
+        <div class="tab-content" id="sedeTabsContent">
+            <!-- Inventario Tecnológico Agrupado / Individual -->
+            <div class="tab-pane fade show active" id="inventario-tecnologico" role="tabpanel">
+                <h4>Inventario Tecnológico Agrupado</h4>
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Código Unificado</th>
+                                <th>Descripción</th>
+                                <th>Asignado Actual</th>
+                                <th>Estado</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in inventario_tecnologico_agrupado %}
+                            <tr>
+                                <td>{{ item.codigo_barras_unificado }}</td>
+                                <td>{{ item.descripcion_general or '-' }}</td>
+                                <td>{{ item.asignado_actual or 'No asignado' }}</td>
+                                <td>{{ item.estado_general or 'N/D' }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <h4>Inventario Tecnológico Individual</h4>
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Código Individual</th>
+                                <th>Serial</th>
+                                <th>Marca</th>
+                                <th>Modelo</th>
+                                <th>Estado</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in inventario_tecnologico_individual %}
+                            <tr>
+                                <td>{{ item.codigo_barras_individual }}</td>
+                                <td>{{ item.serial }}</td>
+                                <td>{{ item.marca }}</td>
+                                <td>{{ item.modelo }}</td>
+                                <td>{{ item.estado }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Inventario Administrativo -->
+            <div class="tab-pane fade" id="inventario-administrativo" role="tabpanel">
+                <h4>Inventario Administrativo</h4>
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Tipo Mueble</th>
+                                <th>Código Interno</th>
+                                <th>Descripción</th>
+                                <th>Asignado A</th>
+                                <th>Estado</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in inventario_administrativo %}
+                            <tr>
+                                <td>{{ item.tipo_mueble }}</td>
+                                <td>{{ item.codigo_interno }}</td>
+                                <td>{{ item.descripcion_item }}</td>
+                                <td>{{ item.asignado_a }}</td>
+                                <td>{{ item.estado }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Insumos -->
+            <div class="tab-pane fade" id="insumos" role="tabpanel">
+                <h4>Insumos</h4>
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Nombre</th>
+                                <th>Serial Equipo</th>
+                                <th>Cantidad Total</th>
+                                <th>Cantidad Disponible</th>
+                                <th>Asignado A</th>
+                                <th>Estado</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in insumos %}
+                            <tr>
+                                <td>{{ item.nombre_insumo }}</td>
+                                <td>{{ item.serial_equipo }}</td>
+                                <td>{{ item.cantidad_total }}</td>
+                                <td>{{ item.cantidad_disponible }}</td>
+                                <td>{{ item.asignado_a }}</td>
+                                <td>{{ item.estado }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Biomédica -->
+            <div class="tab-pane fade" id="biomedica" role="tabpanel">
+                <h4>Equipos Biomédicos</h4>
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Código Activo</th>
+                                <th>Nombre Equipo</th>
+                                <th>Marca</th>
+                                <th>Modelo</th>
+                                <th>Estado</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in biomedica %}
+                            <tr>
+                                <td>{{ item.codigo_activo }}</td>
+                                <td>{{ item.nombre_equipo }}</td>
+                                <td>{{ item.marca }}</td>
+                                <td>{{ item.modelo }}</td>
+                                <td>{{ item.estado }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Licencias -->
+            <div class="tab-pane fade" id="licencias" role="tabpanel">
+                <h4>Licencias Office 365</h4>
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Email</th>
+                                <th>Tipo Licencia</th>
+                                <th>Usuario Asignado</th>
+                                <th>Estado</th>
+                                <th>Fecha Vencimiento</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in licencias %}
+                            <tr>
+                                <td>{{ item.email }}</td>
+                                <td>{{ item.tipo_licencia }}</td>
+                                <td>{{ item.usuario_asignado }}</td>
+                                <td>{{ item.estado }}</td>
+                                <td>{{ item.fecha_vencimiento }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Tickets -->
+            <div class="tab-pane fade" id="tickets" role="tabpanel">
+                <h4>Tickets de Mesa de Ayuda</h4>
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Número Ticket</th>
+                                <th>Título</th>
+                                <th>Categoría</th>
+                                <th>Prioridad</th>
+                                <th>Estado</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in tickets %}
+                            <tr>
+                                <td>{{ item.numero_ticket }}</td>
+                                <td>{{ item.titulo }}</td>
+                                <td>{{ item.categoria }}</td>
+                                <td>{{ item.prioridad }}</td>
+                                <td>{{ item.estado }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Empleados -->
+            <div class="tab-pane fade" id="empleados" role="tabpanel">
+                <h4>Empleados en la sede</h4>
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>C?dula</th>
+                                <th>Nombre</th>
+                                <th>Cargo</th>
+                                <th>Departamento</th>
+                                <th>Windows</th>
+                                <th>Quir?n</th>
+                                <th>Equipos</th>
+                                <th>Licencias</th>
+                                <th>Estado</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for emp in empleados %}
+                            <tr>
+                                <td>{{ emp.cedula }}</td>
+                                <td>{{ emp.nombre }} {{ emp.apellido }}</td>
+                                <td>{{ emp.cargo }}</td>
+                                <td>{{ emp.departamento }}</td>
+                                <td>{{ emp.usuario_windows or '-' }}</td>
+                                <td>{{ emp.usuario_quiron or '-' }}</td>
+                                <td>{{ emp.equipos_asignados or 0 }}</td>
+                                <td>{{ emp.licencias_asignadas or 0 }}</td>
+                                <td>{{ emp.estado or 'N/D' }}</td>
+                                <td>
+                                    {% set emp_fullname = ((emp.nombre or '') ~ ' ' ~ (emp.apellido or '')) | trim %}
+                                    <button type="button" class="btn btn-sm btn-outline-success me-1 assign-equipment-btn"
+                                            data-emp-id="{{ emp.id }}"
+                                            data-emp-name="{{ emp_fullname | escape }}"
+                                            data-sede-id="{{ emp.sede_id or '' }}"
+                                            aria-label="Asignar equipo">
+                                        <i class="fas fa-laptop"></i>
+                                    </button>
+                                    <button type="button" class="btn btn-sm btn-outline-info assign-license-btn"
+                                            data-emp-id="{{ emp.id }}"
+                                            data-email="{{ (emp.correo_office or '') | escape }}"
+                                            data-usuario="{{ (emp.usuario_windows or '') | escape }}"
+                                            data-cedula="{{ (emp.cedula or '') | escape }}"
+                                            aria-label="Asignar licencia">
+                                        <i class="fas fa-key"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    function assignEquipment(empId, empName, sedeId) {
+        const equipoId = prompt(`ID o código del equipo para ${empName}:`);
+        if (!equipoId) return;
+        const tipo = prompt('Tipo de equipo (individual o agrupado)', 'individual') || 'individual';
+        fetch('/inventarios/api/assign_equipment', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                equipo_id: equipoId.trim(),
+                tipo_equipo: tipo.toLowerCase(),
+                user_id: empId,
+                sede_id: sedeId || null
+            })
+        })
+        .then(async response => {
+            const data = await response.json().catch(() => ({}));
+            if (!response.ok) throw new Error(data.error || 'No se pudo asignar el equipo');
+            alert(data.message || 'Equipo asignado correctamente');
+            location.reload();
+        })
+        .catch(err => alert(err.message));
+    }
+
+    function assignLicense(empId, email, usuario, cedula) {
+        const correo = prompt('Correo o UPN de la licencia', email || '');
+        if (!correo) return;
+        const usuarioAsignado = prompt('Nombre del usuario', usuario || '') || '';
+        const sedeId = prompt('Sede (ID numérico)', '');
+        fetch('/licencias/api/assign_user', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                email: correo.trim(),
+                usuario_asignado: usuarioAsignado.trim(),
+                cedula_usuario: cedula,
+                sede_id: sedeId ? parseInt(sedeId, 10) : null,
+                estado: 'activa',
+                tipo_licencia: 'Microsoft 365'
+            })
+        })
+        .then(async response => {
+            const data = await response.json().catch(() => ({}));
+            if (!response.ok) throw new Error(data.error || 'No se pudo asignar la licencia');
+            alert(data.message || 'Licencia asignada');
+            location.reload();
+        })
+        .catch(err => alert(err.message));
+    }
+    document.addEventListener('DOMContentLoaded', () => {
+        document.querySelectorAll('.progress-bar[data-width]').forEach(bar => {
+            const width = bar.dataset.width;
+            if (width) {
+                bar.style.width = width;
+            }
+        });
+
+        document.querySelectorAll('.assign-equipment-btn').forEach(button => {
+            button.addEventListener('click', () => assignEquipment(
+                button.dataset.empId,
+                button.dataset.empName,
+                button.dataset.sedeId
+            ));
+        });
+
+        document.querySelectorAll('.assign-license-btn').forEach(button => {
+            button.addEventListener('click', () => assignLicense(
+                button.dataset.empId,
+                button.dataset.email,
+                button.dataset.usuario,
+                button.dataset.cedula
+            ));
+        });
+    });
+</script>
+{% endblock %}

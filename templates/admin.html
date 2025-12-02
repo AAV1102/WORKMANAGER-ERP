@@ -1,0 +1,167 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <h2><i class="fas fa-cog"></i> Panel de Administración</h2>
+        <p class="text-muted">Gestión completa del sistema ERP</p>
+
+        <!-- Estadísticas del Sistema -->
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="card bg-primary text-white">
+                    <div class="card-body">
+                        <h5 class="card-title"><i class="fas fa-users"></i> Empleados</h5>
+                        <h3>{{ stats.empleados }}</h3>
+                        <small>Total registrados</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-success text-white">
+                    <div class="card-body">
+                        <h5 class="card-title"><i class="fas fa-boxes"></i> Equipos</h5>
+                        <h3>{{ stats.equipos_agrupados + stats.equipos_individuales }}</h3>
+                        <small>En inventario total</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-warning text-white">
+                    <div class="card-body">
+                        <h5 class="card-title"><i class="fas fa-couch"></i> Muebles</h5>
+                        <h3>{{ stats.inventario_administrativo }}</h3>
+                        <small>Items administrativos</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-info text-white">
+                    <div class="card-body">
+                        <h5 class="card-title"><i class="fas fa-tools"></i> Insumos</h5>
+                        <h3>{{ stats.insumos }}</h3>
+                        <small>Materiales disponibles</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Módulos de Administración -->
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card fade-in">
+                    <div class="card-header">
+                        <h5><i class="fas fa-boxes"></i> Inventario Administrativo</h5>
+                    </div>
+                    <div class="card-body">
+                        <p>Gestión de muebles, equipos de oficina y activos administrativos</p>
+                        <a href="{{ url_for('admin.inventario_administrativo') }}" class="btn btn-primary btn-custom">
+                            <i class="fas fa-list"></i> Ver Inventario
+                        </a>
+                        <a href="{{ url_for('admin.new_inventario_administrativo') }}" class="btn btn-success btn-custom">
+                            <i class="fas fa-plus"></i> Nuevo Item
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5><i class="fas fa-tools"></i> Insumos</h5>
+                    </div>
+                    <div class="card-body">
+                        <p>Control de materiales, suministros y consumibles</p>
+                        <a href="{{ url_for('admin.insumos') }}" class="btn btn-primary btn-custom">
+                            <i class="fas fa-list"></i> Ver Insumos
+                        </a>
+                        <a href="{{ url_for('admin.new_insumo') }}" class="btn btn-success btn-custom">
+                            <i class="fas fa-plus"></i> Nuevo Insumo
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mt-3">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5><i class="fas fa-file-invoice-dollar"></i> Facturas</h5>
+                    </div>
+                    <div class="card-body">
+                        <p>Gestión de facturas, proveedores y documentación financiera</p>
+                        <a href="{{ url_for('admin.facturas') }}" class="btn btn-primary btn-custom">
+                            <i class="fas fa-list"></i> Ver Facturas
+                        </a>
+                        <a href="{{ url_for('admin.new_factura') }}" class="btn btn-success btn-custom">
+                            <i class="fas fa-plus"></i> Nueva Factura
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5><i class="fas fa-shield-alt"></i> Garantías</h5>
+                    </div>
+                    <div class="card-body">
+                        <p>Seguimiento de garantías y pólizas de equipos</p>
+                        <a href="{{ url_for('admin.garantias') }}" class="btn btn-primary btn-custom">
+                            <i class="fas fa-list"></i> Ver Garantías
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mt-3">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5><i class="fas fa-truck"></i> Proveedores</h5>
+                    </div>
+                    <div class="card-body">
+                        <p>Directorio de proveedores y contactos comerciales</p>
+                        <a href="{{ url_for('admin.proveedores') }}" class="btn btn-primary btn-custom">
+                            <i class="fas fa-list"></i> Ver Proveedores
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5><i class="fas fa-database"></i> Base de Datos</h5>
+                    </div>
+                    <div class="card-body">
+                        <p>Mantenimiento y respaldos de la base de datos</p>
+                        <button class="btn btn-warning btn-custom" onclick="backupDatabase()">
+                            <i class="fas fa-download"></i> Respaldar BD
+                        </button>
+                        <button class="btn btn-danger btn-custom" onclick="optimizeDatabase()">
+                            <i class="fas fa-wrench"></i> Optimizar BD
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function backupDatabase() {
+        if (confirm('¿Desea crear un respaldo de la base de datos?')) {
+            alert('Funcionalidad de respaldo en desarrollo');
+        }
+    }
+
+    function optimizeDatabase() {
+        if (confirm('¿Desea optimizar la base de datos?')) {
+            alert('Funcionalidad de optimización en desarrollo');
+        }
+    }
+</script>
+{% endblock %}

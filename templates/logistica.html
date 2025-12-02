@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% block title %}Logística{% endblock %}
+{% block content %}
+<div class="container-fluid">
+  <div class="row g-3">
+    <div class="col-md-4">
+      <div class="card">
+        <div class="card-body">
+          <h5 class="card-title">Órdenes</h5>
+          <h2 class="mb-0">{{ total_ordenes }}</h2>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card">
+        <div class="card-body">
+          <h5 class="card-title">Entregas</h5>
+          <h2 class="mb-0">0</h2>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card">
+        <div class="card-body">
+          <h5 class="card-title">Proveedores</h5>
+          <h2 class="mb-0">{{ total_proveedores }}</h2>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="row mt-4">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-header">Resumen</div>
+        <div class="card-body">
+          <div class="table-responsive">
+            <table class="table table-sm">
+              <thead>
+                <tr>
+                  <th>Elemento</th>
+                  <th>Cantidad</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Órdenes</td>
+                  <td>0</td>
+                </tr>
+                <tr>
+                  <td>Entregas</td>
+                  <td>0</td>
+                </tr>
+                <tr>
+                  <td>Proveedores</td>
+                  <td>0</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

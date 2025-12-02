@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <h2>Sedes</h2>
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="card text-white bg-primary">
+                    <div class="card-body">
+                        <h6>Total sedes</h6>
+                        <h3>{{ stats.total_sedes }}</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-white bg-success">
+                    <div class="card-body">
+                        <h6>Equipos tecnológicos</h6>
+                        <h3>{{ stats.total_equipos }}</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-white bg-warning">
+                    <div class="card-body">
+                        <h6>Equipos agrupados</h6>
+                        <h3>{{ stats.total_equipos_agrupados }}</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-white bg-info">
+                    <div class="card-body">
+                        <h6>Empleados</h6>
+                        <h3>{{ stats.total_empleados }}</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Código</th>
+                        <th>Nombre</th>
+                        <th>Ciudad</th>
+                        <th>Departamento</th>
+                        <th>Estado</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for sede in sedes %}
+                    <tr>
+                        <td>{{ sede[0] }}</td>
+                        <td>{{ sede[1] }}</td>
+                        <td>{{ sede[2] }}</td>
+                        <td>{{ sede[3] }}</td>
+                        <td>{{ sede[4] }}</td>
+                        <td>
+                            <span class="badge {% if sede[8] == 'activa' %}bg-success{% else %}bg-danger{% endif %}">
+                                {{ sede[8] }}
+                            </span>
+                        </td>
+                    <td>
+                        <a href="{{ url_for('sedes.sede_detail', sede_id=sede[0]) }}" class="btn btn-sm btn-primary"><i class="fas fa-eye"></i> Ver Detalles</a>
+                    </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

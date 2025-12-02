@@ -1,0 +1,105 @@
+ {% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <h2><i class="fas fa-user"></i> Mi Perfil</h2>
+        <p class="text-muted">Gestiona tu información personal</p>
+
+        <div class="row">
+            <div class="col-md-4">
+                <!-- Información del perfil -->
+                <div class="card fade-in">
+                    <div class="card-body text-center">
+                        <div class="bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px; font-size: 2rem;">
+                            {{ user.nombre[0] if user.nombre else '' }}{{ user.apellido[0] if user.apellido else '' }}
+                        </div>
+                        <h5>{{ user.nombre }} {{ user.apellido }}</h5>
+                        <p class="text-muted">{{ user.cargo }}</p>
+                        <p class="text-muted">{{ user.departamento }}</p>
+                        <span class="badge bg-success">Activo</span>
+                    </div>
+                </div>
+
+                <!-- Acciones rápidas -->
+                <div class="card mt-3">
+                    <div class="card-header">
+                        <h6>Acciones Rápidas</h6>
+                    </div>
+                    <div class="card-body">
+                        <a href="{{ url_for('auth.change_password') }}" class="btn btn-outline-primary btn-sm d-block mb-2">
+                            <i class="fas fa-key"></i> Cambiar Contraseña
+                        </a>
+                        <a href="{{ url_for('mesa_ayuda.mesa_ayuda') }}" class="btn btn-outline-info btn-sm d-block mb-2">
+                            <i class="fas fa-headset"></i> Soporte Técnico
+                        </a>
+                        <a href="#" class="btn btn-outline-secondary btn-sm d-block">
+                            <i class="fas fa-history"></i> Historial de Actividad
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-8">
+                <!-- Formulario de edición -->
+                <div class="card">
+                    <div class="card-header">
+                        <h6>Información Personal</h6>
+                    </div>
+                    <div class="card-body">
+                        <form action="{{ url_for('auth.profile') }}" method="post">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="telefono" class="form-label">Teléfono</label>
+                                        <input type="tel" class="form-control" id="telefono" name="telefono" value="{{ user.telefono }}">
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="email" class="form-label">Email</label>
+                                        <input type="email" class="form-control" id="email" name="email" value="{{ user.email }}">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="observaciones" class="form-label">Observaciones</label>
+                                <textarea class="form-control" id="observaciones" name="observaciones" rows="3">{{ user.observaciones }}</textarea>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary btn-custom">
+                                <i class="fas fa-save"></i> Guardar Cambios
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Información laboral -->
+                <div class="card mt-3">
+                    <div class="card-header">
+                        <h6>Información Laboral</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <p><strong>Cédula:</strong> {{ user.cedula }}</p>
+                                <p><strong>Cargo:</strong> {{ user.cargo }}</p>
+                                <p><strong>Departamento:</strong> {{ user.departamento }}</p>
+                            </div>
+                            <div class="col-md-6">
+                                <p><strong>Fecha de Ingreso:</strong> {{ user.fecha_ingreso }}</p>
+                                <p><strong>Salario:</strong> ${{ user.salario }}</p>
+                                <p><strong>Performance:</strong>
+                                    <div class="progress" style="width: 100px; display: inline-block; margin-left: 10px;"
+                                    </div>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

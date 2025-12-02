@@ -1,0 +1,176 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-10">
+        <h2>Nuevo Equipo - Inventario General</h2>
+        <form action="{{ url_for('inventarios.new_inventario') }}" method="post">
+            <div class="row">
+                <div class="col-md-4">
+                    <h5>Información Básica</h5>
+                    <div class="mb-3">
+                        <label for="codigo_barras_unificado" class="form-label">Código de Barras Unificado</label>
+                        <input type="text" class="form-control" id="codigo_barras_unificado" name="codigo_barras_unificado" required>
+                        <small class="form-text text-muted">Código único para buscar toda la hoja de vida</small>
+                    </div>
+                    <div class="mb-3">
+                        <label for="nit" class="form-label">NIT</label>
+                        <input type="text" class="form-control" id="nit" name="nit" value="901.234.567-8" readonly>
+                    </div>
+                    <div class="mb-3">
+                        <label for="sede_id" class="form-label">Sede</label>
+                        <select class="form-control" id="sede_id" name="sede_id" required>
+                            <option value="">Seleccione una sede...</option>
+                            <option value="4">Medellín</option>
+                            <option value="1">Sede Principal Bogotá</option>
+                            <option value="2">Sede Norte Bogotá</option>
+                            <option value="3">Sede Sur Bogotá</option>
+                            <option value="5">Sede Cali</option>
+                            <option value="6">Sede Barranquilla</option>
+                            <option value="7">Sede Cartagena</option>
+                            <option value="8">Sede Bucaramanga</option>
+                            <option value="9">Sede Pereira</option>
+                            <option value="10">Sede Manizales</option>
+                            <option value="11">Sede Ibagué</option>
+                            <option value="12">Sede Villavicencio</option>
+                            <option value="13">Sede Neiva</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="asignado_anterior" class="form-label">Asignado Anterior</label>
+                        <input type="text" class="form-control" id="asignado_anterior" name="asignado_anterior">
+                    </div>
+                    <div class="mb-3">
+                        <label for="asignado_actual" class="form-label">Asignado Actual</label>
+                        <input type="text" class="form-control" id="asignado_actual" name="asignado_actual">
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <h5>Especificaciones Técnicas</h5>
+                    <div class="mb-3">
+                        <label for="serial" class="form-label">Serial</label>
+                        <input type="text" class="form-control" id="serial" name="serial" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="hostname" class="form-label">Hostname</label>
+                        <input type="text" class="form-control" id="hostname" name="hostname" value="desconocido">
+                    </div>
+                    <div class="mb-3">
+                        <label for="modelo" class="form-label">Modelo</label>
+                        <input type="text" class="form-control" id="modelo" name="modelo">
+                    </div>
+                    <div class="mb-3">
+                        <label for="marca" class="form-label">Marca</label>
+                        <input type="text" class="form-control" id="marca" name="marca">
+                    </div>
+                    <div class="mb-3">
+                        <label for="tipo_dispositivo" class="form-label">Tipo de Dispositivo</label>
+                        <select class="form-control" id="tipo_dispositivo" name="tipo_dispositivo" required>
+                            <option value="Portatil">Portátil</option>
+                            <option value="Computador">Computador</option>
+                            <option value="Impresora">Impresora</option>
+                            <option value="Monitor">Monitor</option>
+                            <option value="Teclado">Teclado</option>
+                            <option value="Mouse">Mouse</option>
+                            <option value="Servidor">Servidor</option>
+                            <option value="Switch">Switch</option>
+                            <option value="Router">Router</option>
+                            <option value="Otro">Otro</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="tipo_disco" class="form-label">Tipo de Disco</label>
+                        <select class="form-control" id="tipo_disco" name="tipo_disco">
+                            <option value="Solido">Sólido</option>
+                            <option value="Mecanico">Mecánico</option>
+                            <option value="Hibrido">Híbrido</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="espacio_disco" class="form-label">Espacio de Disco</label>
+                        <input type="text" class="form-control" id="espacio_disco" name="espacio_disco" placeholder="ej: 500 GB">
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <h5>Especificaciones Adicionales</h5>
+                    <div class="mb-3">
+                        <label for="tipo_ram" class="form-label">Tipo de RAM</label>
+                        <select class="form-control" id="tipo_ram" name="tipo_ram">
+                            <option value="DDR4">DDR4</option>
+                            <option value="DDR3">DDR3</option>
+                            <option value="DDR2">DDR2</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="ram" class="form-label">RAM</label>
+                        <input type="text" class="form-control" id="ram" name="ram" placeholder="ej: 12 gb">
+                    </div>
+                    <div class="mb-3">
+                        <label for="procesador" class="form-label">Procesador</label>
+                        <input type="text" class="form-control" id="procesador" name="procesador" placeholder="ej: ryzen 5">
+                    </div>
+                    <div class="mb-3">
+                        <label for="imei" class="form-label">IMEI</label>
+                        <input type="text" class="form-control" id="imei" name="imei" value="No aplica">
+                    </div>
+                    <div class="mb-3">
+                        <label for="estado" class="form-label">Estado</label>
+                        <select class="form-control" id="estado" name="estado" required>
+                            <option value="Usado">Usado</option>
+                            <option value="Nuevo">Nuevo</option>
+                            <option value="disponible">Disponible</option>
+                            <option value="asignado">Asignado</option>
+                            <option value="en reparacion">En Reparación</option>
+                            <option value="dado de baja">Dado de Baja</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="fecha_compra" class="form-label">Fecha de Compra</label>
+                        <input type="date" class="form-control" id="fecha_compra" name="fecha_compra" value="1970-01-01">
+                    </div>
+                    <div class="mb-3">
+                        <label for="teclado" class="form-label">Teclado</label>
+                        <select class="form-control" id="teclado" name="teclado">
+                            <option value="No">No</option>
+                            <option value="Si">Sí</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="mouse" class="form-label">Mouse</label>
+                        <select class="form-control" id="mouse" name="mouse">
+                            <option value="No">No</option>
+                            <option value="Si">Sí</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6">
+                    <h5>Información de Soporte</h5>
+                    <div class="mb-3">
+                        <label for="creador_registro" class="form-label">Creador del Registro</label>
+                        <input type="text" class="form-control" id="creador_registro" name="creador_registro" placeholder="ej: Jonathan Martinez Salazar">
+                    </div>
+                    <div class="mb-3">
+                        <label for="trazabilidad_soporte" class="form-label">Trazabilidad de Soporte</label>
+                        <textarea class="form-control" id="trazabilidad_soporte" name="trazabilidad_soporte" rows="3" placeholder="Historial de soporte, mantenimientos, reparaciones, etc."></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="documentos_entrega" class="form-label">Documentos de Entrega y Devolución</label>
+                        <textarea class="form-control" id="documentos_entrega" name="documentos_entrega" rows="2" placeholder="Actas de entrega y devolución"></textarea>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <h5>Observaciones Generales</h5>
+                    <div class="mb-3">
+                        <label for="observaciones" class="form-label">Observaciones</label>
+                        <textarea class="form-control" id="observaciones" name="observaciones" rows="6"></textarea>
+                    </div>
+                </div>
+            </div>
+            <button type="submit" class="btn btn-primary btn-custom"><i class="fas fa-save"></i> Guardar Equipo</button>
+            <a href="{{ url_for('inventarios.inventarios') }}" class="btn btn-secondary"><i class="fas fa-arrow-left"></i> Cancelar</a>
+        </form>
+    </div>
+</div>
+{% endblock %}

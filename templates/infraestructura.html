@@ -1,0 +1,176 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container-fluid">
+    <h1 class="mb-4">Infraestructura</h1>
+
+    {% if section == 'servidores' %}
+        <h2>Servidores</h2>
+        <p>Gesti?n de servidores de la infraestructura.</p>
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr><th>ID</th><th>C?digo</th><th>Marca</th><th>Modelo</th><th>SO</th><th>Estado</th><th>Acciones</th></tr>
+                </thead>
+                <tbody>
+                    {% for s in data %}
+                    <tr>
+                        <td>{{ s.id }}</td>
+                        <td>{{ s.codigo_barras_individual or s.placa }}</td>
+                        <td>{{ s.marca }}</td>
+                        <td>{{ s.modelo }}</td>
+                        <td>{{ s.so }}</td>
+                        <td><span class="badge bg-info">{{ s.estado }}</span></td>
+                        <td>
+                            <button type="button"
+                                    class="btn btn-sm btn-outline-primary modal-trigger"
+                                    data-modal-api="{{ url_for('realtime.detail', module='inventario_individual', item_id=s.id) }}"
+                                    data-modal-renderer="inventario_individual"
+                                    data-modal-title="Servidor {{ s.id }}">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% elif section == 'redes' %}
+        <h2>Redes</h2>
+        <p>Configuraci?n y monitoreo de redes.</p>
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr><th>ID</th><th>Equipo</th><th>Marca</th><th>Modelo</th><th>Tecnologia</th><th>Estado</th><th>Acciones</th></tr>
+                </thead>
+                <tbody>
+                    {% for r in data %}
+                    <tr>
+                        <td>{{ r.id }}</td>
+                        <td>{{ r.codigo_barras_individual }}</td>
+                        <td>{{ r.marca }}</td>
+                        <td>{{ r.modelo }}</td>
+                        <td>{{ r.tecnologia }}</td>
+                        <td><span class="badge bg-info">{{ r.estado }}</span></td>
+                        <td>
+                            <button type="button"
+                                    class="btn btn-sm btn-outline-primary modal-trigger"
+                                    data-modal-api="{{ url_for('realtime.detail', module='inventario_individual', item_id=r.id) }}"
+                                    data-modal-renderer="inventario_individual"
+                                    data-modal-title="Dispositivo {{ r.id }}">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% elif section == 'almacenamiento' %}
+        <h2>Almacenamiento</h2>
+        <p>Administraci?n de almacenamiento de datos.</p>
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr><th>ID</th><th>Equipo</th><th>Marca</th><th>Modelo</th><th>Tipo Disco</th><th>Capacidad</th><th>Estado</th><th>Acciones</th></tr>
+                </thead>
+                <tbody>
+                    {% for s in data %}
+                    <tr>
+                        <td>{{ s.id }}</td>
+                        <td>{{ s.codigo_barras_individual }}</td>
+                        <td>{{ s.marca }}</td>
+                        <td>{{ s.modelo }}</td>
+                        <td>{{ s.tipo_disco }}</td>
+                        <td>{{ s.espacio_disco }}</td>
+                        <td><span class="badge bg-info">{{ s.estado }}</span></td>
+                        <td>
+                            <button type="button"
+                                    class="btn btn-sm btn-outline-primary modal-trigger"
+                                    data-modal-api="{{ url_for('realtime.detail', module='inventario_individual', item_id=s.id) }}"
+                                    data-modal-renderer="inventario_individual"
+                                    data-modal-title="Disco {{ s.id }}">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% elif section == 'virtualizacion' %}
+        <h2>Virtualizaci?n</h2>
+        <p>Gesti?n de entornos virtualizados.</p>
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr><th>ID</th><th>C?digo</th><th>Descripci?n</th><th>Estado</th><th>Sede</th><th>Acciones</th></tr>
+                </thead>
+                <tbody>
+                    {% for v in data %}
+                    <tr>
+                        <td>{{ v.id }}</td>
+                        <td>{{ v.codigo_barras_unificado }}</td>
+                        <td>{{ v.descripcion_general }}</td>
+                        <td><span class="badge bg-info">{{ v.estado_general }}</span></td>
+                        <td>{{ v.sede_id or '-' }}</td>
+                        <td>
+                            <button type="button"
+                                    class="btn btn-sm btn-outline-primary modal-trigger"
+                                    data-modal-api="{{ url_for('realtime.detail', module='inventario_agrupado', item_id=v.id) }}"
+                                    data-modal-renderer="inventario_agrupado"
+                                    data-modal-title="Virtualización {{ v.id }}">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <div class="row">
+            <div class="col-md-3">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Servidores</h5>
+                        <p class="card-text">Gesti?n de servidores f?sicos y virtuales.</p>
+                        <p class="display-6">{{ stats.servidores if stats else 0 }}</p>
+                        <a href="{{ url_for('infraestructura.servidores') }}" class="btn btn-primary">Ver Servidores</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Redes</h5>
+                        <p class="card-text">Configuraci?n de redes y conectividad.</p>
+                        <p class="display-6">{{ stats.redes if stats else 0 }}</p>
+                        <a href="{{ url_for('infraestructura.redes') }}" class="btn btn-primary">Ver Redes</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Almacenamiento</h5>
+                        <p class="card-text">Administraci?n de almacenamiento.</p>
+                        <p class="display-6">{{ stats.almacenamiento if stats else 0 }}</p>
+                        <a href="{{ url_for('infraestructura.almacenamiento') }}" class="btn btn-primary">Ver Almacenamiento</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Virtualizaci?n</h5>
+                        <p class="card-text">Gesti?n de m?quinas virtuales.</p>
+                        <p class="display-6">{{ stats.virtualizacion if stats else 0 }}</p>
+                        <a href="{{ url_for('infraestructura.virtualizacion') }}" class="btn btn-primary">Ver Virtualizaci?n</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

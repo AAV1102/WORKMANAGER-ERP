@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8 offset-md-2">
+        <h2>Nuevo Ticket</h2>
+        <form action="{{ url_for('mesa_ayuda.new_ticket') }}" method="post">
+            <div class="mb-3">
+                <label for="title" class="form-label">Título</label>
+                <input type="text" class="form-control" id="title" name="title" required>
+            </div>
+            <div class="mb-3">
+                <label for="description" class="form-label">Descripción</label>
+                <textarea class="form-control" id="description" name="description" rows="4" required></textarea>
+            </div>
+            <div class="mb-3">
+                <label for="priority" class="form-label">Prioridad</label>
+                <select class="form-select" id="priority" name="priority" required>
+                    <option value="Baja">Baja</option>
+                    <option value="Media">Media</option>
+                    <option value="Alta">Alta</option>
+                </select>
+            </div>
+            <div class="mb-3">
+                <label for="category" class="form-label">Categoría</label>
+                <select class="form-select" id="category" name="category" required>
+                    <option value="Técnico">Técnico</option>
+                    <option value="Administrativo">Administrativo</option>
+                    <option value="Soporte">Soporte</option>
+                    <option value="Otro">Otro</option>
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary btn-custom">Crear Ticket</button>
+            <a href="{{ url_for('mesa_ayuda.mesa_ayuda') }}" class="btn btn-secondary">Cancelar</a>
+        </form>
+    </div>
+</div>
+{% endblock %}

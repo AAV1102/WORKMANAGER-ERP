@@ -1,0 +1,345 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container-fluid">
+    <h1 class="mb-4">Módulo Biomédica</h1>
+
+    {% if section == 'nuevo_equipo' %}
+        <h2>Nuevo Equipo Biomédico</h2>
+        <form method="post" action="{{ url_for('biomedica.nuevo_equipo') }}">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="codigo_activo" class="form-label">Código Activo</label>
+                        <input type="text" class="form-control" id="codigo_activo" name="codigo_activo" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="nombre_equipo" class="form-label">Nombre del Equipo</label>
+                        <input type="text" class="form-control" id="nombre_equipo" name="nombre_equipo" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="marca" class="form-label">Marca</label>
+                        <input type="text" class="form-control" id="marca" name="marca" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="modelo" class="form-label">Modelo</label>
+                        <input type="text" class="form-control" id="modelo" name="modelo" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="serial" class="form-label">Serial</label>
+                        <input type="text" class="form-control" id="serial" name="serial" required>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="clasificacion_riesgo" class="form-label">Clasificación de Riesgo</label>
+                        <select class="form-select" id="clasificacion_riesgo" name="clasificacion_riesgo" required>
+                            <option value="I">Clase I</option>
+                            <option value="IIa">Clase IIa</option>
+                            <option value="IIb">Clase IIb</option>
+                            <option value="III">Clase III</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="registro_invima" class="form-label">Registro INVIMA</label>
+                        <input type="text" class="form-control" id="registro_invima" name="registro_invima">
+                    </div>
+                    <div class="mb-3">
+                        <label for="sede_id" class="form-label">Sede</label>
+                        <select class="form-select" id="sede_id" name="sede_id" required>
+                            <option value="">Seleccionar Sede</option>
+                            <!-- Sedes would be populated from database -->
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="ubicacion" class="form-label">Ubicación</label>
+                        <input type="text" class="form-control" id="ubicacion" name="ubicacion" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="estado" class="form-label">Estado</label>
+                        <select class="form-select" id="estado" name="estado" required>
+                            <option value="operativo">Operativo</option>
+                            <option value="en_mantenimiento">En Mantenimiento</option>
+                            <option value="fuera_de_servicio">Fuera de Servicio</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="fecha_compra" class="form-label">Fecha de Compra</label>
+                        <input type="date" class="form-control" id="fecha_compra" name="fecha_compra">
+                    </div>
+                    <div class="mb-3">
+                        <label for="valor_compra" class="form-label">Valor de Compra</label>
+                        <input type="number" class="form-control" id="valor_compra" name="valor_compra" step="0.01">
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="proveedor" class="form-label">Proveedor</label>
+                        <input type="text" class="form-control" id="proveedor" name="proveedor">
+                    </div>
+                    <div class="mb-3">
+                        <label for="fecha_ultimo_mantenimiento" class="form-label">Fecha Último Mantenimiento</label>
+                        <input type="date" class="form-control" id="fecha_ultimo_mantenimiento" name="fecha_ultimo_mantenimiento">
+                    </div>
+                    <div class="mb-3">
+                        <label for="fecha_proximo_mantenimiento" class="form-label">Fecha Próximo Mantenimiento</label>
+                        <input type="date" class="form-control" id="fecha_proximo_mantenimiento" name="fecha_proximo_mantenimiento">
+                    </div>
+                </div>
+            </div>
+            <div class="mb-3">
+                <label for="observaciones" class="form-label">Observaciones</label>
+                <textarea class="form-control" id="observaciones" name="observaciones" rows="3"></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary">Guardar Equipo</button>
+            <a href="{{ url_for('biomedica.biomedica') }}" class="btn btn-secondary">Cancelar</a>
+        </form>
+
+    {% elif section == 'mantenimiento' %}
+        <h2>Mantenimiento de Equipos</h2>
+        <a href="#" class="btn btn-primary mb-3"><i class="fas fa-plus"></i> Nuevo Mantenimiento</a>
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Equipo</th>
+                        <th>Tipo Mantenimiento</th>
+                        <th>Fecha</th>
+                        <th>Técnico</th>
+                        <th>Estado</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Mantenimiento data would go here -->
+                </tbody>
+            </table>
+        </div>
+
+    {% elif section == 'programacion' %}
+        <h2>Programación de Mantenimiento</h2>
+        <a href="#" class="btn btn-primary mb-3"><i class="fas fa-calendar-plus"></i> Programar Mantenimiento</a>
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Equipo</th>
+                        <th>Fecha Programada</th>
+                        <th>Tipo</th>
+                        <th>Prioridad</th>
+                        <th>Estado</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Programación data would go here -->
+                </tbody>
+            </table>
+        </div>
+
+    {% elif section == 'calibraciones' %}
+        <h2>Calibraciones</h2>
+        <a href="#" class="btn btn-primary mb-3"><i class="fas fa-balance-scale"></i> Nueva Calibración</a>
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Equipo</th>
+                        <th>Fecha Calibración</th>
+                        <th>Próxima Calibración</th>
+                        <th>Resultado</th>
+                        <th>Certificado</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Calibraciones data would go here -->
+                </tbody>
+            </table>
+        </div>
+
+    {% elif section == 'certificaciones' %}
+        <h2>Certificaciones</h2>
+        <a href="#" class="btn btn-primary mb-3"><i class="fas fa-certificate"></i> Nueva Certificación</a>
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Equipo</th>
+                        <th>Tipo Certificación</th>
+                        <th>Fecha Emisión</th>
+                        <th>Fecha Vencimiento</th>
+                        <th>Estado</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Certificaciones data would go here -->
+                </tbody>
+            </table>
+        </div>
+
+    {% else %}
+        <!-- Dashboard Principal -->
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="card stats-card">
+                    <div class="card-body text-center">
+                        <h5 class="card-title">Equipos Operativos</h5>
+                        <h3>{{ equipos|length if equipos else 0 }}</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card stats-card">
+                    <div class="card-body text-center">
+                        <h5 class="card-title">En Mantenimiento</h5>
+                        <h3>0</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card stats-card">
+                    <div class="card-body text-center">
+                        <h5 class="card-title">Próximos Mantenimientos</h5>
+                        <h3>0</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card stats-card">
+                    <div class="card-body text-center">
+                        <h5 class="card-title">Calibraciones Pendientes</h5>
+                        <h3>0</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>Acciones Rápidas</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-grid gap-2">
+                            <a href="{{ url_for('biomedica.nuevo_equipo') }}" class="btn btn-primary">
+                                <i class="fas fa-plus"></i> Nuevo Equipo
+                            </a>
+                            <a href="{{ url_for('biomedica.mantenimiento') }}" class="btn btn-warning">
+                                <i class="fas fa-tools"></i> Registrar Mantenimiento
+                            </a>
+                            <a href="{{ url_for('biomedica.programacion') }}" class="btn btn-info">
+                                <i class="fas fa-calendar"></i> Programar Mantenimiento
+                            </a>
+                            <a href="{{ url_for('biomedica.calibraciones') }}" class="btn btn-success">
+                                <i class="fas fa-balance-scale"></i> Calibraciones
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>Alertas y Notificaciones</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle"></i> No hay alertas pendientes.
+                        </div>
+                        <div class="alert alert-warning">
+                            <i class="fas fa-exclamation-triangle"></i> 2 equipos requieren mantenimiento preventivo.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mt-4">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>Equipos Biomédicos Registrados</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Código Activo</th>
+                                        <th>Nombre</th>
+                                        <th>Marca/Modelo</th>
+                                        <th>Estado</th>
+                                        <th>Ubicación</th>
+                                        <th>Último Mantenimiento</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for equipo in equipos %}
+                                    <tr>
+                                        <td>{{ equipo.id }}</td>
+                                        <td>{{ equipo.codigo_activo }}</td>
+                                        <td>{{ equipo.nombre_equipo }}</td>
+                                        <td>{{ equipo.marca }} {{ equipo.modelo }}</td>
+                                        <td>
+                                            <span class="badge bg-{{ 'success' if equipo.estado == 'operativo' else 'warning' }}">
+                                                {{ equipo.estado.title() }}
+                                            </span>
+                                        </td>
+                                        <td>{{ equipo.ubicacion }}</td>
+                                        <td>{{ equipo.fecha_ultimo_mantenimiento or '-' }}</td>
+                                        <td>
+                                            <a href="{{ url_for('biomedica.edit_equipo', equipo_id=equipo.id) }}" class="btn btn-sm btn-warning">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            <a href="{{ url_for('biomedica.mantenimiento') }}" class="btn btn-sm btn-info">
+                                                <i class="fas fa-tools"></i>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+</div>
+
+<script>
+    // Search functionality
+    document.getElementById('searchEquipo')?.addEventListener('input', function() {
+        const filter = this.value.toUpperCase();
+        const table = document.querySelector('table');
+        const tr = table?.getElementsByTagName('tr');
+
+        if (tr) {
+            for (let i = 1; i < tr.length; i++) {
+                const td = tr[i].getElementsByTagName('td');
+                let found = false;
+                for (let j = 0; j < td.length; j++) {
+                    if (td[j].innerHTML.toUpperCase().indexOf(filter) > -1) {
+                        found = true;
+                        break;
+                    }
+                }
+                tr[i].style.display = found ? '' : 'none';
+            }
+        }
+    });
+</script>
+{% endblock %}

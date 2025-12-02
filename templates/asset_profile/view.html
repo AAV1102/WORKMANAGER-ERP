@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+
+{% block title %}{{ _('Hoja de Vida') }}: {{ main_asset[config.main_field] }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Encabezado del Perfil -->
+    <div class="card mb-4">
+        <div class="card-body d-flex align-items-center gap-3">
+            <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 60px; height: 60px; font-size: 1.5rem;">
+                <i class="fas fa-{% if config.display_name == 'Equipo Tecnológico' %}laptop-code{% elif config.display_name == 'Usuario / Empleado' %}user-tie{% elif config.display_name == 'Sede' %}building{% else %}box{% endif %}"></i>
+            </div>
+            <div>
+                <h2 class="mb-0">{{ main_asset[config.main_field] }}</h2>
+                <p class="text-muted mb-0">{{ _(config.display_name) }}</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pestañas de Información -->
+    <ul class="nav nav-tabs" id="assetProfileTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="details-tab" data-bs-toggle="tab" data-bs-target="#details-pane" type="button" role="tab">{{ _('Detalles Principales') }}</button>
+        </li>
+        {% for key, (display_name, data) in related_data.items() %}
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="{{ key }}-tab" data-bs-toggle="tab" data-bs-target="#{{ key }}-pane" type="button" role="tab">
+                {{ _(display_name) }} <span class="badge bg-secondary">{{ data|length }}</span>
+            </button>
+        </li>
+        {% endfor %}
+    </ul>
+
+    <div class="tab-content" id="assetProfileTabsContent">
+        <!-- Panel de Detalles Principales -->
+        <div class="tab-pane fade show active p-3 border border-top-0" id="details-pane" role="tabpanel">
+            <div class="row">
+                {% for col in main_asset.keys() %}
+                <div class="col-md-6 col-lg-4 mb-2">
+                    <strong>{{ _(col|replace('_', ' ')|title) }}:</strong>
+                    <span class="text-muted">{{ main_asset[col] or 'N/A' }}</span>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Paneles de Datos Relacionados (Generados dinámicamente) -->
+        {% for key, (display_name, data) in related_data.items() %}
+        <div class="tab-pane fade p-3 border border-top-0" id="{{ key }}-pane" role="tabpanel">
+            <h4>{{ _(display_name) }}</h4>
+            {% if data %}
+                <div class="table-responsive">
+                    <table class="table table-sm table-striped">
+                        <thead>
+                            <tr>
+                                {% for col in data[0].keys() %}
+                                    <th>{{ _(col|replace('_', ' ')|title) }}</th>
+                                {% endfor %}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for row in data %}
+                            <tr>
+                                {% for col in row.keys() %}
+                                    <td>
+                                        {% if 'estado' in col and ('pendiente' in (row[col] or '')) %}
+                                            <span class="badge bg-warning">{{ row[col] }}</span>
+                                        {% elif 'estado' in col and ('aprobada' in (row[col] or '')) %}
+                                            <span class="badge bg-success">{{ row[col] }}</span>
+                                        {% elif 'estado' in col and ('rechazada' in (row[col] or '')) %}
+                                            <span class="badge bg-danger">{{ row[col] }}</span>
+                                        {% else %}
+                                            {{ row[col] or 'N/A' }}
+                                        {% endif %}
+                                    </td>
+                                {% endfor %}
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <p class="text-muted">{{ _('No hay registros para mostrar en esta sección.') }}</p>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

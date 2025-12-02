@@ -1,0 +1,55 @@
+<div class="row g-3">
+    <div class="col-md-6">
+        <h6>Datos básicos</h6>
+        <dl class="row">
+            <dt class="col-sm-5">Código</dt>
+            <dd class="col-sm-7">{{ equipo_individual.codigo_barras_individual or 'N/A' }}</dd>
+            <dt class="col-sm-5">Serial</dt>
+            <dd class="col-sm-7">{{ equipo_individual.serial or 'N/A' }}</dd>
+            <dt class="col-sm-5">Marca / Modelo</dt>
+            <dd class="col-sm-7">{{ equipo_individual.marca or 'N/A' }} {{ equipo_individual.modelo or '' }}</dd>
+            <dt class="col-sm-5">Tecnología</dt>
+            <dd class="col-sm-7">{{ equipo_individual.tecnologia or 'N/A' }}</dd>
+            <dt class="col-sm-5">Estado</dt>
+            <dd class="col-sm-7">{{ equipo_individual.estado or 'N/A' }}</dd>
+        </dl>
+    </div>
+    <div class="col-md-6">
+        <h6>Asignaciones</h6>
+        <dl class="row">
+            <dt class="col-sm-5">Asignado a</dt>
+            <dd class="col-sm-7">{{ equipo_individual.asignado_nuevo or 'Sin asignar' }}</dd>
+            <dt class="col-sm-5">Fecha asignación</dt>
+            <dd class="col-sm-7">{{ equipo_individual.fecha or 'N/A' }}</dd>
+            <dt class="col-sm-5">Sede ID</dt>
+            <dd class="col-sm-7">{{ equipo_individual.sede_id or 'N/A' }}</dd>
+            <dt class="col-sm-5">Lugar</dt>
+            <dd class="col-sm-7">{{ equipo_individual.area or 'N/A' }}</dd>
+        </dl>
+    </div>
+    <div class="col-12">
+        <h6>Configuración hardware</h6>
+        <div class="row">
+            <div class="col-md-3">
+                <strong>RAM</strong>
+                <p>{{ equipo_individual.cantidad_ram or 'N/A' }} GB</p>
+            </div>
+            <div class="col-md-3">
+                <strong>Procesador</strong>
+                <p>{{ equipo_individual.procesador or 'N/A' }}</p>
+            </div>
+            <div class="col-md-3">
+                <strong>Disco</strong>
+                <p>{{ equipo_individual.tipo_disco or 'N/A' }} {{ equipo_individual.espacio_disco or '' }}</p>
+            </div>
+            <div class="col-md-3">
+                <strong>SO</strong>
+                <p>{{ equipo_individual.so or 'N/A' }}</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-12">
+        <h6>Observaciones</h6>
+        <p class="small text-muted">{{ equipo_individual.observaciones or 'Sin observaciones' }}</p>
+    </div>
+</div>
