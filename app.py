@@ -176,7 +176,7 @@ def inject_global_data():
             sedes=sedes,
             LANGUAGES=LANGUAGES,
             pending_requests_count=pending_requests,
-            current_year=datetime.utcnow().year,
+            current_year=datetime.now(timezone.utc).year,
         )
     except Exception:
         return dict(sedes=[], LANGUAGES=LANGUAGES, pending_requests_count=0)

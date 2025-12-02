@@ -752,17 +752,17 @@ def import_tanda_row(cur, data, inserted, updated):
 
 @export_import_bp.route("/", methods=["GET"])
 def importar_form():
-    return redirect(url_for("export_import_v2.importar_form"))
+    return redirect(url_for("export_import_updated.importar_form_v2"))
 
 
 @export_import_bp.route("/preview", methods=["POST"])
 def importar_preview():
-    return redirect(url_for("export_import_v2.importar_preview"))
+    return redirect(url_for("export_import_updated.importar_preview_v2"))
 
 
 @export_import_bp.route("/procesar", methods=["POST"])
 def importar_procesar():
-    return redirect(url_for("export_import_v2.importar_procesar"))
+    return redirect(url_for("export_import_updated.importar_procesar_v2"))
 
 
 # ==============================
