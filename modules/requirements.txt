@@ -1,0 +1,9 @@
+Flask
+Flask-Login
+Werkzeug
+pandas
+openpyxl
+reportlab
+Pillow
+python-barcode
+Flask-Babel
