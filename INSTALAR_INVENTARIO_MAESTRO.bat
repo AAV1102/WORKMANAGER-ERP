@@ -189,7 +189,7 @@ set "serial_a_buscar="
 set /p "serial_a_buscar=Introduce el serial a buscar (o presiona Enter para cancelar): "
 if not defined serial_a_buscar (
     echo [INFO] Búsqueda cancelada.
-    goto FIN
+    goto SUBMENU_DB
 )
 
 cd /d "%PROJECT_ROOT%"
