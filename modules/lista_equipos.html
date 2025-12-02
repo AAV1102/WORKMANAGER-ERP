@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+
+{% block title %}{{ titulo }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">{{ titulo }}</h3>
+        </div>
+        <div class="card-body">
+            <!-- Formulario de Búsqueda -->
+            <form method="get" action="{{ url_for('visualizador_inventario.listar_equipos_individuales') }}" class="mb-4">
+                <div class="input-group">
+                    <input type="text" name="q" class="form-control" placeholder="Buscar por Serial, Modelo o Marca..." value="{{ search_query or '' }}">
+                    <div class="input-group-append">
+                        <button class="btn btn-primary" type="submit">
+                            <i class="fas fa-search"></i> Buscar
+                        </button>
+                    </div>
+                </div>
+            </form>
+
+        </div>
+        <div class="card-body">
+            {% if equipos %}
+            <div class="table-responsive">
+                <table class="table table-bordered table-striped table-hover">
+                    <thead class="thead-dark">
+                        <tr>
+                            {% for col in columnas %}
+                                <th>{{ col.replace('_', ' ')|title }}</th>
+                            {% endfor %}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for equipo in equipos %}
+                        <tr>
+                            {% for col in columnas %}
+                                <td>
+                                    {# Si es la columna 'id', crea un enlace al perfil del activo #}
+                                    {% if col == 'id' %}
+                                        <a href="{{ url_for('asset_profile.profile_individual', item_id=equipo[col]) }}">{{ equipo[col] }}</a>
+                                    {% else %}
+                                        {{ equipo[col] or 'N/A' }}
+                                    {% endif %}
+                                </td>
+                            {% endfor %}
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="alert alert-warning" role="alert">
+                No se encontraron equipos para mostrar.
+            </div>
+            {% endif %}
+
+            <!-- Controles de Paginación -->
+            {% if total_pages > 1 %}
+            <nav aria-label="Paginación de inventario" class="mt-4">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <small class="text-muted">
+                            Mostrando página {{ page }} de {{ total_pages }}. (Total: {{ total_equipos }} equipos)
+                        </small>
+                    </div>
+                    <ul class="pagination mb-0">
+                        <li class="page-item {% if page <= 1 %}disabled{% endif %}">
+                            <a class="page-link" href="{{ url_for('visualizador_inventario.listar_equipos_individuales', page=page-1, q=search_query) }}">Anterior</a>
+                        </li>
+                        
+                        {% for p in pagination_range %}
+                            {% if p %}
+                                <li class="page-item {% if p == page %}active{% endif %}">
+                                    <a class="page-link" href="{{ url_for('visualizador_inventario.listar_equipos_individuales', page=p, q=search_query) }}">{{ p }}</a>
+                                </li>
+                            {% else %}
+                                <li class="page-item disabled"><span class="page-link">…</span></li>
+                            {% endif %}
+                        {% endfor %}
+                        
+                        <li class="page-item {% if page >= total_pages %}disabled{% endif %}">
+                            <a class="page-link" href="{{ url_for('visualizador_inventario.listar_equipos_individuales', page=page+1, q=search_query) }}">Siguiente</a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+            {% endif %}
+
+        </div>
+    </div>
+</div>
+{% endblock %}

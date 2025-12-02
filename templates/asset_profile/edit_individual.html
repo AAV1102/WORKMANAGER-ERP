@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+
+{% block title %}{{ titulo }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <div class="card">
+        <div class="card-header bg-warning">
+            <h3 class="card-title mb-0">{{ titulo }}</h3>
+        </div>
+        <form method="post">
+            <div class="card-body">
+                <div class="row">
+                    {% if equipo %}
+                        {# Iteramos sobre todos los campos para crear los inputs #}
+                        {% for key, value in equipo.items() %}
+                        <div class="col-md-6 col-lg-4 mb-3">
+                            <div class="form-group">
+                                <label for="{{ key }}">{{ key.replace('_', ' ')|title }}</label>
+                                <input type="text"
+                                       class="form-control"
+                                       id="{{ key }}"
+                                       name="{{ key }}"
+                                       value="{{ value or '' }}"
+                                       {% if key == 'id' %}readonly{% endif %}
+                                       {% if key in ['serial', 'marca'] %}required{% endif %}
+                                       >
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+            </div>
+            <div class="card-footer text-right">
+                <a href="{{ url_for('asset_profile.profile_individual', item_id=equipo.id) }}" class="btn btn-secondary mr-2">
+                    <i class="fas fa-times"></i> Cancelar
+                </a>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save"></i> Guardar Cambios
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

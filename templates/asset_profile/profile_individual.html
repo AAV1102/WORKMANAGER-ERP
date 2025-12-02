@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+
+{% block title %}{{ titulo }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <div class="card">
+        <div class="card-header bg-primary text-white">
+            <h3 class="card-title mb-0">{{ titulo }}</h3>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                {% if equipo %}
+                    {# Iteramos sobre todos los campos del equipo para mostrarlos dinámicamente #}
+                    {% for key, value in equipo.items() %}
+                    <div class="col-md-6 col-lg-4 mb-3">
+                        <div class="d-flex flex-column">
+                            <strong class="text-muted">{{ key.replace('_', ' ')|title }}</strong>
+                            <span>
+                                {% if value %}
+                                    {{ value }}
+                                {% else %}
+                                    <em class="text-secondary">N/A</em>
+                                {% endif %}
+                            </span>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="col">
+                        <div class="alert alert-danger" role="alert">
+                            No se pudo cargar la información del equipo.
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+        <div class="card-footer text-right">
+            <a href="{{ url_for('visualizador_inventario.listar_equipos_individuales') }}" class="btn btn-secondary mr-2">
+                <i class="fas fa-arrow-left"></i> Volver al Inventario
+            </a>
+            <a href="{{ url_for('asset_profile.edit_individual', item_id=equipo.id) }}" class="btn btn-warning mr-2">
+                <i class="fas fa-edit"></i> Editar
+            </a>
+            <button class="btn btn-danger" onclick="deleteAsset('{{ equipo.id }}')">
+                <i class="fas fa-trash-alt"></i> Eliminar
+            </button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script>
+function deleteAsset(itemId) {
+    if (confirm('¿Estás seguro de que deseas eliminar este equipo? Esta acción no se puede deshacer.')) {
+        // Usamos la ruta genérica de eliminación que ya existe en app.py
+        const url = `/api/delete/equipos_individuales/${itemId}`;
+
+        fetch(url, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+                // Si usas CSRF, necesitarás añadir el token aquí
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('Equipo eliminado correctamente.');
+                // Redirigir al listado de inventario
+                window.location.href = "{{ url_for('visualizador_inventario.listar_equipos_individuales') }}";
+            } else {
+                alert('Error al eliminar el equipo: ' + (data.error || 'Error desconocido'));
+            }
+        })
+        .catch(error => {
+            console.error('Error en la solicitud de eliminación:', error);
+            alert('Ocurrió un error de red. Por favor, intenta de nuevo.');
+        });
+    }
+}
+</script>
+{% endblock %}

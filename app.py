@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import datetime
 import logging
 import os
 import sqlite3
@@ -61,7 +61,10 @@ from modules import (
     dashboard_manager,
     notifications,
     mantenimientos,
+    visualizador_inventario,
+    inventory_dashboard,
     inventory_report,
+    report_generator,
 )
 from modules.compras import compras_bp
 from modules.import_compras import compras_import_bp
@@ -173,7 +176,7 @@ def inject_global_data():
             sedes=sedes,
             LANGUAGES=LANGUAGES,
             pending_requests_count=pending_requests,
-            current_year=datetime.now(timezone.utc).year,
+            current_year=datetime.utcnow().year,
         )
     except Exception:
         return dict(sedes=[], LANGUAGES=LANGUAGES, pending_requests_count=0)
@@ -225,6 +228,9 @@ app.register_blueprint(universal_exporter.universal_exporter_bp)
 app.register_blueprint(dashboard_manager.dashboard_manager_bp)
 app.register_blueprint(notifications.notifications_bp)
 app.register_blueprint(inventory_report.inventory_report_bp)
+app.register_blueprint(inventory_dashboard.inventory_dashboard_bp)
+app.register_blueprint(visualizador_inventario.visualizador_bp)
+app.register_blueprint(report_generator.report_generator_bp)
 
 
 @app.route("/")

@@ -133,11 +133,16 @@
                   <i class="fas fa-filter"></i> Previsualizar y escoger columnas
                 </button>
                 <button type="button" class="btn btn-outline-secondary btn-sm" id="selectMappedBtn">
-                  <i class="fas fa-magic"></i> Auto-seleccionar mapeadas
+                  <i class="fas fa-magic"></i> Auto-mapear (mantener todo)
                 </button>
                 <a class="btn btn-outline-info btn-sm" href="{{ url_for('export_import_v2.export_unmapped') }}">
                   <i class="fas fa-download"></i> Bajar no mapeadas (staging)
                 </a>
+                <button type="button" class="btn btn-outline-dark btn-sm" id="showUnmappedBtn">
+                  <i class="fas fa-list"></i> Ver no mapeadas
+                </button>
+                <span class="badge bg-success text-white" id="mappedBadge" title="Columnas con destino asignado">Mapeadas: --</span>
+                <span class="badge bg-warning text-dark" id="unmappedBadge" title="Columnas sin destino">Sin mapear: --</span>
                 <span class="badge bg-light text-dark">Destino sugerido: {{ detected_target }}</span>
               </div>
 
@@ -225,6 +230,39 @@
           </div>
         </div>
       {% endif %}
+    </div>
+
+    <!-- Panel colapsable para no mapeadas -->
+    <div class="col-12">
+      <div class="card d-none mt-3" id="unmappedCard">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <div>
+            <strong><i class="fas fa-list"></i> Filas no mapeadas</strong>
+            <span class="text-muted small">(staging import_unmapped, m�ximo 200)</span>
+          </div>
+          <button class="btn btn-sm btn-outline-secondary" id="refreshUnmappedBtn">
+            <i class="fas fa-sync"></i> Actualizar
+          </button>
+        </div>
+        <div class="card-body">
+          <div id="unmappedAlert" class="alert alert-info d-none mb-3"></div>
+          <div class="table-responsive">
+            <table class="table table-sm table-striped align-middle" id="unmappedTable">
+              <thead class="table-light">
+                <tr>
+                  <th>ID</th>
+                  <th>Target</th>
+                  <th>Fuente</th>
+                  <th>Fila origen</th>
+                  <th>Payload (JSON)</th>
+                  <th>Fecha</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
     </div>
 
     <div class="col-lg-6">
@@ -333,14 +371,24 @@ document.addEventListener('DOMContentLoaded', function() {
   const applyBtn = document.getElementById('applyColumns');
   const selectMappedBtn = document.getElementById('selectMappedBtn');
   const mapping = {{ column_mapping|tojson if column_mapping else '{}'|safe }};
+  const mappedBadge = document.getElementById('mappedBadge');
+  const unmappedBadge = document.getElementById('unmappedBadge');
+  const unmappedCard = document.getElementById('unmappedCard');
+  const unmappedAlert = document.getElementById('unmappedAlert');
+  const unmappedTableBody = document.querySelector('#unmappedTable tbody');
+  const showUnmappedBtn = document.getElementById('showUnmappedBtn');
+  const refreshUnmappedBtn = document.getElementById('refreshUnmappedBtn');
 
   function selectMapped() {
     if (!mapping || Object.keys(mapping).length === 0) return;
-    columnChecks.forEach(c => {
-      const mapped = mapping[c.value] !== undefined && mapping[c.value] !== null && mapping[c.value] !== '';
-      c.checked = mapped;
+    const selects = document.querySelectorAll('select[name^="map-"]');
+    selects.forEach(sel => {
+      const header = sel.closest('tr')?.querySelector('td.small')?.textContent?.trim();
+      if (!header) return;
+      const auto = mapping[header];
+      sel.value = auto || '';
     });
-    syncSelected();
+    highlightUnmapped();
   }
 
   function syncSelected() {
@@ -352,11 +400,31 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
 
+  function highlightUnmapped() {
+    const selects = document.querySelectorAll('select[name^="map-"]');
+    let mapped = 0;
+    let unmapped = 0;
+    selects.forEach(sel => {
+      const row = sel.closest('tr');
+      const hasValue = sel.value && sel.value.trim() !== '';
+      if (hasValue) {
+        mapped += 1;
+        row?.classList.remove('table-warning');
+      } else {
+        unmapped += 1;
+        row?.classList.add('table-warning');
+      }
+    });
+    if (mappedBadge) mappedBadge.textContent = `Mapeadas: ${mapped}`;
+    if (unmappedBadge) unmappedBadge.textContent = `Sin mapear: ${unmapped}`;
+  }
+
   columnChecks.forEach(c => c.addEventListener('change', syncSelected));
   selectAllBtn?.addEventListener('click', () => { columnChecks.forEach(c => c.checked = true); syncSelected(); });
   clearAllBtn?.addEventListener('click', () => { columnChecks.forEach(c => c.checked = false); syncSelected(); });
   applyBtn?.addEventListener('click', syncSelected);
   selectMappedBtn?.addEventListener('click', selectMapped);
+  document.querySelectorAll('select[name^="map-"]').forEach(sel => sel.addEventListener('change', highlightUnmapped));
   searchInput?.addEventListener('input', (e) => {
     const term = e.target.value.toLowerCase();
     columnChecks.forEach(c => {
@@ -364,9 +432,53 @@ document.addEventListener('DOMContentLoaded', function() {
       c.closest('.col-6').style.display = label.includes(term) ? '' : 'none';
     });
   });
-  // Por defecto mostrar todas las columnas; si quieres solo las mapeadas, usa el botón.
+  // Por defecto mostrar todas las columnas y resaltar lo que falta mapear.
   columnChecks.forEach(c => c.checked = true);
   syncSelected();
+  highlightUnmapped();
+
+  async function loadUnmapped() {
+    if (!unmappedTableBody) return;
+    unmappedAlert?.classList.add('d-none');
+    if (unmappedAlert) unmappedAlert.textContent = '';
+    unmappedTableBody.innerHTML = '<tr><td colspan="6" class="text-center text-muted">Cargando...</td></tr>';
+    try {
+      const res = await fetch('{{ url_for("export_import_v2.list_unmapped") }}');
+      const data = await res.json();
+      unmappedTableBody.innerHTML = '';
+      if (!data.rows || data.rows.length === 0) {
+        unmappedTableBody.innerHTML = '<tr><td colspan="6" class="text-center text-muted">Sin registros</td></tr>';
+        return;
+      }
+      data.rows.forEach(row => {
+        const tr = document.createElement('tr');
+        const payload = (row.payload || '').replace(/</g, '&lt;');
+        tr.innerHTML = `
+          <td>${row.id}</td>
+          <td>${row.target || ''}</td>
+          <td>${row.source || ''}</td>
+          <td>${row.row_index || ''}</td>
+          <td><code class="small">${payload}</code></td>
+          <td>${row.created_at || ''}</td>
+        `;
+        unmappedTableBody.appendChild(tr);
+      });
+    } catch (err) {
+      if (unmappedAlert) {
+        unmappedAlert.textContent = 'No se pudo cargar import_unmapped: ' + err;
+        unmappedAlert.classList.remove('d-none');
+      }
+      unmappedTableBody.innerHTML = '';
+    }
+  }
+
+  showUnmappedBtn?.addEventListener('click', () => {
+    unmappedCard?.classList.toggle('d-none');
+    if (unmappedCard && !unmappedCard.classList.contains('d-none')) {
+      loadUnmapped();
+    }
+  });
+  refreshUnmappedBtn?.addEventListener('click', loadUnmapped);
 });
 </script>
 {% endif %}

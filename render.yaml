@@ -1,0 +1,24 @@
+services:
+  - type: web
+    name: workmanager-erp
+    env: python
+    plan: free # O 'starter' para más recursos
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "gunicorn app:app"
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.4 # Asegúrate que coincida con tu versión de desarrollo
+      - key: FLASK_APP
+        value: app.py
+      - key: FLASK_ENV
+        value: production
+      - key: DATABASE_URL # Render provee una URL para su base de datos PostgreSQL
+        fromDatabase:
+          name: workmanager-db
+          property: connectionString
+
+databases:
+  - name: workmanager-db
+    databaseName: workmanager_db
+    plan: free
+    # Nota: El plan gratuito de la base de datos puede suspenderse por inactividad.

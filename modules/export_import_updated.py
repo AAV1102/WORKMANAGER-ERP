@@ -926,14 +926,17 @@ def importar_procesar():
             if usable_cols:
                 df = df[usable_cols]
         headers = list(df.columns)
-        # Usar el mapeo del usuario si está disponible, si no, el autodetectado
+        # Usar el mapeo del usuario si está disponible; completar con autodetección.
+        # Si una columna queda sin mapear, se envía como None para que se guarde en import_unmapped.
+        auto_mapping, norm_headers = build_column_mapping(headers)
         final_mapping = {}
         for i, header in enumerate(headers):
-            mapped_field = user_mapping.get(f'map-{i}')
-            if mapped_field:
-                final_mapping[header] = mapped_field
+            user_choice = user_mapping.get(f"map-{i}", "").strip()
+            if user_choice:
+                final_mapping[header] = user_choice  # elección explícita del usuario
+            else:
+                final_mapping[header] = auto_mapping.get(header)  # puede ser None y se usará para staging
 
-        _, norm_headers = build_column_mapping(headers) # Calcular norm_headers aquí
         current_target = detect_target_from_headers(norm_headers) if target == "auto" else target
         inserted, updated, errors, staged = import_rows(df, current_target, final_mapping, source=tmp_file)
         total_inserted += inserted
@@ -1161,6 +1164,39 @@ def export_unmapped():
         as_attachment=True,
         download_name="import_unmapped.csv"
     )
+
+
+@export_import_bp.route('/importador/unmapped', methods=['GET'])
+def list_unmapped():
+    """Devuelve las filas staging con columnas no mapeadas (JSON para la UI)."""
+    try:
+        conn = get_db_connection()
+        cur = conn.cursor()
+        cur.execute(
+            """
+            CREATE TABLE IF NOT EXISTS import_unmapped (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                target TEXT,
+                source TEXT,
+                row_index INTEGER,
+                payload TEXT,
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+            )
+            """
+        )
+        cur.execute(
+            """
+            SELECT id, target, source, row_index, payload, created_at
+            FROM import_unmapped
+            ORDER BY created_at DESC
+            LIMIT 200
+            """
+        )
+        rows = [dict(row) for row in cur.fetchall()]
+        conn.close()
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    return jsonify({"rows": rows})
 
 def detect_columns_ai(columns):
     """Simple AI-powered column detection"""

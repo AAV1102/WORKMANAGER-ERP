@@ -24,10 +24,24 @@ echo Ruta del proyecto: %PROJECT_ROOT%
 echo ===============================================================
 echo.
 
+REM 0) Verificar si Python está instalado
+py -3 --version >nul 2>&1
+if %errorlevel% neq 0 (
+    echo [ERROR] Python 3 no parece estar instalado o no esta en el PATH.
+    echo Por favor, instala Python 3 (desde python.org o la Microsoft Store) y asegurate de que este en el PATH.
+    pause
+    exit /b 1
+)
+
 REM 1) Crear entorno virtual si no existe
 if not exist "%VENV_DIR%" (
     echo [1/4] Creando entorno virtual en .venv ...
     py -3 -m venv "%VENV_DIR%"
+    if %errorlevel% neq 0 (
+        echo [ERROR] No se pudo crear el entorno virtual. Verifica tu instalacion de Python.
+        pause
+        exit /b 1
+    )
 ) else (
     echo [1/4] Entorno virtual ya existe.
 )
@@ -36,8 +50,18 @@ REM 2) Actualizar pip e instalar requirements
 echo.
 echo [2/4] Actualizando pip e instalando requirements...
 "%PYTHON%" -m pip install --upgrade pip
+if %errorlevel% neq 0 (
+    echo [ERROR] No se pudo actualizar pip. Verifica el entorno virtual en la carpeta .venv.
+    pause
+    exit /b 1
+)
 if exist "%REQUIREMENTS%" (
     "%PIP%" install -r "%REQUIREMENTS%"
+    if %errorlevel% neq 0 (
+        echo [ERROR] Hubo un error instalando los paquetes de requirements.txt.
+        pause
+        exit /b 1
+    )
 ) else (
     echo [WARN] No se encontro requirements.txt en %REQUIREMENTS%
 )
@@ -62,9 +86,10 @@ echo [4/4] Iniciando servidor Flask (app.py) ...
 cd /d "%PROJECT_ROOT%"
 set FLASK_APP=app.py
 set FLASK_ENV=development
-"%PYTHON%" app.py
+"%PYTHON%" -m flask run
 
 echo.
 echo Servidor detenido.
+pause
 endlocal
 exit /b
