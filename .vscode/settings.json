@@ -1,3 +1,5 @@
 {
-    "Codegeex.RepoIndex": true
+    "Codegeex.RepoIndex": true,
+    "git.postCommitCommand": "push",
+    "git.autofetch": true
 }
