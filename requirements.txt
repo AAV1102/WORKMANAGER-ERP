@@ -1,5 +1,6 @@
 Flask
 Flask-Login
+Flask-WTF
 Werkzeug
 pandas
 openpyxl
