@@ -1,5 +1,5 @@
 import sqlite3
-from datetime import datetime
+from datetime import datetime, timezone
 
 from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify
 
@@ -167,7 +167,7 @@ def nuevo_agrupado():
         try:
             codigo = (request.form.get('codigo_barras_unificado') or '').strip()
             if not codigo:
-                codigo = f"AGRU-{int(datetime.utcnow().timestamp())}"
+                codigo = f"AGRU-{int(datetime.now(timezone.utc).timestamp())}"
 
             sede_id = request.form.get('sede_id') or None
             if sede_id:

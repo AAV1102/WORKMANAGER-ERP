@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify
 import sqlite3
 import os
-from datetime import datetime
+from datetime import datetime, timezone
 
 mantenimientos_bp = Blueprint(
     "mantenimientos",
@@ -98,7 +98,7 @@ def crear_mantenimiento():
                 fecha_programada,
                 estado,
                 costo,
-                datetime.utcnow().isoformat(timespec="seconds"),
+                datetime.now(timezone.utc).isoformat(timespec="seconds"),
             ),
         )
         conn.commit()

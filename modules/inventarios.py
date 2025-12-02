@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify
 import sqlite3
 import os
-from datetime import datetime
+from datetime import datetime, timezone
 
 inventarios_bp = Blueprint('inventarios', __name__, template_folder='../templates')
 
@@ -387,7 +387,7 @@ def insert_individual_record(data):
         INSERT INTO equipos_individuales ({columns}, fecha_creacion)
         VALUES ({placeholders}, ?)
         """,
-        values + [datetime.utcnow().isoformat(timespec='seconds')]
+        values + [datetime.now(timezone.utc).isoformat(timespec='seconds')]
     )
     conn.commit()
     conn.close()

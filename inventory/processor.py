@@ -3,7 +3,7 @@
 import pandas as pd
 import os
 import glob
-from datetime import datetime
+from datetime import datetime, timezone
 
 def process_inventory_files(upload_folder):
     """Procesa los archivos de inventario, los limpia y devuelve un DataFrame listo para la DB."""
@@ -55,7 +55,7 @@ def process_inventory_files(upload_folder):
         sede_ip_map = df_sedes.set_index('Sede')['IP_Sede'].to_dict() if 'Sede' in df_sedes.columns and 'IP_Sede' in df_sedes.columns else {}
         df_informe['ip_sede'] = df_informe['Sede'].map(sede_ip_map).fillna('')
         df_informe['disponible'] = df_informe['Asignado a'].apply(lambda x: "NO" if pd.notna(x) and str(x).strip() else "SI")
-        df_informe['fecha_ultima_modificacion'] = datetime.utcnow()
+        df_informe['fecha_ultima_modificacion'] = datetime.now(timezone.utc)
 
         # Renombrar columnas para que coincidan con el modelo de la base de datos
         df_informe.rename(columns=lambda c: c.replace(' ', '_').lower(), inplace=True)

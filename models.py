@@ -1,7 +1,7 @@
 # flask-todo-app/models.py
 
 from flask_sqlalchemy import SQLAlchemy
-from datetime import datetime
+from datetime import datetime, timezone
 
 # Si ya tienes esta línea en tu proyecto, NO la copies de nuevo.
 db = SQLAlchemy()
@@ -18,5 +18,9 @@ class InventoryItem(db.Model):
     codigo_individual = db.Column(db.String, unique=True, index=True)
     placa = db.Column(db.String)
     # ... (continúa con todas las demás)
-    fecha_ultima_modificacion = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    fecha_ultima_modificacion = db.Column(
+        db.DateTime,
+        default=lambda: datetime.now(timezone.utc),
+        onupdate=lambda: datetime.now(timezone.utc),
+    )
     archivo_origen = db.Column(db.String)
