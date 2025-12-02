@@ -6,6 +6,7 @@ env/
 
 # Archivos de base de datos
 *.db
+**/*.db
 *.sqlite3
 
 # Archivos temporales de Python
@@ -36,3 +37,6 @@ Thumbs.db
 # Carpetas de configuración de IDEs
 .idea/
 .vscode/
+
+# Herramientas de desarrollo que no deben estar en el repo
+mingit/
