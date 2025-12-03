@@ -18,6 +18,24 @@ from modules.db_utils import (
 )
 from modules.credentials_config import DEFAULT_ADMIN, DEMO_USER
 
+# Configuración base de la app
+config = get_config()
+app = Flask(__name__, static_folder="static", static_url_path="/static", template_folder="templates")
+app.config.from_object(config)
+
+# --- FIX: Asegurar que el directorio de logs exista ANTES de importar módulos ---
+log_dir = os.path.join(app.root_path, 'logs')
+if not os.path.exists(log_dir):
+    os.makedirs(log_dir)
+# --------------------------------------------------------------------
+
+from modules.db_utils import (
+    load_active_db_path,
+    save_active_db_path,
+    list_available_dbs,
+)
+from modules.credentials_config import DEFAULT_ADMIN, DEMO_USER
+
 # Blueprints principales
 from modules import (
     user,
@@ -70,16 +88,6 @@ from modules.compras import compras_bp
 from modules.import_compras import compras_import_bp
 from modules.asignaciones import asignaciones_bp
 from modules.import_asignaciones import asignaciones_import_bp
-
-# Configuración base de la app
-config = get_config()
-app = Flask(__name__, static_folder="static", static_url_path="/static", template_folder="templates")
-app.config.from_object(config)
-
-# --- FIX: Asegurar que el directorio de logs exista al iniciar la app ---
-log_dir = os.path.join(app.root_path, 'logs')
-if not os.path.exists(log_dir):
-    os.makedirs(log_dir)
 # --------------------------------------------------------------------
 
 # Flask-Login
@@ -530,9 +538,6 @@ def create_missing_tables():
 
 
 # Asegurar inicialización básica aunque se ejecute via run.py
-from database_setup import init_db  # import tardío para evitar ciclos
-
-init_db()
 ensure_default_admin()
 create_missing_tables()
 
@@ -604,7 +609,7 @@ def login():
         user_data = c.fetchone()
         auth_ok = False
         if user_data:
-            auth_ok = check_password_hash(user_data["password"], password) or user_data["password"] == password
+            auth_ok = check_password_hash(user_data["password"], password)
 
         if not auth_ok:
             c.execute("SELECT * FROM empleados WHERE email = ? AND estado = 'activo'", (email,))

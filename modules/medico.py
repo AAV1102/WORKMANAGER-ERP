@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify
 import sqlite3
-from database import get_db_connection
+from modules.db_utils import get_db_connection
 
 medico_bp = Blueprint('medico', __name__, template_folder='../templates', static_folder='../static')
 
@@ -17,9 +17,8 @@ def new_paciente():
         name = request.form['name']
         age = request.form['age']
         diagnosis = request.form['diagnosis']
-        conn = sqlite3.connect('todo.db')
-        c = conn.cursor()
-        c.execute("INSERT INTO pacientes (name, age, diagnosis) VALUES (?, ?, ?)", (name, age, diagnosis))
+        conn = get_db_connection()
+        conn.execute("INSERT INTO pacientes (nombres, apellidos, diagnostico) VALUES (?, ?, ?)", (name, age, diagnosis))
         conn.commit()
         conn.close()
         flash('Paciente added successfully')
@@ -28,27 +27,24 @@ def new_paciente():
 
 @medico_bp.route('/paciente/<int:paciente_id>/edit', methods=['GET', 'POST'])
 def edit_paciente(paciente_id):
-    conn = sqlite3.connect('todo.db')
-    c = conn.cursor()
+    conn = get_db_connection()
     if request.method == 'POST':
         name = request.form['name']
         age = request.form['age']
         diagnosis = request.form['diagnosis']
-        c.execute("UPDATE pacientes SET name=?, age=?, diagnosis=? WHERE id=?", (name, age, diagnosis, paciente_id))
+        conn.execute("UPDATE pacientes SET nombres=?, apellidos=?, diagnostico=? WHERE id=?", (name, age, diagnosis, paciente_id))
         conn.commit()
         conn.close()
         flash('Paciente updated successfully')
         return redirect(url_for('medico.medico'))
-    c.execute("SELECT * FROM pacientes WHERE id=?", (paciente_id,))
-    paciente = c.fetchone()
+    paciente = conn.execute("SELECT * FROM pacientes WHERE id=?", (paciente_id,)).fetchone()
     conn.close()
     return render_template('edit_paciente.html', paciente=paciente)
 
 @medico_bp.route('/paciente/<int:paciente_id>/delete', methods=['POST'])
 def delete_paciente(paciente_id):
-    conn = sqlite3.connect('todo.db')
-    c = conn.cursor()
-    c.execute("DELETE FROM pacientes WHERE id=?", (paciente_id,))
+    conn = get_db_connection()
+    conn.execute("DELETE FROM pacientes WHERE id=?", (paciente_id,))
     conn.commit()
     conn.close()
     flash('Paciente deleted successfully')
@@ -56,10 +52,8 @@ def delete_paciente(paciente_id):
 
 @medico_bp.route('/api/pacientes', methods=['GET'])
 def api_pacientes():
-    conn = sqlite3.connect('todo.db')
-    c = conn.cursor()
-    c.execute("SELECT * FROM pacientes")
-    pacientes = c.fetchall()
+    conn = get_db_connection()
+    pacientes = conn.execute("SELECT * FROM pacientes").fetchall()
     conn.close()
     return jsonify(pacientes)
 

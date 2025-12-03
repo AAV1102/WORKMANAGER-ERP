@@ -1,12 +1,9 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify
 import sqlite3
+from modules.db_utils import get_db_connection
 
 mesa_ayuda_bp = Blueprint('mesa_ayuda', __name__, template_folder='../templates', static_folder='../static')
 
-def get_db_connection():
-    conn = sqlite3.connect('todo.db')
-    conn.row_factory = sqlite3.Row
-    return conn
 
 @mesa_ayuda_bp.route('/mesa_ayuda')
 def mesa_ayuda():

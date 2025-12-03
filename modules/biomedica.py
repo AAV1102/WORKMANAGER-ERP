@@ -17,9 +17,8 @@ def new_equipo():
         name = request.form['name']
         model = request.form['model']
         serial = request.form['serial']
-        conn = sqlite3.connect('todo.db')
-        c = conn.cursor()
-        c.execute("INSERT INTO equipos (name, model, serial) VALUES (?, ?, ?)", (name, model, serial))
+        conn = get_db_connection()
+        conn.execute("INSERT INTO equipos_biomedicos (nombre_equipo, modelo, serial) VALUES (?, ?, ?)", (name, model, serial))
         conn.commit()
         conn.close()
         flash('Equipo added successfully')
@@ -28,27 +27,24 @@ def new_equipo():
 
 @biomedica_bp.route('/equipo/<int:equipo_id>/edit', methods=['GET', 'POST'])
 def edit_equipo(equipo_id):
-    conn = sqlite3.connect('todo.db')
-    c = conn.cursor()
+    conn = get_db_connection()
     if request.method == 'POST':
         name = request.form['name']
         model = request.form['model']
         serial = request.form['serial']
-        c.execute("UPDATE equipos SET name=?, model=?, serial=? WHERE id=?", (name, model, serial, equipo_id))
+        conn.execute("UPDATE equipos_biomedicos SET nombre_equipo=?, modelo=?, serial=? WHERE id=?", (name, model, serial, equipo_id))
         conn.commit()
         conn.close()
         flash('Equipo updated successfully')
         return redirect(url_for('biomedica.biomedica'))
-    c.execute("SELECT * FROM equipos WHERE id=?", (equipo_id,))
-    equipo = c.fetchone()
+    equipo = conn.execute("SELECT * FROM equipos_biomedicos WHERE id=?", (equipo_id,)).fetchone()
     conn.close()
     return render_template('edit_equipo.html', equipo=equipo)
 
 @biomedica_bp.route('/equipo/<int:equipo_id>/delete', methods=['POST'])
 def delete_equipo(equipo_id):
-    conn = sqlite3.connect('todo.db')
-    c = conn.cursor()
-    c.execute("DELETE FROM equipos WHERE id=?", (equipo_id,))
+    conn = get_db_connection()
+    conn.execute("DELETE FROM equipos_biomedicos WHERE id=?", (equipo_id,))
     conn.commit()
     conn.close()
     flash('Equipo deleted successfully')
@@ -56,12 +52,10 @@ def delete_equipo(equipo_id):
 
 @biomedica_bp.route('/api/equipos', methods=['GET'])
 def api_equipos():
-    conn = sqlite3.connect('todo.db')
-    c = conn.cursor()
-    c.execute("SELECT * FROM equipos")
-    equipos = c.fetchall()
+    conn = get_db_connection()
+    equipos = conn.execute("SELECT * FROM equipos_biomedicos").fetchall()
     conn.close()
-    return jsonify(equipos)
+    return jsonify([dict(row) for row in equipos])
 
 @biomedica_bp.route('/biomedica/nuevo_equipo', methods=['GET', 'POST'])
 def nuevo_equipo():

@@ -47,14 +47,16 @@ if %errorlevel% equ 0 (
     echo [%time%] ! CAMBIOS DETECTADOS ! Iniciando sincronizacion...
     
     echo   - Sincronizando con el repositorio remoto (git pull)...
-    REM Se usa --rebase para mantener un historial limpio, y --autostash para guardar cambios no guardados temporalmente.
-    git pull origin main --rebase --autostash --allow-unrelated-histories
+    REM Se usa --no-rebase para evitar que el script se detenga en conflictos complejos.
+    REM Se añade --no-edit para que no intente abrir un editor de texto.
+    git pull origin main --no-rebase --autostash --allow-unrelated-histories --no-edit
     
     echo   - Guardando cambios locales (git add)...
     git add .
     
     echo   - Creando punto de guardado (git commit)...
-    git commit -m "Sincronizacion automatica - %date% %time%"
+    REM Solo hacer commit si hay cambios preparados
+    git diff-index --quiet HEAD -- || git commit -m "Sincronizacion automatica - %date% %time%"
     
     echo   - Subiendo cambios a GitHub (git push)...
     git push origin main
