@@ -2,8 +2,6 @@ Flask
 Flask-Login
 Flask-WTF
 Werkzeug
-pandas
-openpyxl
 reportlab
 Pillow
 python-barcode
@@ -12,5 +10,3 @@ gunicorn
 requests
 mysql-connector-python
 psycopg2-binary
-python-dotenv
-git-filter-repo

@@ -52,6 +52,8 @@ echo ================================================================
 echo IMPORTANDO DATOS A workmanager_erp.db
 echo ================================================================
 echo.
+echo [INFO] Asegurando que 'pandas' y 'openpyxl' esten instalados para la importacion...
+"%VENV_PYTHON%" -m pip install pandas openpyxl >nul
 cd /d "%PROJECT_ROOT%scripts\inventario"
 if exist "importador_masivo_workmanager.py" (
     "%VENV_PYTHON%" importador_masivo_workmanager.py
@@ -71,13 +73,8 @@ goto SUBMENU_DB
 
 :VERIFICAR
 echo.
-cd /d "%PROJECT_ROOT%"
-if exist "%PROJECT_ROOT%workmanager_erp.db" (
-    echo [OK] workmanager_erp.db encontrada.
-    "%VENV_PYTHON%" -c "import sqlite3; conn = sqlite3.connect('workmanager_erp.db'); c = conn.cursor(); print('--- Conteo de Registros ---'); [print(f'{table+':':<30} {c.execute(f'SELECT COUNT(*) FROM {table}').fetchone()[0]:,}') if c.execute(f'SELECT name FROM sqlite_master WHERE type=\'table\' AND name=\'{table}\'').fetchone() else print(f'{table+':':<30} NO EXISTE') for table in ['equipos_individuales', 'equipos_agrupados', 'sedes', 'empleados', 'licencias_office365', 'inventario_administrativo']]; conn.close()"
- else (
-    echo [ERROR] workmanager_erp.db NO encontrada.
-)
+echo [INFO] Verificando la base de datos y el conteo de registros...
+"%VENV_PYTHON%" "%PROJECT_ROOT%scripts\verify_db.py"
 pause
 goto SUBMENU_DB
 

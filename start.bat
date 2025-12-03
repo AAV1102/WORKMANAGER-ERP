@@ -2,20 +2,32 @@
 chcp 65001 >nul
 setlocal enabledelayedexpansion
 
-:MENU
+set "PROJECT_ROOT=%~dp0"
+set "VENV_PYTHON=%PROJECT_ROOT%.venv\Scripts\python.exe"
+
+:MAIN_MENU
 cls
 color 0A
 echo ======================================================================
 echo                 WORKMANAGER ERP - CENTRO DE CONTROL
 echo ======================================================================
 echo.
-echo  1. Iniciar Servidor de Desarrollo (Local)
-echo  2. Gestionar Base de Datos (Crear, Importar, Verificar...)
-echo  3. Realizar Copia de Seguridad (Backup)
-echo  4. Subir Cambios a GitHub (Preparar para Produccion)
-echo  5. Iniciar Sincronizacion Automatica (Modo Vigilante)
+echo  --- Desarrollo y Ejecucion ---
+echo  1. Iniciar Servidor de Desarrollo Local
 echo.
-echo  9. Forzar Sincronizacion con GitHub (SOLO SI HAY PROBLEMAS)
+echo  --- Gestion de Datos ---
+echo  2. Gestionar Base de Datos (Crear, Importar, Verificar)
+echo  3. Realizar Copia de Seguridad (Backup)
+echo  4. Migrar Datos a Produccion (Render, Vercel, etc.)
+echo.
+echo  --- Control de Versiones (GitHub) ---
+echo  5. Subir Cambios a GitHub
+echo  6. Iniciar Sincronizacion Automatica en segundo plano
+echo.
+echo  --- Herramientas Avanzadas (USAR CON CUIDADO) ---
+echo  7. Limpiar Historial del Repositorio (para errores de tamano)
+echo  8. Forzar Sincronizacion con GitHub (sobrescribe la nube)
+echo.
 echo  0. Salir
 echo.
 echo ======================================================================
@@ -26,8 +38,10 @@ if "%CHOICE%"=="1" goto INICIAR_LOCAL
 if "%CHOICE%"=="2" goto GESTIONAR_DB
 if "%CHOICE%"=="3" goto BACKUP
 if "%CHOICE%"=="4" goto GIT_PUSH
-if "%CHOICE%"=="5" goto SYNC_AUTO
-if "%CHOICE%"=="9" goto FORCE_PUSH
+if "%CHOICE%"=="5" goto MIGRATE_PROD_UNIFIED
+if "%CHOICE%"=="6" goto SYNC_AUTO
+if "%CHOICE%"=="7" goto CLEAN_REPO
+if "%CHOICE%"=="8" goto FORCE_PUSH
 if "%CHOICE%"=="0" goto :EOF
 
 echo Opcion no valida.
@@ -47,13 +61,12 @@ if %errorlevel% neq 0 (
 
 echo.
 echo [OK] Entorno listo. Iniciando servidor Flask...
-set "PYTHON=%PROJECT_ROOT%.venv\Scripts\python.exe"
-"%PYTHON%" "%PROJECT_ROOT%run.py"
+"%VENV_PYTHON%" "%PROJECT_ROOT%run.py"
 
 echo.
 echo Servidor detenido.
 pause
-goto MENU
+goto MAIN_MENU
 
 :GESTIONAR_DB
 cls
@@ -66,8 +79,70 @@ if %errorlevel% neq 0 (
     goto MENU
 )
 
-call "%PROJECT_ROOT%INSTALAR_INVENTARIO_MAESTRO.bat"
-goto MENU
+:SUBMENU_DB
+cls
+color 0B
+echo ================================================================
+echo                 GESTION DE BASE DE DATOS
+echo ================================================================
+echo 1. Crear/Inicializar Base de Datos Local
+echo 2. Importar datos desde archivos (Importador Masivo)
+echo 3. Verificar estado de la Base de Datos
+echo 4. Buscar equipo por serial
+echo.
+echo 0. Volver al Menu Principal
+echo.
+set /p "opcion=Selecciona una opcion: "
+
+if "%opcion%"=="1" goto CREAR_DB_LOCAL
+if "%opcion%"=="2" goto IMPORTAR_MASIVO
+if "%opcion%"=="3" goto VERIFICAR_DB
+if "%opcion%"=="4" goto BUSCAR_SERIAL
+if "%opcion%"=="0" goto MAIN_MENU
+
+echo Opcion no valida.
+pause
+goto SUBMENU_DB
+
+:CREAR_DB_LOCAL
+echo.
+echo [INFO] Creando/Verificando tablas en la base de datos local...
+cd /d "%PROJECT_ROOT%"
+"%VENV_PYTHON%" create_production_db.py
+pause
+goto SUBMENU_DB
+
+:IMPORTAR_MASIVO
+echo.
+echo [INFO] Asegurando que 'pandas' y 'openpyxl' esten instalados...
+"%VENV_PYTHON%" -m pip install pandas openpyxl >nul
+cd /d "%PROJECT_ROOT%scripts\inventario"
+if exist "importador_masivo_workmanager.py" (
+    "%VENV_PYTHON%" importador_masivo_workmanager.py
+    echo [OK] Importacion completada.
+) else (
+    echo [ERROR] No se encontro importador_masivo_workmanager.py
+)
+pause
+goto SUBMENU_DB
+
+:VERIFICAR_DB
+echo.
+echo [INFO] Verificando la base de datos y el conteo de registros...
+"%VENV_PYTHON%" "%PROJECT_ROOT%scripts\verify_db.py"
+pause
+goto SUBMENU_DB
+
+:BUSCAR_SERIAL
+echo.
+set "serial_a_buscar="
+set /p "serial_a_buscar=Introduce el serial a buscar (o presiona Enter para cancelar): "
+if not defined serial_a_buscar goto SUBMENU_DB
+
+cd /d "%PROJECT_ROOT%"
+"%VENV_PYTHON%" -c "import sqlite3, os, json; serial = os.environ.get('serial_a_buscar', ''); conn = sqlite3.connect('workmanager_erp.db'); conn.row_factory = sqlite3.Row; c = conn.cursor(); c.execute('SELECT * FROM equipos_individuales WHERE serial LIKE ?', ('%%' + serial + '%%',)); row = c.fetchone(); print(f'--- Resultado para \"{serial}\" ---'); print('Encontrado:' if row else 'No encontrado.'); print(json.dumps(dict(row), indent=2, ensure_ascii=False)) if row else ''"
+pause
+goto SUBMENU_DB
 
 :BACKUP
 cls
@@ -80,13 +155,90 @@ if %errorlevel% neq 0 (
     goto MENU
 )
 
-call "%PROJECT_ROOT%backup.bat"
-goto MENU
+:SUBMENU_BACKUP
+cls
+color 0E
+echo ================================================================
+echo                 GESTOR DE COPIAS DE SEGURIDAD
+echo ================================================================
+echo 1. Crear copia de seguridad COMPLETA
+echo 2. Crear copia de seguridad PARCIAL (tablas especificas)
+echo.
+echo 0. Volver al Menu Principal
+echo.
+set /p "opcion=Selecciona una opcion: "
+
+if "%opcion%"=="1" ("%VENV_PYTHON%" "%PROJECT_ROOT%scripts\backup_manager.py" full)
+if "%opcion%"=="2" (
+    set /p "TABLES=Introduce los nombres de las tablas separados por espacios: "
+    "%VENV_PYTHON%" "%PROJECT_ROOT%scripts\backup_manager.py" partial !TABLES!
+)
+if "%opcion%"=="0" goto MAIN_MENU
+
+pause
+goto MAIN_MENU
+
+:MIGRATE_PROD_UNIFIED
+cls
+echo --- MIGRACION DE DATOS A PRODUCCION ---
+call :PREPARAR_ENTORNO
+if %errorlevel% neq 0 (
+    echo.
+    echo [ERROR] No se pudo preparar el entorno. Abortando.
+    pause
+    goto MENU
+)
+
+echo.
+echo Este script copiara los datos de tu base de datos local (SQLite)
+echo a tu base de datos de produccion (PostgreSQL, MariaDB, etc.).
+echo.
+echo ADVERTENCIA: Se recomienda ejecutarlo sobre una base de datos de produccion vacia.
+echo.
+
+set "DATABASE_URL="
+echo Necesitaras la URL de conexion de tu base de datos de produccion.
+echo Esta URL la proporciona tu proveedor de hosting (Vercel, Render, cPanel, etc.).
+echo Ejemplo: postgresql://usuario:contrasena@host:puerto/basededatos
+echo.
+set /p "DATABASE_URL=Pega la URL de conexion externa aqui: "
+
+if not defined DATABASE_URL (
+    echo [ERROR] No se introdujo una URL. Abortando.
+    pause
+    goto MAIN_MENU
+)
+
+echo.
+echo [INFO] Instalando dependencias necesarias para la migracion...
+"%VENV_PYTHON%" -m pip install sqlalchemy pandas psycopg2-binary mysql-connector-python >nul
+
+echo [INFO] Iniciando el script de migracion...
+"%VENV_PYTHON%" "%PROJECT_ROOT%migrate.py"
+
+echo.
+echo [OK] Migracion finalizada.
+pause
+goto MAIN_MENU
 
 :SYNC_AUTO
 cls
-start "Sincronizacion Automatica" "%PROJECT_ROOT%sync_automatico.bat"
-goto MENU
+echo --- INICIAR SINCRONIZACION AUTOMATICA ---
+echo.
+echo Se abrira una nueva ventana que vigilara tus archivos.
+echo Cada vez que guardes un cambio, se subira automaticamente a GitHub.
+echo Puedes minimizar esa ventana y seguir trabajando.
+echo Para detener la sincronizacion, simplemente cierra la nueva ventana.
+echo.
+pause
+
+start "Sincronizacion Automatica en Segundo Plano" cmd /c "%PROJECT_ROOT%start.bat" SYNC_LOOP
+goto MAIN_MENU
+
+:CLEAN_REPO
+cls
+call "%PROJECT_ROOT%limpiar_repositorio.bat"
+goto MAIN_MENU
 
 :FORCE_PUSH
 cls
@@ -112,7 +264,7 @@ git push origin main --force
 echo.
 echo [OK] Sincronizacion forzada completada.
 pause
-goto MENU
+goto MAIN_MENU
 
 :GIT_PUSH
 cls
@@ -142,7 +294,7 @@ if %errorlevel% neq 0 (
     if not defined REPO_URL (
         echo [ERROR] No se introdujo una URL. Abortando.
         pause
-        goto MENU
+        goto MAIN_MENU
     )
     git remote add origin "!REPO_URL!"
 )
@@ -170,7 +322,7 @@ if %errorlevel% neq 0 (
     echo Por favor, abre tu proyecto en un editor como VS Code para resolver los conflictos marcados.
     echo Una vez resueltos, ejecuta esta opcion de nuevo.
     pause
-    goto MENU
+    goto MAIN_MENU
 )
 
 echo [4/4] Subiendo cambios a GitHub (git push)...
@@ -178,17 +330,52 @@ git push origin main
 echo.
 echo [OK] Proceso finalizado. Si no hubo errores, tus cambios estan en GitHub.
 pause
-goto MENU
+goto MAIN_MENU
+
+:SYNC_LOOP
+color 0E
+echo ======================================================================
+echo          WORKMANAGER ERP - MODO DE SINCRONIZACION AUTOMATICA
+echo ======================================================================
+echo.
+echo Esta ventana esta vigilando tu proyecto.
+echo Para detener, cierra esta ventana.
+echo.
+
+:WATCH_LOOP
+echo.
+echo [%time%] Vigilando cambios...
+timeout /t 10 /nobreak >nul
+
+git status --porcelain | findstr . >nul
+if %errorlevel% equ 0 (
+    echo [%time%] ! CAMBIOS DETECTADOS ! Iniciando sincronizacion...
+    
+    echo   - Sincronizando con el repositorio remoto (git pull)...
+    git pull origin main --rebase --autostash --allow-unrelated-histories --no-edit
+    
+    echo   - Guardando cambios locales (git add)...
+    git add .
+    
+    echo   - Creando punto de guardado (git commit)...
+    git diff-index --quiet HEAD -- || git commit -m "Sincronizacion automatica - %date% %time%"
+    
+    echo   - Subiendo cambios a GitHub (git push)...
+    git push origin main
+    echo [%time%] [OK] Sincronizacion completada.
+)
+goto WATCH_LOOP
 
 :PREPARAR_ENTORNO
-set "PROJECT_ROOT=%~dp0"
 py -3 --version >nul 2>&1 & if errorlevel 1 (echo [ERROR] Python 3 no esta instalado. & exit /b 1)
 if not exist "%PROJECT_ROOT%.venv" (
     echo [INFO] Creando entorno virtual .venv (solo la primera vez)...
     py -3 -m venv "%PROJECT_ROOT%.venv" || (echo [ERROR] Fallo al crear .venv. & exit /b 1)
 )
-echo [INFO] Instalando/verificando dependencias de requirements.txt...
-set "PIP_INSTALL=%PROJECT_ROOT%.venv\Scripts\pip.exe install -r %PROJECT_ROOT%requirements.txt"
+echo [INFO] Instalando/verificando dependencias...
+set "PIP_INSTALL_PROD=%PROJECT_ROOT%.venv\Scripts\pip.exe install -r %PROJECT_ROOT%requirements.txt"
+set "PIP_INSTALL_DEV=%PROJECT_ROOT%.venv\Scripts\pip.exe install -r %PROJECT_ROOT%requirements-dev.txt"
+set "PIP_INSTALL=%PIP_INSTALL_PROD% && %PIP_INSTALL_DEV%"
 %PIP_INSTALL% >nul
 if %errorlevel% neq 0 (
     echo [ERROR] Fallo al instalar dependencias. Ejecutando de nuevo con mas detalles... & %PIP_INSTALL% & pause & exit /b 1

@@ -50,6 +50,8 @@ def get_db_connection():
         print(f"No se encontró DATABASE_URL. Usando base de datos local SQLite: {local_db_path}")
         return sqlite3.connect(local_db_path), "sqlite"
 
+    # Mover esta línea aquí para evitar un error si db_url es None
+    result = urlparse(db_url) 
     scheme = result.scheme.lower()
     conn = None
 
