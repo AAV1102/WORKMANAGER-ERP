@@ -76,6 +76,12 @@ config = get_config()
 app = Flask(__name__, static_folder="static", static_url_path="/static", template_folder="templates")
 app.config.from_object(config)
 
+# --- FIX: Asegurar que el directorio de logs exista al iniciar la app ---
+log_dir = os.path.join(app.root_path, 'logs')
+if not os.path.exists(log_dir):
+    os.makedirs(log_dir)
+# --------------------------------------------------------------------
+
 # Flask-Login
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -176,7 +182,7 @@ def inject_global_data():
             sedes=sedes,
             LANGUAGES=LANGUAGES,
             pending_requests_count=pending_requests,
-            current_year=datetime.now(timezone.utc).year,
+            current_year=datetime.utcnow().year,
         )
     except Exception:
         return dict(sedes=[], LANGUAGES=LANGUAGES, pending_requests_count=0)

@@ -1,16 +1,6 @@
 from flask import Blueprint, request, jsonify, render_template
 import os
 import json
-
-# --- FIX: Asegurar que el directorio de logs exista antes de importar el script ---
-# Esto previene el FileNotFoundError en servidores como PythonAnywhere.
-log_dir = os.path.join(os.path.expanduser("~"), 'logs')
-if not os.path.exists(log_dir):
-    try:
-        os.makedirs(log_dir)
-    except OSError:
-        pass # Ignorar si hay un error (ej. permisos), para que el error original sea más claro.
-
 from scripts.auto_import_inventory import AutoInventoryImporter
 import logging
 
