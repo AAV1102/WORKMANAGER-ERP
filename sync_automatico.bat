@@ -47,7 +47,8 @@ if %errorlevel% equ 0 (
     echo [%time%] ! CAMBIOS DETECTADOS ! Iniciando sincronizacion...
     
     echo   - Sincronizando con el repositorio remoto (git pull)...
-    git pull origin main --rebase --autostash --allow-unrelated-histories
+    REM Se cambia a un merge normal para que el script no se detenga en conflictos.
+    git pull origin main --no-rebase --autostash --allow-unrelated-histories --no-edit
     
     echo   - Guardando cambios locales (git add)...
     git add .

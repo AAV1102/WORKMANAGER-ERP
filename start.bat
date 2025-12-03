@@ -161,7 +161,8 @@ REM Usamos 'git diff-index' para ver si hay cambios. Si no hay, no intentamos ha
 git diff-index --quiet HEAD -- || git commit -m "%COMMIT_MSG%"
 
 echo [3/4] Sincronizando con cambios remotos (git pull)...
-git pull origin main --rebase --autostash --allow-unrelated-histories --no-edit
+REM Se cambia a un merge normal en lugar de rebase para evitar que se detenga en conflictos complejos.
+git pull origin main --no-rebase --allow-unrelated-histories --no-edit
 echo [4/4] Subiendo cambios a GitHub (git push)...
 git push
 echo.

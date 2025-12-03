@@ -11,13 +11,16 @@ import sys
 import json
 from datetime import datetime
 import logging
+import os
 
 # Configure logging
-logging.basicConfig(
-    filename='logs/auto_import.log',
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s'
-)
+log_dir = 'logs'
+if not os.path.exists(log_dir):
+    os.makedirs(log_dir)
+
+log_file = os.path.join(log_dir, 'auto_import.log')
+
+logging.basicConfig(filename=log_file, level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 class AutoInventoryImporter:
     def __init__(self, db_path='workmanager_erp.db'):
