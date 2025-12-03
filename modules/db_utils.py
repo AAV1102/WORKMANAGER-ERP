@@ -1,13 +1,33 @@
 import os
 import sqlite3
+import psycopg2
+from urllib.parse import urlparse
 
 DEFAULT_DB_FILENAME = "workmanager_erp.db"
 ACTIVE_DB_PATH_FILE = "active_db.txt"
 
 def get_db_connection():
-    db_path = load_active_db_path()
-    conn = sqlite3.connect(db_path)
-    conn.row_factory = sqlite3.Row
+    # Render, Vercel, Heroku, etc., inyectan la URL de la BD en esta variable de entorno.
+    db_url = os.environ.get("DATABASE_URL")
+
+    if db_url:
+        # Conexión a PostgreSQL en producción
+        try:
+            result = urlparse(db_url)
+            conn = psycopg2.connect(
+                dbname=result.path[1:],
+                user=result.username,
+                password=result.password,
+                host=result.hostname
+            )
+        except Exception as e:
+            print(f"Error conectando a PostgreSQL: {e}")
+            raise e # Fallar rápido si no se puede conectar a la BD de producción
+    else:
+        # Conexión a SQLite para desarrollo local
+        db_path = load_active_db_path()
+        conn = sqlite3.connect(db_path)
+        conn.row_factory = sqlite3.Row
     return conn
 
 def load_active_db_path():
