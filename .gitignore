@@ -41,3 +41,7 @@ Thumbs.db
 
 # Herramientas de desarrollo que no deben estar en el repo
 mingit/
+
+# Archivos de Excel y CSV en la raíz (si los hubiera)
+*.xlsx
+*.csv
