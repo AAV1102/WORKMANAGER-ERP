@@ -37,7 +37,7 @@ echo [2/3] Ejecutando limpieza profunda del historial con git-filter-repo...
 echo      Esto puede tardar varios minutos.
 
 REM Elimina carpetas completas del historial
-git-filter-repo --path mingit --path INVENTARIOS --path uploads --path backups --path tmp_imports --invert-paths --force
+git-filter-repo --path mingit --path INVENTARIOS --path uploads --path backups --path tmp_imports --force
 
 REM Elimina archivos grandes que puedan haber quedado
 git-filter-repo --strip-blobs-bigger-than 5M --force

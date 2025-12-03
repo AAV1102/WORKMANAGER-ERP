@@ -11,3 +11,6 @@ Flask-Babel
 gunicorn
 requests
 mysql-connector-python
+psycopg2-binary
+python-dotenv
+git-filter-repo

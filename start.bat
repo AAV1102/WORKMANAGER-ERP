@@ -160,20 +160,21 @@ echo [2/3] Creando punto de guardado (git commit)...
 REM Usamos 'git diff-index' para ver si hay cambios. Si no hay, no intentamos hacer commit.
 git diff-index --quiet HEAD -- || git commit -m "%COMMIT_MSG%"
 
-echo [3/4] Sincronizando con cambios remotos (git pull)...
-REM Se usa --no-rebase para evitar que se detenga en conflictos complejos.
-git pull origin main --no-rebase --allow-unrelated-histories --no-edit
+echo [3/4] Sincronizando con cambios remotos (git pull --rebase)...
+REM Usamos --rebase para aplicar tus cambios encima de los cambios remotos.
+REM --autostash guarda temporalmente tus cambios si hay conflictos.
+git pull origin main --rebase --autostash --allow-unrelated-histories --no-edit
 if %errorlevel% neq 0 (
     echo.
-    echo [ERROR] Hubo un conflicto al sincronizar con GitHub.
-    echo Por favor, resuelve los conflictos manualmente en tu editor de codigo (ej. VS Code)
-    echo y luego ejecuta esta opcion de nuevo.
+    echo [ERROR] Hubo un conflicto al sincronizar con GitHub que no se pudo resolver automaticamente.
+    echo Por favor, abre tu proyecto en un editor como VS Code para resolver los conflictos marcados.
+    echo Una vez resueltos, ejecuta esta opcion de nuevo.
     pause
     goto MENU
 )
 
 echo [4/4] Subiendo cambios a GitHub (git push)...
-git push
+git push origin main
 echo.
 echo [OK] Proceso finalizado. Si no hubo errores, tus cambios estan en GitHub.
 pause

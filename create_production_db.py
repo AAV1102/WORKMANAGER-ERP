@@ -21,6 +21,7 @@ Uso:
 
 import os
 import sys
+import sqlite3
 from urllib.parse import urlparse
 
 try:
@@ -43,11 +44,12 @@ def get_db_connection():
     """
     db_url = os.environ.get("DATABASE_URL")
 
+    # Si no hay URL de producción, usamos la base de datos local SQLite.
     if not db_url:
-        print("Error: La variable de entorno DATABASE_URL no está configurada.")
-        sys.exit(1)
+        local_db_path = os.path.join(os.path.dirname(__file__), 'workmanager_erp.db')
+        print(f"No se encontró DATABASE_URL. Usando base de datos local SQLite: {local_db_path}")
+        return sqlite3.connect(local_db_path), "sqlite"
 
-    result = urlparse(db_url)
     scheme = result.scheme.lower()
     conn = None
 
@@ -97,6 +99,219 @@ def get_db_connection():
 # Adaptadas para PostgreSQL (SERIAL) y MySQL/MariaDB (AUTO_INCREMENT)
 
 TABLE_DEFINITIONS = {
+    "sqlite": {
+        # Las definiciones para SQLite son muy similares a PostgreSQL, pero usamos INTEGER PRIMARY KEY AUTOINCREMENT
+        # y los tipos de datos son más genéricos (TEXT, INTEGER, REAL).
+        "usuarios": """
+            CREATE TABLE IF NOT EXISTS usuarios (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                cedula TEXT,
+                nombre TEXT NOT NULL,
+                apellido TEXT,
+                nombre_completo TEXT,
+                email TEXT NOT NULL UNIQUE,
+                password TEXT NOT NULL,
+                rol TEXT DEFAULT 'usuario',
+                cargo TEXT,
+                departamento TEXT,
+                telefono TEXT,
+                documento TEXT,
+                tipo_documento TEXT DEFAULT 'CC',
+                fecha_ingreso TEXT,
+                fecha_retiro TEXT,
+                estado TEXT DEFAULT 'activo',
+                estado_usuario TEXT DEFAULT 'Activo',
+                activo INTEGER DEFAULT 1,
+                empresa_id INTEGER,
+                sede_id INTEGER,
+                razon_social TEXT,
+                ciudad TEXT,
+                codigo_biometrico TEXT,
+                usuario_windows TEXT,
+                contrasena_windows TEXT,
+                correo_office TEXT,
+                usuario_quiron TEXT,
+                contrasena_quiron TEXT,
+                observaciones TEXT,
+                requiere_cambio_password INTEGER DEFAULT 0,
+                ultimo_acceso TEXT,
+                intentos_fallidos INTEGER DEFAULT 0,
+                bloqueado_hasta TEXT,
+                token_recuperacion TEXT,
+                token_expiracion TEXT,
+                two_factor_secret TEXT,
+                two_factor_enabled INTEGER DEFAULT 0,
+                created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+                updated_at TEXT DEFAULT CURRENT_TIMESTAMP
+            )""",
+        "sedes": """
+            CREATE TABLE IF NOT EXISTS sedes (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                codigo TEXT UNIQUE,
+                nombre TEXT NOT NULL,
+                direccion TEXT,
+                ciudad TEXT,
+                departamento TEXT,
+                telefono TEXT,
+                email TEXT,
+                responsable TEXT,
+                estado TEXT DEFAULT 'activa',
+                ip_biometrico TEXT,
+                puerto_biometrico INTEGER DEFAULT 4370,
+                created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+                updated_at TEXT DEFAULT CURRENT_TIMESTAMP
+            )""",
+        "empleados": """
+            CREATE TABLE IF NOT EXISTS empleados (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                cedula TEXT UNIQUE,
+                nombre TEXT NOT NULL,
+                apellido TEXT,
+                cargo TEXT,
+                departamento TEXT,
+                fecha_ingreso TEXT,
+                razon_social TEXT,
+                ciudad TEXT,
+                codigo_unico_hv_equipo TEXT,
+                usuario_windows TEXT,
+                contrasena_windows TEXT,
+                correo_office TEXT,
+                usuario_quiron TEXT,
+                contrasena_quiron TEXT,
+                observaciones TEXT,
+                codigo_biometrico TEXT,
+                estado TEXT DEFAULT 'activo',
+                telefono TEXT,
+                email TEXT,
+                salario REAL,
+                performance INTEGER DEFAULT 0,
+                created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+                updated_at TEXT DEFAULT CURRENT_TIMESTAMP,
+                fecha_nacimiento TEXT,
+                fecha_expedicion TEXT,
+                lugar_nacimiento TEXT,
+                lugar_expedicion TEXT,
+                mes_cumpleanos TEXT,
+                tipo_sangre TEXT,
+                estado_civil TEXT,
+                numero_hijos TEXT,
+                genero TEXT,
+                empresa TEXT,
+                dependencia TEXT,
+                nivel_educativo TEXT,
+                tarifa TEXT,
+                tiempo TEXT,
+                afp TEXT,
+                eps TEXT,
+                cesantias TEXT,
+                contrataciones_anteriores TEXT,
+                fecha_ultimo_contrato TEXT,
+                fecha_proximo_vencimiento TEXT,
+                plazo TEXT,
+                dias_vencimiento TEXT,
+                camisa TEXT,
+                pantalon TEXT,
+                zapatos TEXT,
+                bata TEXT,
+                ccf TEXT,
+                riesgo TEXT,
+                numeral_otro_si TEXT
+            )""",
+        "equipos_individuales": """
+            CREATE TABLE IF NOT EXISTS equipos_individuales (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                codigo_barras_individual TEXT UNIQUE,
+                codigo_unificado TEXT,
+                entrada_oc_compra TEXT,
+                cargado_nit TEXT,
+                enviado_nit TEXT,
+                ciudad TEXT,
+                tecnologia TEXT,
+                serial TEXT,
+                modelo TEXT,
+                anterior_asignado TEXT,
+                anterior_placa TEXT,
+                placa TEXT,
+                marca TEXT,
+                procesador TEXT,
+                arch_ram TEXT,
+                cantidad_ram TEXT,
+                tipo_disco TEXT,
+                espacio_disco TEXT,
+                so TEXT,
+                estado TEXT DEFAULT 'disponible',
+                asignado_nuevo TEXT,
+                fecha TEXT,
+                fecha_llegada TEXT,
+                area TEXT,
+                marca_monitor TEXT,
+                modelo_monitor TEXT,
+                serial_monitor TEXT,
+                placa_monitor TEXT,
+                proveedor TEXT,
+                oc TEXT,
+                observaciones TEXT,
+                disponible TEXT DEFAULT 'Si',
+                sede_id INTEGER,
+                ip_sede TEXT,
+                creador_registro TEXT,
+                fecha_creacion TEXT,
+                created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+                updated_at TEXT DEFAULT CURRENT_TIMESTAMP,
+                mac TEXT,
+                hostname TEXT,
+                ip TEXT,
+                marca_modelo_telemedicina TEXT,
+                serial_telemedicina TEXT,
+                mouse TEXT,
+                teclado TEXT,
+                cargo TEXT,
+                contacto TEXT,
+                fecha_enviado TEXT,
+                guia TEXT,
+                tipo_componente_adicional TEXT,
+                marca_modelo_componente_adicional TEXT,
+                serial_componente_adicional TEXT,
+                marca_modelo_telefono TEXT,
+                serial_telefono TEXT,
+                imei_telefono TEXT,
+                marca_modelo_impresora TEXT,
+                ip_impresora TEXT,
+                serial_impresora TEXT,
+                pin_impresora TEXT,
+                marca_modelo_cctv TEXT,
+                serial_cctv TEXT,
+                mueble_asignado TEXT,
+                origen_dato TEXT DEFAULT 'manual'
+            )""",
+        "equipos_agrupados": """
+            CREATE TABLE IF NOT EXISTS equipos_agrupados (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                codigo_barras_unificado TEXT UNIQUE,
+                nit TEXT DEFAULT '901.234.567-8',
+                sede_id INTEGER,
+                asignado_anterior TEXT,
+                asignado_actual TEXT,
+                descripcion_general TEXT,
+                estado_general TEXT DEFAULT 'disponible',
+                creador_registro TEXT,
+                fecha_creacion TEXT,
+                trazabilidad_soporte TEXT,
+                documentos_entrega TEXT,
+                observaciones TEXT,
+                created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+                updated_at TEXT DEFAULT CURRENT_TIMESTAMP
+            )""",
+        "notificaciones": """
+            CREATE TABLE IF NOT EXISTS notificaciones (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id INTEGER NOT NULL,
+                message TEXT NOT NULL,
+                url TEXT,
+                is_read INTEGER DEFAULT 0,
+                created_at TEXT DEFAULT CURRENT_TIMESTAMP
+            )""",
+    },
     "postgres": {
         "usuarios": """
             CREATE TABLE IF NOT EXISTS usuarios (
@@ -532,8 +747,9 @@ def create_tables(conn, db_type):
         print(f"Error: No hay definiciones de tablas para el tipo de base de datos '{db_type}'")
         return
 
-    # Para MySQL/MariaDB, necesitamos un cursor diferente
-    if db_type == 'mysql':
+    if db_type == 'sqlite':
+        cursor = conn.cursor()
+    elif db_type == 'mysql':
         cursor = conn.cursor()
     else: # Para PostgreSQL
         cursor = conn.cursor()
@@ -558,7 +774,7 @@ def create_tables(conn, db_type):
             # Para MySQL, el motor InnoDB podría haber hecho rollback automático de la sentencia
 
     # Solo hacer commit si no es MySQL (que puede tener autocommit)
-    if db_type == 'postgres':
+    if db_type in ['postgres', 'sqlite']:
         conn.commit()
 
     cursor.close()
@@ -574,7 +790,9 @@ if __name__ == "__main__":
     connection, db_type = get_db_connection()
 
     if connection:
-        # Determinar el tipo de base de datos para usar las sentencias SQL correctas
+        # Determinar el tipo de base de datos para usar las sentencias SQL correctas.
+        if db_type == 'sqlite':
+            create_tables(connection, 'sqlite')
         if 'postgres' in db_type:
             create_tables(connection, 'postgres')
         elif 'mysql' in db_type or 'mariadb' in db_type:
