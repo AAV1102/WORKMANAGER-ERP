@@ -1,6 +1,7 @@
 import os
 import sqlite3
 import psycopg2
+import mysql.connector
 from urllib.parse import urlparse
 
 DEFAULT_DB_FILENAME = "workmanager_erp.db"
@@ -12,17 +13,35 @@ def get_db_connection():
 
     if db_url:
         # Conexión a PostgreSQL en producción
-        try:
-            result = urlparse(db_url)
-            conn = psycopg2.connect(
-                dbname=result.path[1:],
-                user=result.username,
-                password=result.password,
-                host=result.hostname
-            )
-        except Exception as e:
-            print(f"Error conectando a PostgreSQL: {e}")
-            raise e # Fallar rápido si no se puede conectar a la BD de producción
+        result = urlparse(db_url)
+        scheme = result.scheme.lower()
+
+        if 'postgres' in scheme:
+            try:
+                conn = psycopg2.connect(
+                    dbname=result.path[1:],
+                    user=result.username,
+                    password=result.password,
+                    host=result.hostname,
+                    port=result.port
+                )
+            except Exception as e:
+                print(f"Error conectando a PostgreSQL: {e}")
+                raise e
+        elif 'mysql' in scheme or 'mariadb' in scheme:
+            try:
+                conn = mysql.connector.connect(
+                    host=result.hostname,
+                    user=result.username,
+                    password=result.password,
+                    database=result.path[1:],
+                    port=result.port
+                )
+            except Exception as e:
+                print(f"Error conectando a MariaDB/MySQL: {e}")
+                raise e
+        else:
+            raise ValueError(f"Esquema de base de datos no soportado: {scheme}")
     else:
         # Conexión a SQLite para desarrollo local
         db_path = load_active_db_path()
