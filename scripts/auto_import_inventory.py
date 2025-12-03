@@ -12,8 +12,6 @@ import json
 from datetime import datetime
 import logging
 import os
-# Configure logging
-logging.basicConfig(filename='logs/auto_import.log', level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 class AutoInventoryImporter:
     def __init__(self, db_path='workmanager_erp.db'):

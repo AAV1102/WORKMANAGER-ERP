@@ -27,6 +27,15 @@ app.config.from_object(config)
 log_dir = os.path.join(app.root_path, 'logs')
 if not os.path.exists(log_dir):
     os.makedirs(log_dir)
+
+# Configuración centralizada de Logging
+log_file = os.path.join(log_dir, 'app.log')
+handler = RotatingFileHandler(log_file, maxBytes=1024 * 1024, backupCount=5)
+handler.setLevel(logging.INFO)
+formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+handler.setFormatter(formatter)
+app.logger.addHandler(handler)
+app.logger.setLevel(logging.INFO)
 # --------------------------------------------------------------------
 
 from modules.db_utils import (
@@ -284,12 +293,6 @@ def metrics():
     return jsonify(data)
 
 
-# Logging config
-handler = RotatingFileHandler("logs/app.log", maxBytes=1024 * 1024, backupCount=3)
-handler.setLevel(logging.INFO)
-logging.basicConfig(level=logging.INFO, handlers=[handler])
-logger = logging.getLogger("workmanager")
-
 PROTECTED_ENDPOINTS = {
     "admin.admin": "view_admin",
     "configuracion.configuracion": "manage_config",
@@ -339,12 +342,12 @@ def before():
         if not g.user_id or not user_has_permission(g.user_id, required):
             flash("No tienes permiso para acceder a esta área.", "danger")
             return redirect(url_for("auth.login"))
-    logger.info(f"REQ {endpoint}")
+    app.logger.info(f"REQ {endpoint}")
 
 
 @app.after_request
 def after(resp):
-    logger.info(f"RESP {resp.status_code}")
+    app.logger.info(f"RESP {resp.status_code}")
     return resp
 
 
@@ -538,6 +541,9 @@ def create_missing_tables():
 
 
 # Asegurar inicialización básica aunque se ejecute via run.py
+from database_setup import init_db
+
+init_db()
 ensure_default_admin()
 create_missing_tables()
 
