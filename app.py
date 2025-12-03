@@ -541,9 +541,6 @@ def create_missing_tables():
 
 
 # Asegurar inicialización básica aunque se ejecute via run.py
-from database_setup import init_db
-
-init_db()
 ensure_default_admin()
 create_missing_tables()
 
