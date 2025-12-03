@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify
 import sqlite3
-from database import get_db_connection
+from modules.db_utils import get_db_connection
 
 biomedica_bp = Blueprint('biomedica', __name__, template_folder='../templates', static_folder='../static')
 
