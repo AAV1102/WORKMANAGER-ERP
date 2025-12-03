@@ -17,15 +17,20 @@ if /i not "%CONFIRM%"=="s" (
 )
 
 echo.
-echo [1/3] Eliminando la carpeta 'mingit' del historial...
+echo [1/4] Guardando cambios locales pendientes (si los hay)...
+git add .
+git commit -m "Checkpoint antes de limpieza profunda"
+
+echo.
+echo [2/4] Eliminando la carpeta 'mingit' del historial...
 git filter-branch --force --index-filter "git rm -r --cached --ignore-unmatch mingit" --prune-empty --tag-name-filter cat -- --all
 
 echo.
-echo [2/3] Eliminando la carpeta 'INVENTARIOS' del historial...
+echo [3/4] Eliminando la carpeta 'INVENTARIOS' del historial...
 git filter-branch --force --index-filter "git rm -r --cached --ignore-unmatch INVENTARIOS" --prune-empty --tag-name-filter cat -- --all
 
 echo.
-echo [3/3] Forzando la subida del repositorio limpio a GitHub...
+echo [4/4] Forzando la subida del repositorio limpio a GitHub...
 git push origin main --force
 
 echo.

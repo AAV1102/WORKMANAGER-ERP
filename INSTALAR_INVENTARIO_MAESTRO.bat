@@ -108,7 +108,21 @@ tables = {
         );
     """,
     "sedes": "CREATE TABLE IF NOT EXISTS sedes (id INTEGER PRIMARY KEY, nombre TEXT UNIQUE, ciudad TEXT);",
-    "empleados": "CREATE TABLE IF NOT EXISTS empleados (id INTEGER PRIMARY KEY, nombre TEXT, cargo TEXT, area TEXT);",
+    "empleados": """
+        CREATE TABLE IF NOT EXISTS empleados (
+            id INTEGER PRIMARY KEY, 
+            nombre TEXT, 
+            cargo TEXT, 
+            area TEXT,
+            cedula TEXT UNIQUE,
+            email TEXT
+        );
+    """,
+    "usuarios": """
+        CREATE TABLE IF NOT EXISTS usuarios (
+            id INTEGER PRIMARY KEY, email TEXT UNIQUE, password TEXT, nombre TEXT, rol TEXT, estado TEXT
+        );
+    """,
     "licencias_office365": "CREATE TABLE IF NOT EXISTS licencias_office365 (id INTEGER PRIMARY KEY, email TEXT UNIQUE, tipo_licencia TEXT, asignado_a TEXT);",
     "inventario_administrativo": "CREATE TABLE IF NOT EXISTS inventario_administrativo (id INTEGER PRIMARY KEY, item TEXT, cantidad INTEGER, ubicacion TEXT);"
 }

@@ -541,9 +541,6 @@ def create_missing_tables():
 
 
 # Asegurar inicialización básica aunque se ejecute via run.py
-ensure_default_admin()
-create_missing_tables()
-
 
 @app.route("/api/tasks", methods=["GET", "POST"])
 def tasks():
@@ -599,9 +596,7 @@ def login():
     if request.method == "POST":
         selected_db = request.form.get("db_path") or active_db
         if selected_db and os.path.abspath(selected_db) != os.path.abspath(active_db):
-            active_db = save_active_db_path(selected_db)
-            init_db()
-            ensure_default_admin()
+            active_db = save_active_db_path(selected_db)            
 
         email = request.form.get("email")
         password = request.form.get("password")
