@@ -37,8 +37,8 @@ set /p "CHOICE=Selecciona una opcion y presiona Enter: "
 if "%CHOICE%"=="1" goto INICIAR_LOCAL
 if "%CHOICE%"=="2" goto GESTIONAR_DB
 if "%CHOICE%"=="3" goto BACKUP
-if "%CHOICE%"=="4" goto GIT_PUSH
-if "%CHOICE%"=="5" goto MIGRATE_PROD_UNIFIED
+if "%CHOICE%"=="4" goto MIGRATE_PROD_UNIFIED
+if "%CHOICE%"=="5" goto GIT_PUSH
 if "%CHOICE%"=="6" goto SYNC_AUTO
 if "%CHOICE%"=="7" goto CLEAN_REPO
 if "%CHOICE%"=="8" goto FORCE_PUSH
@@ -46,7 +46,7 @@ if "%CHOICE%"=="0" goto :EOF
 
 echo Opcion no valida.
 pause
-goto MENU
+goto MAIN_MENU
 
 :INICIAR_LOCAL
 cls
@@ -56,7 +56,7 @@ if %errorlevel% neq 0 (
     echo.
     echo [ERROR] No se pudo preparar el entorno. Abortando.
     pause
-    goto MENU
+    goto MAIN_MENU
 )
 
 echo.
@@ -76,7 +76,7 @@ if %errorlevel% neq 0 (
     echo.
     echo [ERROR] No se pudo preparar el entorno. Abortando.
     pause
-    goto MENU
+    goto MAIN_MENU
 )
 
 :SUBMENU_DB
@@ -152,7 +152,7 @@ if %errorlevel% neq 0 (
     echo.
     echo [ERROR] No se pudo preparar el entorno. Abortando.
     pause
-    goto MENU
+    goto MAIN_MENU
 )
 
 :SUBMENU_BACKUP
@@ -186,7 +186,7 @@ if %errorlevel% neq 0 (
     echo.
     echo [ERROR] No se pudo preparar el entorno. Abortando.
     pause
-    goto MENU
+    goto MAIN_MENU
 )
 
 echo.
@@ -252,7 +252,7 @@ set /p "CONFIRM=Estas seguro de que quieres continuar? (s/n): "
 if /i not "%CONFIRM%"=="s" (
     echo Accion cancelada.
     pause
-    goto MENU
+    goto MAIN_MENU
 )
 
 echo.
@@ -279,7 +279,7 @@ if %errorlevel% neq 0 (
     echo [ERROR] Git no esta instalado o no se encuentra en el PATH.
     echo Por favor, instala Git desde https://git-scm.com/download/win y reinicia la terminal.
     pause
-    goto MENU
+    goto MAIN_MENU
 )
 
 REM --- Verificacion y configuracion del repositorio remoto ---
@@ -330,6 +330,28 @@ git push origin main
 echo.
 echo [OK] Proceso finalizado. Si no hubo errores, tus cambios estan en GitHub.
 pause
+
+cls
+color 0E
+echo ======================================================================
+echo          PASO FINAL: INICIALIZAR BASE DE DATOS DE PRODUCCION
+echo ======================================================================
+echo.
+echo Tu codigo ya esta en GitHub. Ahora, es probable que necesites
+echo crear las tablas en tu base de datos de produccion (Vercel/Render).
+echo.
+set /p "INIT_PROD=Deseas inicializar la base de datos de produccion ahora? (s/n): "
+
+if /i "%INIT_PROD%"=="s" (
+    echo.
+    echo Necesitaras la URL de conexion de tu base de datos de produccion.
+    set /p "DATABASE_URL=Pega la URL de conexion externa aqui: "
+    if defined DATABASE_URL (
+        echo.
+        echo [INFO] Ejecutando script de creacion de tablas en produccion...
+        "%VENV_PYTHON%" create_production_db.py
+    )
+)
 goto MAIN_MENU
 
 :SYNC_LOOP
@@ -373,11 +395,23 @@ if not exist "%PROJECT_ROOT%.venv" (
     py -3 -m venv "%PROJECT_ROOT%.venv" || (echo [ERROR] Fallo al crear .venv. & exit /b 1)
 )
 echo [INFO] Instalando/verificando dependencias...
-set "PIP_INSTALL_PROD=%PROJECT_ROOT%.venv\Scripts\pip.exe install -r %PROJECT_ROOT%requirements.txt"
-set "PIP_INSTALL_DEV=%PROJECT_ROOT%.venv\Scripts\pip.exe install -r %PROJECT_ROOT%requirements-dev.txt"
-set "PIP_INSTALL=%PIP_INSTALL_PROD% && %PIP_INSTALL_DEV%"
-%PIP_INSTALL% >nul
-if %errorlevel% neq 0 (
-    echo [ERROR] Fallo al instalar dependencias. Ejecutando de nuevo con mas detalles... & %PIP_INSTALL% & pause & exit /b 1
+set "PIP_EXE=%PROJECT_ROOT%.venv\Scripts\pip.exe"
+
+"%PIP_EXE%" install -r "%PROJECT_ROOT%requirements.txt" >nul
+if errorlevel 1 (
+    echo [ERROR] Fallo al instalar dependencias base. Ejecutando de nuevo con mas detalles...
+    "%PIP_EXE%" install -r "%PROJECT_ROOT%requirements.txt"
+    pause
+    exit /b 1
+)
+
+if exist "%PROJECT_ROOT%requirements-dev.txt" (
+    "%PIP_EXE%" install -r "%PROJECT_ROOT%requirements-dev.txt" >nul
+    if errorlevel 1 (
+        echo [ERROR] Fallo al instalar dependencias de desarrollo. Ejecutando de nuevo con mas detalles...
+        "%PIP_EXE%" install -r "%PROJECT_ROOT%requirements-dev.txt"
+        pause
+        exit /b 1
+    )
 )
 exit /b 0

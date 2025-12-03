@@ -3,7 +3,9 @@ import sys
 import pandas as pd
 from sqlalchemy import create_engine
 from dotenv import load_dotenv
-from create_production_db import create_tables, get_db_connection as get_prod_db_connection
+
+# Reutilizamos las rutinas de creaciÃ³n de tablas/conexiÃ³n de create_production_db.py
+from create_production_db import get_db_connection as get_prod_db_connection, create_tables
 
 def migrate_data():
     """
@@ -17,11 +19,6 @@ def migrate_data():
     # Cargar la variable DATABASE_URL desde un archivo .env si existe
     load_dotenv()
     prod_db_url = os.environ.get("DATABASE_URL")
-    
-    # El script migrate.bat establece esta variable de entorno.
-    # Si no está, es un error.
-    if not prod_db_url:
-        prod_db_url = os.environ.get("DATABASE_URL_MIGRATE")
 
     if not prod_db_url:
         print("\n[ERROR] La variable de entorno DATABASE_URL no está configurada.")
@@ -39,7 +36,10 @@ def migrate_data():
     prod_engine = create_engine(prod_db_url)
 
     # --- Verificación y creación de tablas en producción ---
+    # Esto asegura que si una tabla no existe en el destino, se cree
+    # antes de intentar migrar los datos.
     print("\nVerificando esquema de la base de datos de producción...")
+    # Usamos la variable de entorno que el .bat ya ha configurado
     prod_conn, db_type = get_prod_db_connection()
     if prod_conn:
         create_tables(prod_conn, db_type)
